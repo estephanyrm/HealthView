@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es"> <!-- lang especifica el idioma de la pagina -->
+<head>
+    <meta charset="UTF-8"> <!-- meta etiqueta para el charset -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- meta etiqueta para el viewport -->
+    <!-- Bootstrap aporta estilos listos para los campos, botones y diseño responsive. -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css"> <!-- enlace a carpeta y archivo de estilo -->
+    <title>Iniciar sesión | Plataforma Hospitalaria</title> <!-- titulo de la pagina -->
+</head>
+<body>
+    <!-- encabezado sencillo con el nombre de la plataforma -->
+    <header class="encabezado-login">
+        <a class="marca" href="index.html">Plataforma <span>Hospitalaria</span></a>
+    </header>
+
+    <!-- main contiene el contenido principal de la pagina -->
+    <main class="contenido-login">
+        <section class="panel-login" aria-labelledby="login-title">
+            <p class="etiqueta-superior">Acceso seguro</p>
+            <h1 id="login-title">Iniciar sesión</h1>
+            <p class="descripcion-login">Ingresa tus datos para acceder a la plataforma hospitalaria.</p>
+
+            <!-- action debe apuntar a la ruta de inicio de sesion del servidor -->
+            <form class="formulario-login" action="#" method="post">
+                <div class="mb-3"> <!-- mb-3 agrega espacio debajo del campo -->
+                    <label class="form-label" for="correo">Correo electrónico</label>
+                    <input class="form-control" id="correo" name="correo" type="email" autocomplete="username" placeholder="usuario@correo.com" required autofocus>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="contrasena">Contraseña</label>
+                    <!-- input-group pone el campo y el boton en una misma fila -->
+                    <div class="input-group">
+                        <input class="form-control" id="contrasena" name="contrasena" type="password" autocomplete="current-password" minlength="8" required>
+                        <!-- type button evita que este boton envie el formulario -->
+                        <button class="btn alternar-contrasena" id="mostrar-contrasena" type="button" aria-pressed="false" aria-controls="contrasena">Mostrar</button>
+                    </div>
+                </div>
+
+                <div class="opciones-login">
+                    <!-- form-check alinea la casilla y su texto usando Bootstrap -->
+                    <div class="form-check">
+                        <input class="form-check-input" id="recordarme" name="recordarme" type="checkbox">
+                        <label class="form-check-label" for="recordarme">Recordarme</label>
+                    </div>
+                    <!-- El proceso de recuperacion debe conectarse con el hospital -->
+                    <span class="ayuda-recuperacion">¿Olvidaste tu contraseña? Contacta al hospital.</span>
+                </div>
+
+                <!-- w-100 hace que el boton ocupe todo el ancho disponible -->
+                <button class="btn btn-primary w-100 boton-login" type="submit">Iniciar sesión</button>
+            </form>
+
+            <p class="nota-login">Si tienes problemas para acceder, comunícate con el personal del hospital.</p>
+        </section>
+    </main><!-- cierre main -->
+
+    <footer class="pie-pagina">
+        <p>&copy; 2026 Plataforma Hospitalaria</p>
+    </footer>
+
+    <!-- Este script permite mostrar y ocultar la contrasena mientras se escribe -->
+    <script>
+        const passwordInput = document.getElementById("contrasena");
+        const passwordToggle = document.getElementById("mostrar-contrasena");
+
+        passwordToggle.addEventListener("click", () => {
+            const isPasswordHidden = passwordInput.type === "password";
+            passwordInput.type = isPasswordHidden ? "text" : "password";
+            passwordToggle.textContent = isPasswordHidden ? "Ocultar" : "Mostrar";
+            passwordToggle.setAttribute("aria-pressed", String(isPasswordHidden));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+/* Variables de estilo que mantienen los colores originales */
+:root { /* Variables CSS para el tema de la plataforma */
+    color-scheme: light;
+    --ink: #18342e;
+    --muted: #52665f;
+    --green: #285c4d;
+    --green-light: #e7f0e9;
+    --paper: #f5f6f0;
+    --accent: #d4a94b;
+}
+
+/* para todos los elementos */
+* {
+    box-sizing: border-box; /* incluye borde y relleno dentro del ancho */
+}
+
+/* para el elemento body */
+body {
+    min-height: 100vh; /* la pagina ocupa como minimo toda la pantalla */
+    margin: 0;
+    display: flex; /* acomoda encabezado, contenido y pie en columna */
+    flex-direction: column;
+    background: var(--paper); /* Fondo de la página */
+    color: var(--ink); /* Color del texto */
+    font-family: "Segoe UI", sans-serif; /* tipo de letra */
+}
+
+/* encabezado de la pantalla */
+.encabezado-login {
+    min-height: 68px;
+    padding: 0 clamp(20px, 6vw, 80px); /* adapta el espacio segun el ancho */
+    display: flex;
+    align-items: center;
+    background: var(--green); /* tomamos el verde definido en root */
+    color: white;
+}
+
+/* nombre de la plataforma */
+.marca {
+    color: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.marca span {
+    color: #d9e8d9;
+    font-weight: 400;
+}
+
+/* centra el formulario y permite que se encoja en pantallas pequenas */
+.contenido-login {
+    width: 100%;
+    flex: 1; /* ocupa el espacio entre el encabezado y el pie */
+    display: grid;
+    place-items: center;
+    padding: 40px 20px;
+}
+
+/* contenedor sencillo del formulario */
+.panel-login {
+    width: min(100%, 440px); /* no supera 440px ni el ancho del movil */
+    padding: clamp(24px, 6vw, 36px); /* relleno adaptable */
+    border: 1px solid #d8dfd8;
+    border-radius: 8px;
+    background: white;
+}
+
+.etiqueta-superior {
+    margin: 0 0 10px;
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+h1 {
+    margin: 0 0 10px;
+    color: var(--ink);
+    font-size: clamp(26px, 6vw, 32px);
+    line-height: 1.2;
+}
+
+.descripcion-login,
+.nota-login {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.descripcion-login {
+    margin: 0 0 26px;
+}
+
+/* ajustes de los campos de Bootstrap con los colores de la pagina */
+.formulario-login .form-label {
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.formulario-login .form-control:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 0.25rem rgb(40 92 77 / 18%);
+}
+
+/* boton para alternar la visibilidad de la contrasena */
+.alternar-contrasena {
+    border-color: #ced4da;
+    color: var(--green);
+}
+
+.alternar-contrasena:hover {
+    border-color: var(--green);
+    background: var(--green-light);
+    color: var(--ink);
+}
+
+/* recuerda sesion y recuperacion quedan en la misma fila */
+.opciones-login {
+    margin: 4px 0 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.formulario-login .form-check-input:checked {
+    border-color: var(--green);
+    background-color: var(--green);
+}
+
+.ayuda-recuperacion {
+    color: var(--green);
+    text-align: right;
+}
+
+/* personaliza el boton principal de Bootstrap */
+.boton-login {
+    --bs-btn-bg: var(--green);
+    --bs-btn-border-color: var(--green);
+    --bs-btn-hover-bg: #1e483d;
+    --bs-btn-hover-border-color: #1e483d;
+    --bs-btn-active-bg: #1e483d;
+    --bs-btn-active-border-color: #1e483d;
+}
+
+.nota-login {
+    margin: 20px 0 0;
+    font-size: 12px;
+}
+
+/* pie de pagina */
+.pie-pagina {
+    padding: 16px 20px;
+    color: var(--muted);
+    text-align: center;
+    font-size: 12px;
+}
+
+.pie-pagina p {
+    margin: 0;
+}
+
+/* ajustes para telefonos angostos */
+@media (max-width: 380px) {
+    .opciones-login {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .ayuda-recuperacion {
+        text-align: left;
+    }
+}
