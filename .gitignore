@@ -1,0 +1,33 @@
+# Environment variables and credentials 
+.env
+.env.*
+!.env.example
+
+# Large data files (GitHub rejects files > 100 MB) 
+*.csv
+*.xlsx
+*.xls
+datos_limpios/
+db/data/
+
+# Dependencies 
+node_modules/
+vendor/
+
+# Python 
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Logs and temporary files 
+*.log
+npm-debug.log*
+*.tmp
+
+# Editor and OS files 
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
