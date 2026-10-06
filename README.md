@@ -1,105 +1,105 @@
-# Plataforma Inteligente para la Gestión Hospitalaria y Analítica Clínica
+# Smart Platform for Hospital Management and Clinical Analytics
 
-> Proyecto del **Grupo Chill** · Programación Web · Universidad Libre
+> Project by **Grupo Chill** · Web Programming · Universidad Libre
 
-Plataforma web que convierte los datos de hospitalizaciones en información útil para la toma de decisiones: tendencias, enfermedades frecuentes, tiempos de estancia, alertas y reportes automáticos.
+A web platform that turns hospitalization data into useful information for decision-making: trends, frequent diseases, length of stay, alerts, and automatic reports.
 
-## Problema que resuelve
+## Problem Statement
 
-Muchos hospitales almacenan enormes cantidades de datos de hospitalizaciones pero no los aprovechan para:
+Many hospitals store huge amounts of hospitalization data but don't use it to:
 
-- Detectar tendencias.
-- Predecir la ocupación hospitalaria.
-- Conocer las enfermedades más frecuentes.
-- Medir los tiempos de hospitalización.
-- Generar reportes de forma automática.
+- Detect trends.
+- Predict hospital occupancy.
+- Identify the most frequent diseases.
+- Measure length of hospital stay.
+- Generate reports automatically.
 
-**La plataforma centraliza esa información** y la presenta de forma clara, visual y accesible.
+**The platform centralizes this information** and presents it in a clear, visual, and accessible way.
 
-## Datos del proyecto
+## Project Data
 
-| | |
-|---|---|
-| **Dataset** | Registro de hospitalización y prestación de servicios médicos |
-| **Fuente** | *(completar: entidad y enlace)* |
-| **Registros originales** | 839.738 (24 columnas) |
-| **Registros tras la limpieza** | 833.586 (se eliminaron 6.152 duplicados) |
-| **Cobertura** | Medellín / Antioquia, 2019-2022 |
+|                            |                                                          |
+| -------------------------- | -------------------------------------------------------- |
+| **Dataset**                | Hospitalization and healthcare service provision records |
+| **Source**                 | _(to complete: organization and link)_                   |
+| **Original records**       | 839,738 (24 columns)                                     |
+| **Records after cleaning** | 833,586 (6,152 duplicates removed)                       |
+| **Coverage**               | Medellín / Antioquia, Colombia, 2019-2022                |
 
-> Los archivos de datos (CSV) pesan más de 100 MB y **no están en el repositorio**, porque GitHub no admite archivos de ese tamaño. Descárgalos de: *(completar enlace)*.
+> The data files (CSV) are larger than 100 MB and are **not included in the repository**, because GitHub does not accept files of that size. Download them from: _(to complete: link)_.
 
-## Módulos de la plataforma
+## Platform Modules
 
-| # | Módulo | Qué permite |
-|---|---|---|
-| 1 | **Dashboard inteligente** | Hospitalizaciones, pacientes por edad y sexo, diagnósticos frecuentes, estancia promedio, egresos y mortalidad |
-| 2 | **Análisis de tendencias** | Comparación mensual y anual, enfermedades con mayor crecimiento, temporadas de mayor demanda |
-| 3 | **Mapa epidemiológico** | Hospitalizaciones por municipio o departamento y comparación entre regiones |
-| 4 | **Sistema de alertas** | Avisos ante aumentos repentinos de una enfermedad, alta ocupación o estancias muy largas |
-| 5 | **Búsqueda y filtros avanzados** | Filtros por diagnóstico, edad, sexo, EPS, prestador, municipio y fechas |
-| 6 | **Reportes automáticos** | Exportación a PDF y Excel, indicadores personalizados y resúmenes ejecutivos |
-| 7 | **Comparador de indicadores** | Comparar hospitales, municipios, EPS y periodos de tiempo |
-| 8 | **Predicción** *(innovación)* | Hospitalizaciones futuras, ocupación estimada y enfermedades más frecuentes con Machine Learning |
+| #   | Module                          | What it provides                                                                                                     |
+| --- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Smart Dashboard**             | Hospitalizations, patients by age and sex, frequent diagnoses, average length of stay, discharge and mortality rates |
+| 2   | **Trend Analysis**              | Monthly and yearly comparison, fastest-growing diseases, peak-demand seasons                                         |
+| 3   | **Epidemiological Map**         | Hospitalizations by municipality or department, and comparison between regions                                       |
+| 4   | **Alert System**                | Notifications for sudden increases in a disease, high occupancy, or very long stays                                  |
+| 5   | **Search and Advanced Filters** | Filters by diagnosis, age, sex, health insurer (EPS), provider, municipality, and dates                              |
+| 6   | **Automatic Reports**           | PDF and Excel export, custom indicators, and executive summaries                                                     |
+| 7   | **Indicator Comparator**        | Compare hospitals, municipalities, insurers, and time periods                                                        |
+| 8   | **Prediction** _(innovation)_   | Future hospitalizations, estimated occupancy, and most frequent diseases using Machine Learning                      |
 
-## Roles de usuario
+## User Roles
 
-| Rol | Uso principal |
-|---|---|
-| **Administrador** | Gestiona usuarios y configuración |
-| **Analista** | Explora tendencias, filtros y reportes |
-| **Investigador** | Consulta y compara datos epidemiológicos |
-| **Médico** | Revisa indicadores clínicos y alertas |
+| Role              | Main use                                  |
+| ----------------- | ----------------------------------------- |
+| **Administrator** | Manages users and settings                |
+| **Analyst**       | Explores trends, filters, and reports     |
+| **Researcher**    | Queries and compares epidemiological data |
+| **Physician**     | Reviews clinical indicators and alerts    |
 
-## Arquitectura y tecnologías
+## Architecture and Technologies
 
 ```
-Datos originales (CSV)  →  Limpieza (Python)  →  Base de datos (MariaDB/MySQL)  →  Backend  →  Frontend web
+Original data (CSV)  →  Cleaning (Python)  →  Database (MariaDB/MySQL)  →  Backend  →  Web frontend
 ```
 
-| Capa | Tecnología |
-|---|---|
-| Limpieza de datos | Python 3 + pandas |
-| Base de datos | MariaDB 10.4+ / MySQL (XAMPP) |
-| Frontend | HTML, CSS y JavaScript |
-| Backend | *(por definir)* |
-| Predicción | *(por definir: Python / scikit-learn)* |
+| Layer         | Technology                               |
+| ------------- | ---------------------------------------- |
+| Data cleaning | Python 3 + pandas                        |
+| Database      | MariaDB 10.4+ / MySQL (XAMPP)            |
+| Frontend      | HTML, CSS, and JavaScript                |
+| Backend       | _(to be defined)_                        |
+| Prediction    | _(to be defined: Python / scikit-learn)_ |
 
-## Modelo entidad-relación
+## Entity-Relationship Model
 
-![Diagrama entidad-relación](docs/diagrama_entidad_relacion.png)
+![Entity-relationship diagram](docs/diagrama_entidad_relacion.png)
 
-La hospitalización es la entidad central. Las demás tablas describen quién la atendió (prestador), quién la afilia (EPS), dónde vive el paciente (municipio) y qué diagnósticos tuvo, además de gestionar el acceso a la plataforma (rol y usuario).
+Hospitalization is the central entity. The other tables describe who provided the care (provider), who insures the patient (EPS), where the patient lives (municipality), and which diagnoses they had, plus access management for the platform (role and user).
 
-| Elemento | Cantidad |
-|---|---|
-| Tablas | 12 |
-| Vistas para el backend | 3 (`vw_hospitalizaciones_mensuales`, `vw_hospitalizacion_detalle`, `vw_estancia_unica`) |
-| Registros en `hospitalizacion` | 833.586 |
+| Element                   | Count                                                                                   |
+| ------------------------- | --------------------------------------------------------------------------------------- |
+| Tables                    | 12                                                                                      |
+| Views for the backend     | 3 (`vw_hospitalizaciones_mensuales`, `vw_hospitalizacion_detalle`, `vw_estancia_unica`) |
+| Rows in `hospitalizacion` | 833,586                                                                                 |
 
-## Estructura del repositorio
+## Repository Structure
 
 ```
 proyecto/
 ├── README.md
-├── html/                         # Páginas de la plataforma
-├── css/                          # Estilos
-├── javascript/                   # Lógica del frontend
-├── docs/                         # Diagramas y documentación
+├── html/                         # Platform pages
+├── css/                          # Styles
+├── javascript/                   # Frontend logic
+├── docs/                         # Diagrams and documentation
 └── db/
     └── scripts/
-        ├── crear_base_datos.sql  # Crea la BD, tablas y restricciones
-        ├── importar_datos.sql    # Carga los CSV
-        ├── validaciones.sql      # Verifica la calidad de la carga
-        └── consultas_prueba.sql  # Consultas por módulo y vistas
+        ├── crear_base_datos.sql  # Creates the database, tables, and constraints
+        ├── importar_datos.sql    # Loads the CSV files
+        ├── validaciones.sql      # Checks the quality of the loaded data
+        └── consultas_prueba.sql  # Queries by module and views
 ```
 
-## Cómo ejecutar la base de datos
+## How to Run the Database
 
-**Requisitos:** [XAMPP](https://www.apachefriends.org/) con MySQL iniciado y los CSV limpios descargados.
+**Requirements:** [XAMPP](https://www.apachefriends.org/) with MySQL running and the cleaned CSV files downloaded.
 
-> Clona el proyecto en una ruta **corta, sin espacios y fuera de OneDrive** (por ejemplo `C:\proyecto\`). Las rutas con espacios o sincronizadas con OneDrive causan errores al importar.
+> Clone the project into a **short path, with no spaces and outside OneDrive** (for example `C:\proyecto\`). Paths with spaces or synced by OneDrive cause errors during the import.
 
-**1. Habilita `LOCAL INFILE`** en `C:\xampp\mysql\bin\my.ini` y reinicia MySQL desde el panel de XAMPP:
+**1. Enable `LOCAL INFILE`** in `C:\xampp\mysql\bin\my.ini` and restart MySQL from the XAMPP control panel:
 
 ```ini
 [mysqld]
@@ -109,34 +109,34 @@ local_infile=1
 local-infile=1
 ```
 
-**2. Abre el cliente de MySQL:**
+**2. Open the MySQL client:**
 
 ```bash
 C:\xampp\mysql\bin\mysql.exe -u root --local-infile=1
 ```
 
-> El mensaje dirá "MariaDB monitor". Es normal: XAMPP incluye MariaDB, compatible con MySQL.
+> The welcome message will say "MariaDB monitor". This is normal: XAMPP ships with MariaDB, which is MySQL-compatible.
 
-**3. Crea la base de datos** (¡borra `hospitalizacion_db` si ya existe!):
+**3. Create the database** (this deletes `hospitalizacion_db` if it already exists!):
 
 ```sql
 SOURCE C:/proyecto/db/scripts/crear_base_datos.sql;
 ```
 
-**4. Importa los datos.** Antes, abre `importar_datos.sql` y confirma que la ruta de los CSV coincida con la carpeta donde los guardaste. Tarda entre 1 y 3 minutos:
+**4. Import the data.** First, open `importar_datos.sql` and make sure the CSV path matches the folder where you saved the files. It takes 1 to 3 minutes:
 
 ```sql
 SOURCE C:/proyecto/db/scripts/importar_datos.sql;
 ```
 
-**5. Valida y prueba:**
+**5. Validate and test:**
 
 ```sql
 SOURCE C:/proyecto/db/scripts/validaciones.sql;
 SOURCE C:/proyecto/db/scripts/consultas_prueba.sql;
 ```
 
-## Equipo
+## Team
 
 **Grupo Chill**
 
