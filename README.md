@@ -21,12 +21,11 @@ Many hospitals store huge amounts of hospitalization data but don't use it to:
 |                            |                                                          |
 | -------------------------- | -------------------------------------------------------- |
 | **Dataset**                | Hospitalization and healthcare service provision records |
-| **Source**                 | _(to complete: organization and link)_                   |
 | **Original records**       | 839,738 (24 columns)                                     |
 | **Records after cleaning** | 833,586 (6,152 duplicates removed)                       |
 | **Coverage**               | Medellín / Antioquia, Colombia, 2019-2022                |
 
-> The data files (CSV) are larger than 100 MB and are **not included in the repository**, because GitHub does not accept files of that size. Download them from: _(to complete: link)_.
+> The data files (CSV) are larger than 100 MB and are **not included in the repository**, because GitHub does not accept files of that size. Download them from: https://www.datos.gov.co/dataset/Registro-Prestaci-n-Servicios-M-dicos-en-Hospitali/6bjy-46fk/about_data.
 
 ## Platform Modules
 
