@@ -66,7 +66,7 @@ Original data (CSV)  →  Cleaning (Python)  →  Database (MariaDB/MySQL)  → 
 
 ## Entity-Relationship Model
 
-![Entity-relationship diagram](docs/Diagrama entidad relacion.png)
+![Entity-relationship diagram](docs/Diagrama%20entidad%20relacion.png)
 
 Hospitalization is the central entity. The other tables describe who provided the care (provider), who insures the patient (EPS), where the patient lives (municipality), and which diagnoses they had, plus access management for the platform (role and user).
 
