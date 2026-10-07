@@ -174,3 +174,12 @@ h1 {
         text-align: left;
     }
 }
+
+
+/*esto se puede borrar es solo para comitear cambios*/
+/* ajustes para pantallas grandes */
+@media (min-width: 768px) {
+    .panel-login {
+        padding: clamp(36px, 6vw, 48px);
+    }
+}
