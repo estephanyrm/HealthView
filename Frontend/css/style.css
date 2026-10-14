@@ -37,15 +37,25 @@ body {
 
 /* nombre de la plataforma */
 .marca {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     color: inherit;
     font-size: 18px;
     font-weight: 700;
     text-decoration: none;
 }
 
+.marca img {
+    display: block;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
 .marca span {
     color: #d9e8d9;
-    font-weight: 400;
+    font-weight: 700;
 }
 
 /* centra el formulario y permite que se encoja en pantallas pequenas */
