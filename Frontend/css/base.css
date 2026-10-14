@@ -1,0 +1,17 @@
+/* Estilos compartidos por todas las páginas: paleta y reinicio mínimo. */
+:root {
+  color-scheme: light;
+  --ink: #18342e;
+  --muted: #52665f;
+  --green: #285c4d;
+  --green-light: #e7f0e9;
+  --paper: #f5f6f0;
+  --bg: #f5f6f0;
+  --surface: #fff;
+  --line: #d8dfd8;
+  --accent: #d4a94b;
+}
+
+* {
+  box-sizing: border-box;
+}

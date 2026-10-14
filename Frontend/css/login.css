@@ -1,18 +1,4 @@
-/* Variables de estilo que mantienen los colores originales */
-:root { /* Variables CSS para el tema de la plataforma */
-    color-scheme: light;
-    --ink: #18342e;
-    --muted: #52665f;
-    --green: #285c4d;
-    --green-light: #e7f0e9;
-    --paper: #f5f6f0;
-    --accent: #d4a94b;
-}
-
-/* para todos los elementos */
-* {
-    box-sizing: border-box; /* incluye borde y relleno dentro del ancho */
-}
+/* Pantalla de inicio de sesión (login.html). */
 
 /* para el elemento body */
 body {
@@ -186,7 +172,6 @@ h1 {
 }
 
 
-/*esto se puede borrar es solo para comitear cambios*/
 /* ajustes para pantallas grandes */
 @media (min-width: 768px) {
     .panel-login {
