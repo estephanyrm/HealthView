@@ -132,6 +132,17 @@ h1 {
     text-align: right;
 }
 
+.parrafo-enlace {
+    color: var(--green);
+    text-align: right;
+}
+
+.enlace-retorno {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem; /* Espacio entre el icono y el texto */
+}
+
 /* personaliza el boton principal de Bootstrap */
 .boton-login {
     --bs-btn-bg: var(--green);
