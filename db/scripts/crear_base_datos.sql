@@ -183,5 +183,11 @@ CREATE TABLE hospitalizacion_diagnostico (
     CONSTRAINT fk_hd_dx FOREIGN KEY (codigo) REFERENCES diagnostico (codigo)
 ) ENGINE=InnoDB;
 
+USE hospitalizacion_db;
+ALTER TABLE usuario
+  ADD COLUMN fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ADD COLUMN ultimo_acceso DATETIME NULL,
+  ADD COLUMN debe_cambiar_clave TINYINT(1) NOT NULL DEFAULT 1;
+  
 -- Verificación rápida de la estructura creada
 SHOW TABLES;

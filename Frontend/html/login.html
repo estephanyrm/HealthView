@@ -114,9 +114,19 @@
             <!-- El proceso de recuperacion debe conectarse con el hospital -->
             <span class="ayuda-recuperacion">¿Olvidaste tu contraseña?</span>
           </div>
+          <!-- Contenedor para mostrar errores de validación del servidor -->
+          <div
+            id="mensaje-error"
+            class="alert alert-danger d-none py-2 small"
+            role="alert"
+          ></div>
 
           <!-- w-100 hace que el boton ocupe todo el ancho disponible -->
-          <button class="btn btn-primary w-100 boton-login" type="submit">
+          <button
+            class="btn btn-primary w-100 boton-login"
+            id="btn-submit"
+            type="submit"
+          >
             Iniciar sesión
           </button>
         </form>

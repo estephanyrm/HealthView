@@ -15,8 +15,12 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     # CORS explícito: solo los orígenes declarados en .env pueden llamar a la API
-    cors.init_app(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}})
-
+    cors.init_app(
+        app,
+        resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
+        supports_credentials=True
+    )
+    
     from . import models  # noqa: F401  (registra los modelos en SQLAlchemy)
 
     register_blueprints(app)
