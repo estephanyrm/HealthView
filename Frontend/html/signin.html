@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+  <!-- lang especifica el idioma de la pagina -->
+  <head>
+    <meta charset="UTF-8" />
+    <!-- meta etiqueta para el charset -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- meta etiqueta para el viewport -->
+    <!-- Bootstrap aporta estilos listos para los campos, botones y diseño responsive. -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <!-- enlace a carpeta y archivo de estilo -->
+    <title>Registrarse | HealthView</title>
+    <!-- titulo de la pagina -->
+  </head>
+  <body>
+    <!-- Encabezado con la marca HealthView -->
+    <header class="encabezado-login">
+      <a class="marca" href="index.html">
+        <img src="../img/logo-icono.png" alt="" />
+        <span>HealthView</span>
+      </a>
+    </header>
+
+    <!-- main contiene el contenido principal de la pagina -->
+    <main class="contenido-login">
+      <section class="panel-login" aria-labelledby="login-title">
+        <p class="nota-login">
+          <a class="parrafo-enlace enlace-retorno" href="index.html">
+            <i class="bi bi-arrow-bar-left"></i>
+            <span>Regresar a la página principal</span>
+          </a>
+        </p>
+        <br />
+        <p class="etiqueta-superior">Acceso seguro</p>
+        <h1 id="login-title">Registrarse</h1>
+        <p class="descripcion-login">
+          Crea una nueva cuenta para acceder a HealthView.
+        </p>
+
+        <!-- action debe apuntar a la ruta de inicio de sesion del servidor -->
+        <form class="formulario-login" action="#" method="post">
+          <div class="mb-3">
+            <!-- mb-3 agrega espacio debajo del campo -->
+            <label class="form-label" for="nombre">Nombre de usuario</label>
+            <input
+              class="form-control"
+              id="nombre"
+              name="nombre"
+              type="text"
+              autocomplete="name"
+              placeholder="Juan Pérez"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <!-- mb-3 agrega espacio debajo del campo -->
+            <label class="form-label" for="correo">Correo electrónico</label>
+            <input
+              class="form-control"
+              id="correo"
+              name="correo"
+              type="email"
+              autocomplete="username"
+              placeholder="usuario@correo.com"
+              required
+              autofocus
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="contrasena">Contraseña</label>
+            <!-- input-group pone el campo y el boton en una misma fila -->
+            <div class="input-group">
+              <input
+                class="form-control"
+                id="contrasena"
+                name="contrasena"
+                type="password"
+                autocomplete="current-password"
+                placeholder="••••••••"
+                minlength="6"
+                required
+              />
+              <!-- type button evita que este boton envie el formulario -->
+              <button
+                class="btn alternar-contrasena"
+                id="mostrar-contrasena"
+                type="button"
+                aria-pressed="false"
+                aria-controls="contrasena"
+              >
+                <i class="fa-solid fa-eye form-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="opciones-login">
+            <!-- form-check alinea la casilla y su texto usando Bootstrap -->
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                id="recordarme"
+                name="recordarme"
+                type="checkbox"
+              />
+              <label class="form-check-label" for="recordarme"
+                >Recordarme</label
+              >
+            </div>
+            <!-- El proceso de recuperacion debe conectarse con el hospital -->
+            <span class="ayuda-recuperacion">¿Olvidaste tu contraseña?</span>
+          </div>
+
+          <!-- w-100 hace que el boton ocupe todo el ancho disponible -->
+          <button class="btn btn-primary w-100 boton-login" type="submit">
+            Registrarse
+          </button>
+        </form>
+
+        <p class="nota-login">
+          Ya tienes cuenta?
+          <a class="parrafo-enlace" href="login.html">Inicia sesión aquí</a>
+        </p>
+      </section>
+    </main>
+    <!-- cierre main -->
+
+    <footer class="pie-pagina">
+      <p>&copy; 2026 HealthView</p>
+    </footer>
+
+    <!-- Muestra u oculta la contrasena mientras se escribe -->
+    <script src="../javascript/login.js"></script>
+  </body>
+</html>
