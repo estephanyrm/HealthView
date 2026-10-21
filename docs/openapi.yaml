@@ -1,0 +1,841 @@
+openapi: 3.0.3
+info:
+  title: HealthView API
+  version: 1.0.0
+  description: |
+    API REST de la Plataforma Inteligente para la Gestión Hospitalaria y Analítica Clínica
+    (Grupo Chill - Universidad Libre). Backend: Python 3 + Flask 3, Flask-SQLAlchemy, Flask-CORS y PyMySQL.
+
+    Este documento describe **lo que el código de `Backend/` implementa hoy**.
+
+    Todas las respuestas son JSON. Prefijo común: `/api`. Por ahora la API no exige autenticación.
+
+    | HU    | Endpoint                                         |
+    | ----- | ------------------------------------------------ |
+    | HU-12 | `GET /hospitalizaciones`                         |
+    | HU-13 | `GET /hospitalizaciones/{id}`                    |
+    | HU-14 | `POST /hospitalizaciones`                        |
+    | HU-15 | `PUT`, `PATCH`, `DELETE /hospitalizaciones/{id}` |
+
+    **Convenciones de respuesta**
+    - Listas de catálogos: `{ "datos": [ ... ] }`. Lista de hospitalizaciones: `{ "datos": [ ... ], "paginacion": { ... } }`.
+    - Un recurso individual se devuelve directamente, sin envoltura.
+    - Errores: `{ "error": { "codigo": 400, "mensaje": "...", "detalles": { ... } } }`. `codigo` es el mismo número del
+      estado HTTP y `detalles` solo aparece cuando hay información adicional. Los errores del framework (ruta
+      inexistente, método no permitido) usan el mismo formato, con el mensaje en inglés que genera Flask.
+    - Códigos de error: `400` datos o parámetros inválidos, `404` no existe, `409` la operación viola una restricción
+      de la base de datos (referencia inexistente, valor duplicado o dato inválido), `500` error interno.
+    - El orden de las claves dentro de un objeto JSON no es significativo.
+
+    **Notas del modelo**
+    - Cada fila de `hospitalizacion` es una **factura** (varias pueden pertenecer a la misma estancia).
+    - `id_hospitalizacion`, `dias_estancia` y `edad_anios` los genera la base de datos y `anio` lo calcula el servidor
+      desde `fecha_ingreso`. Son de **solo lectura**: enviarlos en el cuerpo produce un error 400 ("Campos no permitidos").
+    - Las respuestas traen los **ids** de los catálogos (`id_eps`, `via_ingreso`, ...), no sus nombres. Para obtener los
+      nombres se consulta `/catalogos/{nombre}`.
+    - `sexo` y `zona_residencia` se convierten a mayúsculas. Los demás textos solo se recortan (espacios al inicio y al
+      final): los códigos CIE-10 **no** se normalizan a mayúsculas.
+    - Los diagnósticos adicionales (tabla `hospitalizacion_diagnostico`) todavía no se exponen por la API.
+    - El servidor no valida el máximo de los enteros (p. ej. `edad_valor`): un valor fuera del rango de la columna lo
+      rechaza la base de datos y puede terminar en un error 500.
+servers:
+  - url: http://127.0.0.1:5000/api
+    description: Desarrollo local (`python run.py`)
+tags:
+  - name: Sistema
+  - name: Catálogos
+  - name: Hospitalizaciones
+
+paths:
+  /health:
+    get:
+      tags: [Sistema]
+      operationId: estadoApi
+      summary: Estado de la API y la base de datos
+      description: |
+        Ejecuta `SELECT 1` contra la base. Si la base no es alcanzable no hay una respuesta especial:
+        responde el error 500 general.
+      responses:
+        '200':
+          description: API y base de datos operativas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+              example:
+                estado: ok
+                base_de_datos: conectada
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+
+  /catalogos/{nombre}:
+    get:
+      tags: [Catálogos]
+      operationId: listarCatalogo
+      summary: Lista un catálogo (con búsqueda opcional)
+      description: |
+        Catálogos disponibles: `departamentos`, `municipios`, `eps`, `prestadores`, `diagnosticos`,
+        `vias-ingreso`, `causas-externas`, `tipos-usuario`.
+
+        - Cada elemento trae **todas las columnas** de la tabla correspondiente (ver los esquemas).
+        - Orden ascendente por `nombre` (por `descripcion` en `diagnosticos`).
+        - Máximo **500 filas**, sin paginación y sin parámetro para cambiar el límite.
+        - `q` busca el texto contenido (`LIKE %q%`) **solo** en esa misma columna (`nombre`, o `descripcion` en
+          `diagnosticos`); no busca por código. Si se distinguen mayúsculas y tildes depende de la collation de la
+          base. Los caracteres `%` y `_` actúan como comodines.
+      parameters:
+        - name: nombre
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [departamentos, municipios, eps, prestadores, diagnosticos, vias-ingreso, causas-externas, tipos-usuario]
+        - name: q
+          in: query
+          description: Texto a buscar (se recortan los espacios; si queda vacío no se filtra)
+          schema:
+            type: string
+          example: med
+      responses:
+        '200':
+          description: Filas del catálogo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogoRespuesta'
+              example:
+                datos:
+                  - id_municipio: '05001'
+                    cod_depto: '05'
+                    cod_municipio: '001'
+                    nombre: Medellín
+        '404':
+          description: El catálogo no existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  codigo: 404
+                  mensaje: Catálogo no encontrado.
+                  detalles:
+                    disponibles: [causas-externas, departamentos, diagnosticos, eps, municipios, prestadores, tipos-usuario, vias-ingreso]
+
+  /hospitalizaciones:
+    get:
+      tags: [Hospitalizaciones]
+      operationId: listarHospitalizaciones
+      summary: 'HU-12 | Lista paginada de hospitalizaciones'
+      description: |
+        Orden fijo por `id_hospitalizacion` ascendente. Los filtros se combinan con AND y un filtro vacío se ignora.
+        Los filtros de igualdad **no se validan**: un valor que no existe (o con formato incorrecto) devuelve una
+        lista vacía, no un error. Solo `desde`, `hasta`, `page` y `per_page` pueden producir un 400.
+      parameters:
+        - name: anio
+          in: query
+          description: Año de ingreso (columna `anio`)
+          schema:
+            type: integer
+          example: 2021
+        - name: id_prestador
+          in: query
+          schema:
+            type: string
+        - name: id_eps
+          in: query
+          schema:
+            type: string
+        - name: id_municipio
+          in: query
+          description: Código DIVIPOLA de 5 dígitos
+          schema:
+            type: string
+          example: '05001'
+        - name: sexo
+          in: query
+          description: 'Valores esperados: `F` o `M`'
+          schema:
+            type: string
+        - name: dx_ingreso
+          in: query
+          description: Código CIE-10 del diagnóstico de ingreso
+          schema:
+            type: string
+        - name: dx_egreso
+          in: query
+          description: Código CIE-10 del diagnóstico de egreso
+          schema:
+            type: string
+        - name: desde
+          in: query
+          description: Fecha de ingreso mayor o igual (YYYY-MM-DD). Otro formato produce 400.
+          schema:
+            type: string
+            format: date
+        - name: hasta
+          in: query
+          description: Fecha de ingreso menor o igual (YYYY-MM-DD). Otro formato produce 400.
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          description: Número de página. Un valor menor que 1 se toma como 1. Si no es entero, 400.
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          description: Filas por página. Se ajusta al rango 1-100 sin generar error. Si no es entero, 400.
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Página de resultados (si la página pedida no existe, `datos` viene vacío)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HospitalizacionListado'
+              example:
+                datos:
+                  - id_hospitalizacion: 1
+                    numero_factura: FAC-2022-009871
+                    id_prestador: '050010001234'
+                    id_eps: EPS001
+                    id_municipio: '05001'
+                    via_ingreso: 1
+                    causa_externa: 13
+                    tipo_usuario: 2
+                    fecha_ingreso: '2022-05-02'
+                    hora_ingreso: '14:30:00'
+                    fecha_egreso: '2022-05-06'
+                    dias_estancia: 4
+                    estado_salida: 1
+                    id_dx_ingreso: J189
+                    id_dx_egreso: J189
+                    sexo: F
+                    edad_valor: 63
+                    unidad_edad: 1
+                    edad_anios: 63
+                    zona_residencia: U
+                    anio: 2022
+                paginacion:
+                  pagina: 1
+                  por_pagina: 20
+                  total: 1
+                  paginas: 1
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+
+    post:
+      tags: [Hospitalizaciones]
+      operationId: crearHospitalizacion
+      summary: 'HU-14 | Registra una hospitalización'
+      description: |
+        El servidor valida en este orden:
+        1. El cuerpo debe ser un objeto JSON y la petición debe enviar `Content-Type: application/json`.
+        2. No se aceptan campos desconocidos ni de solo lectura (`detalles.campos` los lista).
+        3. Deben venir todos los campos obligatorios (`detalles.campos` lista los que faltan).
+        4. Tipo y formato de cada campo: textos con largo máximo, enteros mayores o iguales a 0 (no cadenas ni
+           booleanos), fechas `YYYY-MM-DD`, hora `HH:MM[:SS]` y los valores permitidos de `sexo`, `zona_residencia`,
+           `estado_salida` y `unidad_edad`.
+        5. `fecha_egreso` no puede ser anterior a `fecha_ingreso`. `anio` se calcula como el año de `fecha_ingreso`.
+        6. Al guardar, la base verifica las llaves foráneas: un prestador, EPS, municipio, vía de ingreso, causa
+           externa, tipo de usuario o diagnóstico que no existe produce **409**.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HospitalizacionEntrada'
+            example:
+              numero_factura: FAC-2022-009871
+              id_prestador: '050010001234'
+              id_eps: EPS001
+              id_municipio: '05001'
+              via_ingreso: 1
+              causa_externa: 13
+              tipo_usuario: 2
+              fecha_ingreso: '2022-05-02'
+              hora_ingreso: '14:30:00'
+              fecha_egreso: '2022-05-06'
+              estado_salida: 1
+              id_dx_ingreso: J189
+              id_dx_egreso: J189
+              sexo: F
+              edad_valor: 63
+              unidad_edad: 1
+              zona_residencia: U
+      responses:
+        '201':
+          description: Creada. La cabecera `Location` apunta al nuevo recurso
+          headers:
+            Location:
+              description: Ruta del recurso creado
+              schema:
+                type: string
+                example: /api/hospitalizaciones/833587
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hospitalizacion'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+
+  /hospitalizaciones/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Un valor que no sea entero ni siquiera llega al endpoint y devuelve 404 del framework.
+        schema:
+          type: integer
+          format: int64
+        example: 1
+    get:
+      tags: [Hospitalizaciones]
+      operationId: obtenerHospitalizacion
+      summary: 'HU-13 | Detalle de una hospitalización'
+      responses:
+        '200':
+          description: La hospitalización, con las mismas columnas que cada elemento de la lista
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hospitalizacion'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+    put:
+      tags: [Hospitalizaciones]
+      operationId: reemplazarHospitalizacion
+      summary: 'HU-15 | Reemplaza todos los campos (PUT)'
+      description: |
+        Primero se busca el registro (404 si no existe) y después se valida el cuerpo, con las mismas reglas que el
+        POST. Requiere los mismos campos obligatorios. Los opcionales omitidos (`numero_factura`, `id_municipio`,
+        `hora_ingreso`) quedan en `NULL`. `anio` se recalcula desde `fecha_ingreso`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HospitalizacionEntrada'
+      responses:
+        '200':
+          description: Reemplazada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hospitalizacion'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+
+    patch:
+      tags: [Hospitalizaciones]
+      operationId: modificarHospitalizacion
+      summary: 'HU-15 | Cambia solo los campos enviados (PATCH)'
+      description: |
+        Solo se modifican los campos enviados; los demás quedan igual. Notas:
+        - Un cuerpo `{}` es válido: no cambia nada y responde 200.
+        - Enviar `null` o `""` en un campo opcional lo deja en `NULL`. En un campo obligatorio produce 400
+          ("no puede estar vacío").
+        - Las fechas se validan sobre el resultado final (una nueva `fecha_egreso` se compara con la
+          `fecha_ingreso` ya guardada). Si cambia `fecha_ingreso`, `anio` se recalcula.
+        - Se busca el registro antes de validar el cuerpo, así que un id inexistente responde 404.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HospitalizacionCampos'
+            example:
+              fecha_egreso: '2022-05-08'
+      responses:
+        '200':
+          description: Actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hospitalizacion'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+
+    delete:
+      tags: [Hospitalizaciones]
+      operationId: eliminarHospitalizacion
+      summary: 'HU-15 | Elimina una hospitalización (DELETE)'
+      description: Borrado definitivo. También elimina sus diagnósticos adicionales (`ON DELETE CASCADE`).
+      responses:
+        '204':
+          description: Eliminada (sin contenido)
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+
+components:
+  schemas:
+    Health:
+      type: object
+      required: [estado, base_de_datos]
+      properties:
+        estado:
+          type: string
+          example: ok
+        base_de_datos:
+          type: string
+          example: conectada
+
+    # ---- Catálogos: una fila = todas las columnas de la tabla ----
+    Departamento:
+      type: object
+      additionalProperties: false
+      required: [cod_depto, nombre]
+      properties:
+        cod_depto:
+          type: string
+          example: '05'
+        nombre:
+          type: string
+          nullable: true
+          example: Antioquia
+
+    Municipio:
+      type: object
+      additionalProperties: false
+      required: [id_municipio, cod_depto, cod_municipio, nombre]
+      properties:
+        id_municipio:
+          type: string
+          description: Código DIVIPOLA (depto 2 dígitos + municipio 3 dígitos)
+          example: '05001'
+        cod_depto:
+          type: string
+          example: '05'
+        cod_municipio:
+          type: string
+          example: '001'
+        nombre:
+          type: string
+          nullable: true
+          example: Medellín
+
+    Eps:
+      type: object
+      additionalProperties: false
+      required: [id_eps, nombre]
+      properties:
+        id_eps:
+          type: string
+          example: EPS001
+        nombre:
+          type: string
+          nullable: true
+
+    Prestador:
+      type: object
+      additionalProperties: false
+      required: [id_prestador, nombre, id_municipio]
+      properties:
+        id_prestador:
+          type: string
+          example: '050010001234'
+        nombre:
+          type: string
+          nullable: true
+        id_municipio:
+          type: string
+          example: '05001'
+
+    Diagnostico:
+      type: object
+      additionalProperties: false
+      required: [codigo, descripcion, grupo_cie10]
+      properties:
+        codigo:
+          type: string
+          description: Código CIE-10
+          example: J189
+        descripcion:
+          type: string
+          nullable: true
+          description: Puede ser nula hasta que se cargue el catálogo CIE-10 completo
+        grupo_cie10:
+          type: string
+          description: Letra inicial del código
+          example: J
+
+    ViaIngreso:
+      type: object
+      additionalProperties: false
+      required: [id_via, nombre]
+      properties:
+        id_via:
+          type: integer
+          example: 1
+        nombre:
+          type: string
+          example: Urgencias
+
+    CausaExterna:
+      type: object
+      additionalProperties: false
+      required: [id_causa, nombre]
+      properties:
+        id_causa:
+          type: integer
+          example: 13
+        nombre:
+          type: string
+          example: Enfermedad general
+
+    TipoUsuario:
+      type: object
+      additionalProperties: false
+      required: [id_tipo_usuario, nombre]
+      properties:
+        id_tipo_usuario:
+          type: integer
+          example: 2
+        nombre:
+          type: string
+          example: Subsidiado
+
+    CatalogoRespuesta:
+      type: object
+      required: [datos]
+      properties:
+        datos:
+          type: array
+          description: Los elementos tienen la forma del catálogo pedido
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/Departamento'
+              - $ref: '#/components/schemas/Municipio'
+              - $ref: '#/components/schemas/Eps'
+              - $ref: '#/components/schemas/Prestador'
+              - $ref: '#/components/schemas/Diagnostico'
+              - $ref: '#/components/schemas/ViaIngreso'
+              - $ref: '#/components/schemas/CausaExterna'
+              - $ref: '#/components/schemas/TipoUsuario'
+
+    # ---- Hospitalizaciones ----
+    HospitalizacionCampos:
+      type: object
+      description: Campos que el cliente puede enviar. Cualquier otro campo produce 400.
+      additionalProperties: false
+      properties:
+        numero_factura:
+          type: string
+          maxLength: 25
+          nullable: true
+        id_prestador:
+          type: string
+          maxLength: 12
+          description: Debe existir en `/catalogos/prestadores` (si no, 409)
+        id_eps:
+          type: string
+          maxLength: 12
+          description: Debe existir en `/catalogos/eps` (si no, 409)
+        id_municipio:
+          type: string
+          maxLength: 5
+          nullable: true
+          description: Código DIVIPOLA de residencia. Debe existir en `/catalogos/municipios` (si no, 409)
+        via_ingreso:
+          type: integer
+          minimum: 0
+          description: 'Debe existir en `/catalogos/vias-ingreso` (1 Urgencias, 2 Consulta externa o programada, 3 Remitido, 4 Nacimiento en la institución)'
+        causa_externa:
+          type: integer
+          minimum: 0
+          description: Debe existir en `/catalogos/causas-externas` (códigos 1 a 15)
+        tipo_usuario:
+          type: integer
+          minimum: 0
+          description: Debe existir en `/catalogos/tipos-usuario` (códigos 1 a 8)
+        fecha_ingreso:
+          type: string
+          format: date
+        hora_ingreso:
+          type: string
+          nullable: true
+          example: '14:30:00'
+          description: HH:MM o HH:MM:SS
+        fecha_egreso:
+          type: string
+          format: date
+          description: No puede ser anterior a `fecha_ingreso`
+        estado_salida:
+          type: integer
+          enum: [1, 2]
+          description: 1 = Vivo, 2 = Muerto
+        id_dx_ingreso:
+          type: string
+          maxLength: 10
+          description: Código CIE-10. Debe existir en `/catalogos/diagnosticos` (si no, 409). No se convierte a mayúsculas.
+        id_dx_egreso:
+          type: string
+          maxLength: 10
+          description: Código CIE-10. Debe existir en `/catalogos/diagnosticos` (si no, 409). No se convierte a mayúsculas.
+        sexo:
+          type: string
+          enum: [F, M]
+          description: Se acepta en minúscula; el servidor lo convierte a mayúscula
+        edad_valor:
+          type: integer
+          minimum: 0
+        unidad_edad:
+          type: integer
+          enum: [1, 2, 3]
+          description: 1 años, 2 meses, 3 días
+        zona_residencia:
+          type: string
+          enum: [U, R]
+          description: U Urbana, R Rural. Se acepta en minúscula.
+
+    HospitalizacionEntrada:
+      allOf:
+        - $ref: '#/components/schemas/HospitalizacionCampos'
+        - type: object
+          required:
+            - id_prestador
+            - id_eps
+            - via_ingreso
+            - causa_externa
+            - tipo_usuario
+            - fecha_ingreso
+            - fecha_egreso
+            - estado_salida
+            - id_dx_ingreso
+            - id_dx_egreso
+            - sexo
+            - edad_valor
+            - unidad_edad
+            - zona_residencia
+
+    Hospitalizacion:
+      type: object
+      description: Una fila de la tabla `hospitalizacion` (una factura). Todas las columnas, con ids en lugar de nombres.
+      required:
+        - id_hospitalizacion
+        - numero_factura
+        - id_prestador
+        - id_eps
+        - id_municipio
+        - via_ingreso
+        - causa_externa
+        - tipo_usuario
+        - fecha_ingreso
+        - hora_ingreso
+        - fecha_egreso
+        - dias_estancia
+        - estado_salida
+        - id_dx_ingreso
+        - id_dx_egreso
+        - sexo
+        - edad_valor
+        - unidad_edad
+        - edad_anios
+        - zona_residencia
+        - anio
+      properties:
+        id_hospitalizacion:
+          type: integer
+          format: int64
+          readOnly: true
+        numero_factura:
+          type: string
+          nullable: true
+        id_prestador:
+          type: string
+        id_eps:
+          type: string
+        id_municipio:
+          type: string
+          nullable: true
+        via_ingreso:
+          type: integer
+        causa_externa:
+          type: integer
+        tipo_usuario:
+          type: integer
+        fecha_ingreso:
+          type: string
+          format: date
+        hora_ingreso:
+          type: string
+          nullable: true
+          example: '14:30:00'
+        fecha_egreso:
+          type: string
+          format: date
+        dias_estancia:
+          type: integer
+          readOnly: true
+          description: Calculado por MySQL (`DATEDIFF(fecha_egreso, fecha_ingreso)`)
+        estado_salida:
+          type: integer
+          description: 1 = Vivo, 2 = Muerto
+        id_dx_ingreso:
+          type: string
+        id_dx_egreso:
+          type: string
+        sexo:
+          type: string
+        edad_valor:
+          type: integer
+        unidad_edad:
+          type: integer
+          description: 1 años, 2 meses, 3 días
+        edad_anios:
+          type: integer
+          readOnly: true
+          description: Calculado por MySQL a partir de `edad_valor` y `unidad_edad`
+        zona_residencia:
+          type: string
+        anio:
+          type: integer
+          readOnly: true
+          description: Año de `fecha_ingreso`, calculado por el servidor
+
+    HospitalizacionListado:
+      type: object
+      required: [datos, paginacion]
+      properties:
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hospitalizacion'
+        paginacion:
+          type: object
+          required: [pagina, por_pagina, total, paginas]
+          properties:
+            pagina:
+              type: integer
+            por_pagina:
+              type: integer
+            total:
+              type: integer
+              description: Total de filas que cumplen los filtros
+            paginas:
+              type: integer
+              description: Número de páginas (0 si no hay resultados)
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [codigo, mensaje]
+          properties:
+            codigo:
+              type: integer
+              description: Mismo valor que el estado HTTP
+              example: 400
+            mensaje:
+              type: string
+            detalles:
+              type: object
+              description: Solo aparece cuando hay información adicional
+              properties:
+                campos:
+                  type: array
+                  description: Campos no permitidos o faltantes
+                  items:
+                    type: string
+                disponibles:
+                  type: array
+                  description: Catálogos válidos (solo en el 404 de `/catalogos/{nombre}`)
+                  items:
+                    type: string
+
+  responses:
+    SolicitudInvalida:
+      description: Cuerpo o parámetros inválidos
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            sin_cuerpo_json:
+              summary: No se envió JSON
+              value:
+                error:
+                  codigo: 400
+                  mensaje: 'Se esperaba un cuerpo JSON (Content-Type: application/json).'
+            campos_faltantes:
+              summary: Faltan campos obligatorios
+              value:
+                error:
+                  codigo: 400
+                  mensaje: Faltan campos obligatorios.
+                  detalles:
+                    campos: [id_eps, sexo]
+            campos_no_permitidos:
+              summary: Campo desconocido o de solo lectura
+              value:
+                error:
+                  codigo: 400
+                  mensaje: Campos no permitidos.
+                  detalles:
+                    campos: [dias_estancia]
+            valor_invalido:
+              summary: Valor fuera de los permitidos
+              value:
+                error:
+                  codigo: 400
+                  mensaje: "'sexo' debe ser uno de ['F', 'M']."
+            fechas:
+              summary: Egreso antes del ingreso
+              value:
+                error:
+                  codigo: 400
+                  mensaje: "'fecha_egreso' no puede ser anterior a 'fecha_ingreso'."
+            paginacion:
+              summary: Parámetro de paginación inválido
+              value:
+                error:
+                  codigo: 400
+                  mensaje: "'page' y 'per_page' deben ser enteros."
+    NoEncontrado:
+      description: El recurso no existe
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              codigo: 404
+              mensaje: Hospitalización no encontrada.
+    Conflicto:
+      description: La operación viola una restricción de la base de datos (llave foránea, duplicado o dato inválido)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              codigo: 409
+              mensaje: La operación viola una restricción de integridad (referencia inexistente, valor duplicado o dato inválido).
+    ErrorInterno:
+      description: Error interno del servidor (por ejemplo, la base de datos no responde)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              codigo: 500
+              mensaje: Error interno del servidor.
