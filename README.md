@@ -9,7 +9,7 @@ HealthView convierte los registros de hospitalización en información útil par
 1. [El problema](#el-problema)
 2. [Datos del proyecto](#datos-del-proyecto)
 3. [Módulos de la plataforma](#módulos-de-la-plataforma)
-4. [Roles de usuario](#roles-de-usuario)
+4. [Roles de usuario y flujo de autenticación](#roles-de-usuario-y-flujo-de-autenticación)
 5. [Arquitectura y tecnologías](#arquitectura-y-tecnologías)
 6. [Estado del proyecto](#estado-del-proyecto)
 7. [Estructura del repositorio](#estructura-del-repositorio)
@@ -54,9 +54,9 @@ Muchos hospitales guardan enormes cantidades de registros de hospitalización y 
 | 4   | **Sistema de alertas**           | Avisos por aumentos repentinos de una enfermedad, ocupación alta o estancias muy largas                                |
 | 5   | **Búsqueda y filtros avanzados** | Por diagnóstico, edad, sexo, EPS, prestador, municipio y fechas                                                        |
 | 6   | **Reportes automáticos**         | Exportación a PDF y Excel, indicadores a medida, resúmenes ejecutivos                                                  |
-| 7   | **Comparador de indicadores**    | Compara hospitales, municipios, aseguradoras y periodos                                                                |                          |
+| 7   | **Comparador de indicadores**    | Compara hospitales, municipios, aseguradoras y periodos                                                                |
 
-## Roles de usuario
+## Roles de usuario y flujo de autenticación
 
 | Rol               | Uso principal                            |
 | ----------------- | ---------------------------------------- |
@@ -65,36 +65,47 @@ Muchos hospitales guardan enormes cantidades de registros de hospitalización y 
 | **Investigador**  | Consulta y compara datos epidemiológicos |
 | **Médico**        | Revisa indicadores clínicos y alertas    |
 
+### Flujo de cuentas y seguridad (Sin registro público)
+
+La plataforma **no cuenta con registro público** (`signin.html` / `/api/auth/registro` quedan descartados). Las cuentas solo las crea un **Administrador** autenticado:
+
+1. **Primer Administrador**: Se crea una única vez desde consola mediante `python crear_admin.py`, el cual inserta el usuario directamente en la base de datos con un hash generado por `werkzeug.security` (`debe_cambiar_clave = 0`).
+2. **Creación de cuentas**: El Administrador inicia sesión, entra a gestión de usuarios y registra cuentas nuevas (nombre, correo y rol) mediante `POST /api/usuarios`. Toda cuenta creada por el Administrador nace activa (`activo = 1`).
+3. **Contraseña temporal**: El sistema genera automáticamente una contraseña temporal aleatoria y se la muestra al Administrador **una sola vez** para que la entregue al usuario. El Administrador no escoge la contraseña.
+4. **Cambio obligatorio en primer ingreso**: Cuando el usuario inicia sesión con su clave temporal (`debe_cambiar_clave = 1`), el sistema lo obliga a cambiarla antes de permitirle navegar por la plataforma.
+5. **Recuperación de contraseña**: Si un usuario olvida su contraseña, solicita al hospital/Administrador la generación de una nueva clave temporal, lo cual vuelve a activar `debe_cambiar_clave = 1`.
+
 ## Arquitectura y tecnologías
 
 ```
 Datos originales (CSV) → Limpieza (Python/pandas) → Base de datos (MariaDB/MySQL) → API (Flask) → Frontend web
 ```
 
-| Capa              | Tecnología                                                |
-| ----------------- | --------------------------------------------------------- |
-| Limpieza de datos | Python 3 + pandas                                         |
-| Base de datos     | MariaDB 10.4+ / MySQL 8 (XAMPP)                           |
-| Backend           | Python 3 + Flask 3, Flask-SQLAlchemy, Flask-CORS, PyMySQL |
-| Frontend          | HTML, CSS (Bootstrap 5 en el login) y JavaScript          |
-
+| Capa              | Tecnología                                                          |
+| ----------------- | ------------------------------------------------------------------- |
+| Limpieza de datos | Python 3 + pandas                                                   |
+| Base de datos     | MariaDB 10.4+ / MySQL 8 (XAMPP)                                     |
+| Backend           | Python 3 + Flask 3, Flask-SQLAlchemy, Flask-CORS, PyMySQL, Werkzeug |
+| Frontend          | HTML5, CSS3 (Bootstrap 5 en el login) y JavaScript (Fetch API)      |
 
 Cómo se comunican las partes: el navegador carga las páginas HTML, el JavaScript pide datos a la API en `http://127.0.0.1:5000/api/...`, la API consulta la base de datos con SQLAlchemy y responde en JSON.
 
 ## Estado del proyecto
 
-| Parte                                                                                       | Estado    |
-| ------------------------------------------------------------------------------------------- | --------- |
-| Base de datos (12 tablas, 3 vistas, scripts de carga y validación)                          | Hecho     |
-| API: CRUD de hospitalizaciones, catálogos, `/health`, manejo de errores                     | Hecho     |
-| Frontend: página de presentación y pantalla de login (solo diseño)                          | Hecho     |
-| Login real (usuarios, contraseñas cifradas, sesión)                                         | Pendiente |
-| Control de acceso por rol en la API                                                         | Pendiente |
-| Endpoints de los módulos 1-7 (estadísticas, tendencias, mapa, alertas, filtros, comparador) | Pendiente |
-| Páginas internas (panel, tendencias, mapa, etc.) y su JavaScript                            | Pendiente |
-| Reportes PDF / Excel                                                                        | Pendiente |
-| Predicción con Machine Learning                                                             | Pendiente |
-| Pruebas automáticas                                                                         | Pendiente |
+| Parte                                                                                       | Estado      |
+| ------------------------------------------------------------------------------------------- | ----------- |
+| Base de datos (12 tablas, 3 vistas, scripts de carga y validación, columnas de acceso)      | Hecho       |
+| Script de arranque para el primer Administrador (`Backend/crear_admin.py`)                  | Hecho       |
+| API: CRUD de hospitalizaciones, catálogos, `/health`, manejo de errores                     | Hecho       |
+| Frontend: página de presentación y pantalla de login                                        | Hecho       |
+| Login funcional (validación contra BD con hashes Werkzeug, sesión y cambio de clave)        | En progreso |
+| Gestión de usuarios por el Administrador (`POST /api/usuarios` y clave temporal)            | Pendiente   |
+| Control de acceso por rol en la API                                                         | Pendiente   |
+| Endpoints de los módulos 1-7 (estadísticas, tendencias, mapa, alertas, filtros, comparador) | Pendiente   |
+| Páginas internas (panel, tendencias, mapa, etc.) y su JavaScript                            | Pendiente   |
+| Reportes PDF / Excel                                                                        | Pendiente   |
+| Predicción con Machine Learning                                                             | Pendiente   |
+| Pruebas automáticas                                                                         | Pendiente   |
 
 ## Estructura del repositorio
 
@@ -104,14 +115,15 @@ HealthView/
 ├── .gitignore
 ├── Backend/                          # API en Flask
 │   ├── run.py                        # Arranca el servidor
+│   ├── crear_admin.py                # Crea el primer usuario Administrador en BD
 │   ├── config.py                     # Configuración (lee el .env)
 │   ├── requirements.txt              # Dependencias de Python
 │   ├── .env.example                  # Plantilla de variables de entorno
 │   └── app/
 │       ├── __init__.py               # Fábrica de la app (create_app)
 │       ├── extensions.py             # db y cors
-│       ├── models/                   # Tablas como clases de Python
-│       ├── routes/                   # Endpoints HTTP
+│       ├── models/                   # Tablas como clases de Python (catalogos, hospitalizacion, usuario)
+│       ├── routes/                   # Endpoints HTTP (health, catalogos, hospitalizaciones, auth)
 │       ├── services/                 # Reglas de negocio y validaciones
 │       └── utils/                    # Manejo de errores
 ├── Frontend/
@@ -123,9 +135,9 @@ HealthView/
 │   │   ├── landing.css               # Estilos de index.html
 │   │   └── login.css                 # Estilos de login.html
 │   ├── javascript/
-│   │   └── login.js                  # Lógica del login
+│   │   └── login.js                  # Lógica del login y conexión con /api/auth/login
 │   └── img/                          # Logotipos
-├── docs/                             # Diagrama entidad-relación
+├── docs/                             # Diagrama entidad-relación y especificación OpenAPI
 └── db/
     └── scripts/
         ├── crear_base_datos.sql      # Crea la base, tablas y restricciones
@@ -163,28 +175,31 @@ local-infile=1
 C:\xampp\mysql\bin\mysql.exe -u root --local-infile=1
 ```
 
-> El mensaje de bienvenida dirá "MariaDB monitor". Es normal: XAMPP trae MariaDB, compatible con MySQL.
-
 **1.3. Crea la base de datos** (¡borra `hospitalizacion_db` si ya existe!):
 
 ```sql
 SOURCE C:/proyecto/db/scripts/crear_base_datos.sql;
 ```
 
-**1.4. Importa los datos.** Antes, abre `importar_datos.sql` y cambia la ruta de cada `LOAD DATA LOCAL INFILE` por la carpeta donde guardaste los CSV (`db/datos_limpios/`). Tarda de 1 a 3 minutos:
+**1.4. Actualiza la tabla `usuario` (si aún no tiene las columnas de control de acceso):**
+
+```sql
+USE hospitalizacion_db;
+ALTER TABLE usuario
+  ADD COLUMN fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ADD COLUMN ultimo_acceso DATETIME NULL,
+  ADD COLUMN debe_cambiar_clave TINYINT(1) NOT NULL DEFAULT 1;
+```
+
+**1.5. Importa los datos y valida:**
 
 ```sql
 SOURCE C:/proyecto/db/scripts/importar_datos.sql;
-```
-
-**1.5. Valida y prueba:**
-
-```sql
 SOURCE C:/proyecto/db/scripts/validaciones.sql;
 SOURCE C:/proyecto/db/scripts/consultas_prueba.sql;
 ```
 
-### Paso 2. Backend (API)
+### Paso 2. Backend (API) y creación del primer Administrador
 
 Desde la carpeta `Backend/`:
 
@@ -198,107 +213,72 @@ python -m venv .venv
 pip install -r requirements.txt
 
 # 3. Crear tu archivo de configuración
-copy .env.example .env            # Windows  (cp .env.example .env en Linux/macOS)
-# Edita .env: usuario y contraseña de MySQL, y SECRET_KEY
+copy .env.example .env            # Windows (cp .env.example .env en Linux/macOS)
 
-# 4. Arrancar
+# 4. Crear el primer Administrador (se ejecuta una sola vez)
+python crear_admin.py
+
+# 5. Arrancar el servidor
 python run.py
 ```
 
 La API queda en `http://127.0.0.1:5000`. Compruébalo abriendo `http://127.0.0.1:5000/api/health`: debe responder `{"estado": "ok", "base_de_datos": "conectada"}`.
 
-Variables del `.env`:
-
-| Variable                 | Para qué sirve                                        | Valor típico en XAMPP                         |
-| ------------------------ | ----------------------------------------------------- | --------------------------------------------- |
-| `SECRET_KEY`             | Clave para firmar sesiones. Usa una larga y aleatoria | —                                             |
-| `DB_HOST`, `DB_PORT`     | Dónde está MySQL                                      | `localhost`, `3306`                           |
-| `DB_USER`, `DB_PASSWORD` | Credenciales de MySQL                                 | `root`, _(vacía)_                             |
-| `DB_NAME`                | Nombre de la base                                     | `hospitalizacion_db`                          |
-| `CORS_ORIGINS`           | Orígenes del frontend que pueden llamar a la API      | `http://127.0.0.1:5500,http://localhost:5500` |
-
-> `CORS_ORIGINS` debe incluir exactamente la dirección desde la que abres el frontend. Si la API responde pero el navegador la bloquea, casi siempre es esto.
-
 ### Paso 3. Frontend
 
-Abre `Frontend/html/index.html` con **Live Server** (clic derecho → _Open with Live Server_). Normalmente queda en `http://127.0.0.1:5500/Frontend/html/index.html`. Desde ahí el botón "Iniciar sesión" lleva a `login.html`.
-
-> Las páginas también se ven abriendo el archivo directamente, pero para llamar a la API usa siempre Live Server para que coincida con `CORS_ORIGINS`. El login carga Bootstrap desde internet.
+Abre `Frontend/html/index.html` con **Live Server** (clic derecho → _Open with Live Server_). Desde ahí el botón "Iniciar sesión" lleva a `login.html`.
 
 ## Guía de archivos
 
 ### Frontend
 
-| Archivo               | Qué hace                                                                                                                                                                                                      |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `html/index.html`     | Página de presentación. Tiene encabezado con menú, hero con vista previa, problema y solución, los 8 módulos, roles, datos, "Quiénes somos" (equipo) y llamado a la acción. Solo contiene estructura y texto. |
-| `html/login.html`     | Formulario de inicio de sesión con Bootstrap. **Aún no envía nada**: el `action` es `#`.                                                                                                                      |
-| `css/base.css`        | Lo común a todas las páginas: colores (`--green`, `--ink`, `--accent`...) y `box-sizing`. Cambiar un color aquí lo cambia en todo el sitio.                                                                   |
-| `css/landing.css`     | Estilos de `index.html`: menú fijo, hero, tarjetas, cuadrícula de módulos, equipo y versión móvil (`@media`).                                                                                                 |
-| `css/login.css`       | Estilos de `login.html`: encabezado verde, tarjeta del formulario, ajustes sobre Bootstrap.                                                                                                                   |
-| `javascript/login.js` | Botón "Mostrar / Ocultar" de la contraseña. Aquí irá la llamada al login de la API.                                                                                                                           |
-| `img/`                | `logo-icono.png` (encabezado) y `logo.png` (sección "Quiénes somos").                                                                                                                                         |
+| Archivo               | Qué hace                                                                                                                   |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `html/index.html`     | Página de presentación con hero, módulos, roles, datos y equipo.                                                           |
+| `html/login.html`     | Formulario de inicio de sesión con Bootstrap.                                                                              |
+| `css/base.css`        | Paleta de colores compartida (`--green`, `--ink`, `--accent`...) y `box-sizing`.                                           |
+| `css/landing.css`     | Estilos de `index.html`.                                                                                                   |
+| `css/login.css`       | Estilos de `login.html`.                                                                                                   |
+| `javascript/login.js` | Alterna visibilidad de contraseña, envía credenciales a `POST /api/auth/login` con `fetch` y redirige según el estado/rol. |
 
 ### Backend
 
-| Archivo                                   | Qué hace                                                                                                                                                                                    |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `run.py`                                  | Punto de entrada. Crea la app y la sirve en el puerto 5000 con `debug=True` (solo para desarrollo).                                                                                         |
-| `config.py`                               | Lee el `.env` y arma la conexión `mysql+pymysql://...`. `TestingConfig` usa SQLite en memoria para pruebas.                                                                                 |
-| `app/__init__.py`                         | `create_app()`: crea la app, conecta la base, activa CORS solo para los orígenes permitidos, registra rutas y errores.                                                                      |
-| `app/extensions.py`                       | Crea `db` (SQLAlchemy) y `cors` una sola vez para que todos los módulos los compartan.                                                                                                      |
-| `app/models/base.py`                      | `SerializableMixin`: agrega `to_dict()` a cada modelo para convertirlo en JSON (las fechas pasan a texto).                                                                                  |
-| `app/models/catalogos.py`                 | Tablas de referencia: Departamento, Municipio, Eps, Prestador, Diagnostico, ViaIngreso, CausaExterna, TipoUsuario.                                                                          |
-| `app/models/hospitalizacion.py`           | `Hospitalizacion` (tabla central, 1 fila = 1 factura) y `HospitalizacionDiagnostico` (diagnósticos adicionales). `dias_estancia` y `edad_anios` los calcula MySQL: se leen, no se escriben. |
-| `app/routes/health.py`                    | `GET /api/health`: comprueba que la API y la base responden.                                                                                                                                |
-| `app/routes/catalogos.py`                 | `GET /api/catalogos/<nombre>`: listas para los filtros del frontend, con búsqueda `?q=` y máximo 500 filas.                                                                                 |
-| `app/routes/hospitalizaciones.py`         | CRUD de hospitalizaciones. Solo traduce HTTP a llamadas del servicio, sin lógica propia.                                                                                                    |
-| `app/services/hospitalizacion_service.py` | Las reglas: campos obligatorios, tipos, valores permitidos (`sexo` F/M, `zona_residencia` U/R...), que el egreso no sea anterior al ingreso, filtros y paginación (máx. 100 por página).    |
-| `app/utils/errors.py`                     | Todos los errores salen con el mismo formato `{"error": {"codigo", "mensaje", "detalles"}}` y sin revelar SQL interno.                                                                      |
-
-La idea de las capas: **ruta** (recibe la petición) → **servicio** (valida y decide) → **modelo** (habla con la base). Así cada archivo hace una sola cosa y es fácil de probar.
-
-### Base de datos
-
-| Archivo                | Qué hace                                                                                                                                                                                                                                       |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `crear_base_datos.sql` | Crea `hospitalizacion_db` con 12 tablas: 8 catálogos, `rol`, `usuario`, `hospitalizacion` y `hospitalizacion_diagnostico`. Inserta los roles y los catálogos pequeños.                                                                         |
-| `importar_datos.sql`   | Carga los CSV con `LOAD DATA LOCAL INFILE`, en orden: primero las tablas referenciadas y luego las que dependen de ellas.                                                                                                                      |
-| `validaciones.sql`     | Cuenta filas por tabla y busca registros huérfanos y datos inconsistentes.                                                                                                                                                                     |
-| `consultas_prueba.sql` | Una consulta por módulo (panel, tendencias, mapa, alertas, filtros, reportes, comparador) y 3 vistas para el backend: `vw_hospitalizaciones_mensuales`, `vw_hospitalizacion_detalle` y `vw_estancia_unica`. Requiere MySQL 8+ o MariaDB 10.2+. |
-
-> La fuente trae **una fila por factura**, no por paciente. Varias facturas pueden ser la misma estancia; por eso existe la vista `vw_estancia_unica` para contar hospitalizaciones "reales". Tampoco hay tabla de pacientes, porque el dataset no trae identificador.
+| Archivo                                   | Qué hace                                                                                                                      |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `run.py`                                  | Punto de entrada. Arranca Flask en el puerto 5000.                                                                            |
+| `crear_admin.py`                          | Script CLI interactivo que crea el primer Administrador con contraseña hasheada (`werkzeug.security.generate_password_hash`). |
+| `config.py`                               | Lee el `.env` y configura SQLAlchemy y CORS.                                                                                  |
+| `app/__init__.py`                         | `create_app()`: inicializa Flask, SQLAlchemy, CORS, modelos, blueprints y manejadores de error.                               |
+| `app/models/usuario.py`                   | Modelos `Rol` y `Usuario` (incluye `fecha_creacion`, `ultimo_acceso` y `debe_cambiar_clave`).                                 |
+| `app/routes/auth.py`                      | Endpoints de autenticación (`/api/auth/login`, `/api/auth/cambiar-clave`, `/api/auth/logout`, `/api/auth/me`).                |
+| `app/services/auth_service.py`            | Validación de credenciales con `check_password_hash`, actualización de `ultimo_acceso` y cambio de contraseña.                |
+| `app/models/catalogos.py`                 | Modelos de las 8 tablas catálogo.                                                                                             |
+| `app/models/hospitalizacion.py`           | Modelos `Hospitalizacion` y `HospitalizacionDiagnostico`.                                                                     |
+| `app/routes/hospitalizaciones.py`         | Endpoints CRUD de hospitalizaciones.                                                                                          |
+| `app/services/hospitalizacion_service.py` | Validaciones de negocio, filtros y paginación de hospitalizaciones.                                                           |
+| `app/utils/errors.py`                     | Formato JSON unificado para errores HTTP y de base de datos.                                                                  |
 
 ## API: endpoints disponibles
 
 Todas las respuestas son JSON. Prefijo común: `/api`.
 
-| Método | Ruta                      | Descripción                                                                                                                                                     |
-| ------ | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET    | `/health`                 | Estado de la API y la base                                                                                                                                      |
-| GET    | `/catalogos/<nombre>`     | `departamentos`, `municipios`, `eps`, `prestadores`, `diagnosticos`, `vias-ingreso`, `causas-externas`, `tipos-usuario`. Admite `?q=texto`                      |
-| GET    | `/hospitalizaciones`      | Lista paginada. Filtros: `anio`, `id_prestador`, `id_eps`, `id_municipio`, `sexo`, `dx_ingreso`, `dx_egreso`, `desde`, `hasta` (YYYY-MM-DD), `page`, `per_page` |
-| GET    | `/hospitalizaciones/<id>` | Detalle de una hospitalización                                                                                                                                  |
-| POST   | `/hospitalizaciones`      | Crea una (201, con cabecera `Location`)                                                                                                                         |
-| PUT    | `/hospitalizaciones/<id>` | Reemplaza todos los campos                                                                                                                                      |
-| PATCH  | `/hospitalizaciones/<id>` | Cambia solo los campos enviados                                                                                                                                 |
-| DELETE | `/hospitalizaciones/<id>` | Elimina (204)                                                                                                                                                   |
-
-Ejemplo:
-
-```bash
-curl "http://127.0.0.1:5000/api/hospitalizaciones?anio=2022&sexo=F&per_page=5"
-```
-
-Códigos de error: `400` datos inválidos, `404` no existe, `409` viola una restricción de la base, `500` error interno.
-
-> **Pendiente:** hoy ningún endpoint exige autenticación. Debe resolverse antes de publicar el sistema.
+| Método | Ruta                      | Descripción                                                                                                      |
+| ------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| GET    | `/health`                 | Estado de la API y la base                                                                                       |
+| POST   | `/auth/login`             | Inicia sesión validando correo y contraseña contra MySQL. Indica si `debe_cambiar_clave` es verdadero            |
+| POST   | `/auth/cambiar-clave`     | Permite al usuario cambiar su contraseña temporal o actual                                                       |
+| POST   | `/auth/logout`            | Cierra la sesión activa                                                                                          |
+| GET    | `/catalogos/<nombre>`     | Lista catálogos (`departamentos`, `municipios`, `eps`, `prestadores`, `diagnosticos`, etc.) con filtro `?q=`     |
+| GET    | `/hospitalizaciones`      | Lista paginada con filtros (`anio`, `id_prestador`, `id_eps`, `id_municipio`, `sexo`, `dx_ingreso`, `dx_egreso`) |
+| GET    | `/hospitalizaciones/<id>` | Detalle de una hospitalización                                                                                   |
+| POST   | `/hospitalizaciones`      | Crea un registro de hospitalización                                                                              |
+| PUT    | `/hospitalizaciones/<id>` | Reemplaza todos los campos de una hospitalización                                                                |
+| PATCH  | `/hospitalizaciones/<id>` | Modifica parcialmente una hospitalización                                                                        |
+| DELETE | `/hospitalizaciones/<id>` | Elimina una hospitalización                                                                                      |
 
 ## Modelo entidad-relación
 
 ![Diagrama entidad-relación](docs/Diagrama%20entidad%20relacion.png)
-
-`hospitalizacion` es la entidad central. Las demás tablas describen quién prestó la atención (prestador), quién asegura al paciente (EPS), dónde vive (municipio) y qué diagnósticos tuvo, además de la gestión de acceso (rol y usuario).
 
 ## Equipo
 
