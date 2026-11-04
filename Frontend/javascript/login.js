@@ -65,12 +65,8 @@ const setupFormLogin = () => {
         return;
       }
 
-      // Si no debe cambiar clave, redirigimos según su rol o al panel principal
-      if (datos.usuario.rol === "Administrador") {
-        window.location.href = "usuarios.html"; 
-      } else {
-        window.location.href = "dashboard.html";
-      }
+      // La gestión de usuarios aún no tiene página; todos los roles usan el panel disponible.
+      window.location.href = "dashboard.html";
 
     } catch (error) {
       cajaError.textContent = "No se pudo conectar con el servidor. Verifica que la API esté encendida.";
