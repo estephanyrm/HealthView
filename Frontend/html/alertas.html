@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Alertas | HealthView</title>
+    <link rel="icon" href="../img/logo-icono.png" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/alertas.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <!-- Menú lateral -->
+      <aside class="sidebar" aria-label="Navegación principal">
+        <a class="marca" href="index.html">Health<span>View</span></a>
+
+        <nav>
+          <p class="nav-grupo">Análisis</p>
+          <a class="nav-item" href="dashboard.html">Panel inteligente</a>
+          <a class="nav-item" href="tendencias.html">Tendencias</a>
+          <a class="nav-item" href="mapa.html">Mapa epidemiológico</a>
+          <a class="nav-item activo" href="alertas.html" aria-current="page"
+            >Alertas</a
+          >
+          <a class="nav-item" href="busqueda.html">Búsqueda y filtros</a>
+          <a class="nav-item" href="reportes.html">Reportes</a>
+          <a class="nav-item" href="comparador.html">Comparador</a>
+          <a class="nav-item" href="prediccion.html">Predicción</a>
+
+          <div id="nav-admin" hidden>
+            <p class="nav-grupo">Administración</p>
+            <a class="nav-item" href="usuarios.html">Usuarios</a>
+            <a class="nav-item" href="registros.html"
+              >Registros de hospitalización</a
+            >
+            <a class="nav-item" href="configuracion.html">Configuración</a>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Contenido Principal -->
+      <div class="principal">
+        <header class="barra-superior">
+          <p class="migas">Análisis / <strong>Sistema de alertas</strong></p>
+          <p class="sesion">
+            <span id="usuario-nombre">…</span> ·
+            <span id="usuario-rol"></span> ·
+            <button type="button" id="btn-salir" class="enlace-boton">
+              Cerrar sesión
+            </button>
+          </p>
+        </header>
+
+        <main class="contenido">
+          <!-- Encabezado del Módulo -->
+          <div class="seccion-cabecera">
+            <div>
+              <h1 class="titulo-modulo">
+                Vigilancia Clínica y Alertas Epidemiológicas
+              </h1>
+              <p class="descripcion-modulo">
+                Detección temprana de picos atípicos (Z-Score > 2.0), estancias
+                prolongadas críticas (>30 días), sobrecarga de camas y alertas
+                de mortalidad.
+              </p>
+            </div>
+            <div class="acciones-cabecera">
+              <button type="button" id="btn-actualizar" class="boton-primario">
+                Actualizar alertas
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtros de Alertas -->
+          <div class="filtros">
+            <label for="filtro-anio">Periodo</label>
+            <select id="filtro-anio">
+              <option value="todos">Todos los periodos</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+              <option value="2019">2019</option>
+            </select>
+
+            <label for="filtro-severidad">Severidad</label>
+            <select id="filtro-severidad">
+              <option value="">Todas las severidades</option>
+              <option value="Crítica">Crítica (Rojo)</option>
+              <option value="Alta">Alta (Naranja)</option>
+              <option value="Moderada">Moderada (Amarillo)</option>
+            </select>
+
+            <label for="filtro-tipo">Categoría</label>
+            <select id="filtro-tipo">
+              <option value="">Todas las categorías</option>
+              <option value="Epidemiológica">
+                Epidemiológica (Picos Z-Score)
+              </option>
+              <option value="Estancia Prolongada">
+                Estancia Prolongada (>30 días)
+              </option>
+              <option value="Capacidad Hospitalaria">
+                Capacidad / Ocupación
+              </option>
+              <option value="Mortalidad Crítica">Mortalidad Crítica</option>
+            </select>
+
+            <button type="button" id="btn-limpiar" class="enlace-boton" hidden>
+              Limpiar filtros
+            </button>
+          </div>
+
+          <div id="aviso-error" class="aviso-error" role="alert" hidden>
+            <span id="aviso-error-texto"></span>
+            <button type="button" id="btn-reintentar" class="enlace-boton">
+              Reintentar
+            </button>
+          </div>
+
+          <!-- Tarjetas KPI de Alertas -->
+          <section class="kpis" aria-label="Resumen de alertas">
+            <article class="tarjeta kpi kpi-alerta alerta-total">
+              <p class="kpi-etiqueta">Total Alertas Activas</p>
+              <p class="kpi-valor" id="kpi-total-alertas">—</p>
+              <p class="kpi-delta" id="delta-total-alertas">
+                Incidentes detectados
+              </p>
+            </article>
+            <article class="tarjeta kpi kpi-alerta alerta-critica">
+              <p class="kpi-etiqueta">Alertas Críticas</p>
+              <p class="kpi-valor text-critico" id="kpi-alertas-criticas">—</p>
+              <p class="kpi-delta">Atención inmediata requerida</p>
+            </article>
+            <article class="tarjeta kpi kpi-alerta alerta-alta">
+              <p class="kpi-etiqueta">Picos Epidemiológicos</p>
+              <p class="kpi-valor text-alta" id="kpi-picos-epi">—</p>
+              <p class="kpi-delta">Z-Score > 2.0 respecto a la media</p>
+            </article>
+            <article class="tarjeta kpi kpi-alerta alerta-moderada">
+              <p class="kpi-etiqueta">Estancias Prolongadas</p>
+              <p class="kpi-valor text-moderada" id="kpi-estancias-largas">—</p>
+              <p class="kpi-delta">Hospitalizaciones > 30 días</p>
+            </article>
+          </section>
+
+          <!-- Gráficos de Resumen de Alertas -->
+          <section class="rejilla-graficas">
+            <article class="tarjeta">
+              <h2 class="tarjeta-titulo">
+                Distribución de Alertas por Categoría
+              </h2>
+              <div class="contenedor-grafica">
+                <canvas id="grafica-distribucion"></canvas>
+              </div>
+            </article>
+            <article class="tarjeta">
+              <h2 class="tarjeta-titulo">
+                Picos Epidemiológicos Detectados (Z-Score)
+              </h2>
+              <div class="contenedor-grafica">
+                <canvas id="grafica-zscore"></canvas>
+              </div>
+            </article>
+          </section>
+
+          <!-- Listado Detallado de Alertas Activas -->
+          <section class="tarjeta">
+            <div class="tabla-cabecera">
+              <h2 class="tarjeta-titulo">
+                Tablero de Alertas Clínicas y Eventos Notificados
+              </h2>
+              <span id="contador-alertas" class="insignia-conteo"
+                >0 alertas</span
+              >
+            </div>
+
+            <div class="tabla-scroll">
+              <table class="tabla" id="tabla-alertas">
+                <thead>
+                  <tr>
+                    <th>Severidad</th>
+                    <th>Categoría</th>
+                    <th>Incidente / Diagnóstico</th>
+                    <th>Periodo / Fecha</th>
+                    <th>Métrica Observada</th>
+                    <th>Recomendación Clínica</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="cuerpo-tabla-alertas">
+                  <tr>
+                    <td colspan="7" class="tabla-vacia">
+                      Cargando alertas del sistema...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- Modal de Detalle de Alerta -->
+    <div id="modal-detalle" class="modal-fondo" hidden>
+      <div class="modal-tarjeta">
+        <div class="modal-cabecera">
+          <h3 id="modal-titulo">Detalle de Alerta</h3>
+          <button type="button" id="btn-cerrar-modal" class="enlace-boton">
+            ✕
+          </button>
+        </div>
+        <div class="modal-cuerpo" id="modal-contenido">
+          <!-- Dinámico -->
+        </div>
+      </div>
+    </div>
+
+    <script src="../javascript/alertas.js"></script>
+  </body>
+</html>

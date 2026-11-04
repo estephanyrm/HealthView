@@ -6,11 +6,46 @@
 const API_BASE = "/api/usuarios";
 
 const USUARIOS_INICIALES = [
-  { id_usuario: 1, nombre: "Usuario 1", correo: "usuario1@ejemplo.co", rol: "Administrador", activo: true, ultimo_acceso: "Hoy" },
-  { id_usuario: 2, nombre: "Usuario 2", correo: "usuario2@ejemplo.co", rol: "Analista", activo: true, ultimo_acceso: "Ayer" },
-  { id_usuario: 3, nombre: "Usuario 3", correo: "usuario3@ejemplo.co", rol: "Investigador", activo: true, ultimo_acceso: "Hace 3 días" },
-  { id_usuario: 4, nombre: "Usuario 4", correo: "usuario4@ejemplo.co", rol: "Médico", activo: true, ultimo_acceso: "Hace 1 semana" },
-  { id_usuario: 5, nombre: "Usuario 5", correo: "usuario5@ejemplo.co", rol: "Analista", activo: false, ultimo_acceso: "Nunca" }
+  {
+    id_usuario: 1,
+    nombre: "Usuario 1",
+    correo: "usuario1@ejemplo.co",
+    rol: "Administrador",
+    activo: true,
+    ultimo_acceso: "Hoy",
+  },
+  {
+    id_usuario: 2,
+    nombre: "Usuario 2",
+    correo: "usuario2@ejemplo.co",
+    rol: "Analista",
+    activo: true,
+    ultimo_acceso: "Ayer",
+  },
+  {
+    id_usuario: 3,
+    nombre: "Usuario 3",
+    correo: "usuario3@ejemplo.co",
+    rol: "Investigador",
+    activo: true,
+    ultimo_acceso: "Hace 3 días",
+  },
+  {
+    id_usuario: 4,
+    nombre: "Usuario 4",
+    correo: "usuario4@ejemplo.co",
+    rol: "Médico",
+    activo: true,
+    ultimo_acceso: "Hace 1 semana",
+  },
+  {
+    id_usuario: 5,
+    nombre: "Usuario 5",
+    correo: "usuario5@ejemplo.co",
+    rol: "Analista",
+    activo: false,
+    ultimo_acceso: "Nunca",
+  },
 ];
 
 // Obtener lista de usuarios
@@ -26,7 +61,9 @@ async function cargarUsuarios() {
     }
   } catch (error) {
     // Si la API Python no está corriendo en segundo plano, usamos almacenamiento local
-    console.log("Servidor local Flask no detectado. Utilizando almacenamiento local de respaldo.");
+    console.log(
+      "Servidor local Flask no detectado. Utilizando almacenamiento local de respaldo.",
+    );
   }
   return obtenerLocalmente();
 }
@@ -34,7 +71,10 @@ async function cargarUsuarios() {
 function obtenerLocalmente() {
   const guardados = localStorage.getItem("healthview_usuarios");
   if (!guardados) {
-    localStorage.setItem("healthview_usuarios", JSON.stringify(USUARIOS_INICIALES));
+    localStorage.setItem(
+      "healthview_usuarios",
+      JSON.stringify(USUARIOS_INICIALES),
+    );
     return USUARIOS_INICIALES;
   }
   try {
@@ -60,9 +100,10 @@ async function renderizarTabla() {
     const tr = document.createElement("tr");
 
     // Rol Badge
-    const badgeRol = u.rol === "Administrador"
-      ? '<span class="badge-admin">Administrador</span>'
-      : `<span class="badge-role">${escapeHtml(u.rol)}</span>`;
+    const badgeRol =
+      u.rol === "Administrador"
+        ? '<span class="badge-admin">Administrador</span>'
+        : `<span class="badge-role">${escapeHtml(u.rol)}</span>`;
 
     // Estado Badge
     const badgeEstado = u.activo
@@ -104,17 +145,20 @@ function escapeHtml(str) {
 // Acción: Cambiar rol
 async function accionCambiarRol(id) {
   const lista = obtenerLocalmente();
-  const usuario = lista.find(u => u.id_usuario === id);
+  const usuario = lista.find((u) => u.id_usuario === id);
   if (!usuario) return;
 
   const roles = ["Administrador", "Analista", "Investigador", "Médico"];
   const nuevoRol = prompt(
     `Cambiar rol para ${usuario.nombre} (actual: ${usuario.rol}):\n\nIngresa uno de los roles:\n- Administrador\n- Analista\n- Investigador\n- Médico`,
-    usuario.rol
+    usuario.rol,
   );
 
   if (!nuevoRol || !roles.includes(nuevoRol.trim())) {
-    if (nuevoRol) alert("Rol no válido. Debes ingresar Administrador, Analista, Investigador o Médico.");
+    if (nuevoRol)
+      alert(
+        "Rol no válido. Debes ingresar Administrador, Analista, Investigador o Médico.",
+      );
     return;
   }
 
@@ -126,7 +170,7 @@ async function accionCambiarRol(id) {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ rol: rolNormalizado }),
-      credentials: "include"
+      credentials: "include",
     });
   } catch (e) {
     // Modo local
@@ -141,11 +185,15 @@ async function accionCambiarRol(id) {
 // Acción: Cambiar estado (Activar / Desactivar)
 async function accionCambiarEstado(id, nuevoEstado) {
   const lista = obtenerLocalmente();
-  const usuario = lista.find(u => u.id_usuario === id);
+  const usuario = lista.find((u) => u.id_usuario === id);
   if (!usuario) return;
 
   const accionTexto = nuevoEstado ? "activar" : "desactivar";
-  if (!confirm(`¿Estás seguro de que deseas ${accionTexto} la cuenta de ${usuario.nombre}?`)) {
+  if (
+    !confirm(
+      `¿Estás seguro de que deseas ${accionTexto} la cuenta de ${usuario.nombre}?`,
+    )
+  ) {
     return;
   }
 
@@ -155,7 +203,7 @@ async function accionCambiarEstado(id, nuevoEstado) {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ activo: nuevoEstado }),
-      credentials: "include"
+      credentials: "include",
     });
   } catch (e) {
     // Modo local
@@ -164,22 +212,25 @@ async function accionCambiarEstado(id, nuevoEstado) {
   usuario.activo = nuevoEstado;
   guardarLocalmente(lista);
   renderizarTabla();
-  alert(`Usuario ${usuario.nombre} ${nuevoEstado ? "activado" : "desactivado"} exitosamente.`);
+  alert(
+    `Usuario ${usuario.nombre} ${nuevoEstado ? "activado" : "desactivado"} exitosamente.`,
+  );
 }
 
 // Acción: Reiniciar clave
 async function accionReiniciarClave(id) {
   const lista = obtenerLocalmente();
-  const usuario = lista.find(u => u.id_usuario === id);
+  const usuario = lista.find((u) => u.id_usuario === id);
   if (!usuario) return;
 
-  let claveGenerada = "HV-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "!";
+  let claveGenerada =
+    "HV-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "!";
 
   // Intentar API Flask
   try {
     const res = await fetch(`${API_BASE}/${id}/reiniciar-clave`, {
       method: "POST",
-      credentials: "include"
+      credentials: "include",
     });
     if (res.ok) {
       const data = await res.json();
@@ -206,7 +257,9 @@ async function accionReiniciarClave(id) {
     btnCopiar.onclick = () => {
       navigator.clipboard.writeText(claveGenerada).then(() => {
         btnCopiar.textContent = "¡Copiada!";
-        setTimeout(() => { btnCopiar.textContent = "Copiar"; }, 2000);
+        setTimeout(() => {
+          btnCopiar.textContent = "Copiar";
+        }, 2000);
       });
     };
   }
