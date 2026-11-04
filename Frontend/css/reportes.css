@@ -1,0 +1,231 @@
+/* Estilos para el centro de Reportes y Exportación */
+
+.panel-configuracion {
+  margin-bottom: 24px;
+  background: white;
+  border: 1px solid var(--line);
+}
+
+.rejilla-config {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.barra-acciones-export {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.grupo-botones-descarga {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-descarga {
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-excel {
+  background: #107c41;
+  color: white;
+}
+.btn-excel:hover {
+  background: #0c6133;
+}
+
+.btn-csv {
+  background: #2563eb;
+  color: white;
+}
+.btn-csv:hover {
+  background: #1d4ed8;
+}
+
+.btn-pdf {
+  background: var(--ink);
+  color: white;
+}
+.btn-pdf:hover {
+  background: #000;
+}
+
+.btn-json {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.btn-json:hover {
+  background: #e5e7eb;
+}
+
+.mensaje-descarga {
+  font-size: 13px;
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* ── Hoja de Reporte (Imprimible) ── */
+.hoja-reporte {
+  background: white;
+  padding: 36px 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.membrete-reporte {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--green);
+  margin-bottom: 24px;
+}
+
+.marca-reporte {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.marca-reporte span {
+  color: var(--green);
+}
+
+.institucion-reporte {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.metadatos-reporte {
+  text-align: right;
+  font-size: 12.5px;
+  color: var(--ink);
+}
+.metadatos-reporte p {
+  margin-bottom: 3px;
+}
+
+.badge-auditado {
+  background: #dcfce7;
+  color: #166534;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.titulo-documento {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.subtitulo-documento {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.metricas-resumen-doc {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.minikpi {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 14px 18px;
+  border-radius: 8px;
+}
+.minikpi span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.minikpi strong {
+  font-size: 20px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.tabla-reporte {
+  margin-bottom: 32px;
+}
+.tabla-reporte th {
+  background: #eef2ee;
+  color: var(--ink);
+}
+
+.pie-reporte {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 40px;
+  padding-top: 30px;
+}
+
+.firma-box {
+  text-align: center;
+  font-size: 13px;
+}
+.linea-firma {
+  width: 220px;
+  height: 1px;
+  background: var(--ink);
+  margin: 0 auto 8px;
+}
+.firma-box p {
+  font-weight: 700;
+  color: var(--ink);
+}
+.firma-box small {
+  color: var(--muted);
+}
+
+/* Formato de impresión */
+@media print {
+  body {
+    background: white !important;
+  }
+  .sidebar,
+  .barra-superior,
+  .seccion-cabecera,
+  .panel-configuracion,
+  .enlace-boton {
+    display: none !important;
+  }
+  .app {
+    display: block !important;
+  }
+  .principal {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .hoja-reporte {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+}

@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Búsqueda con Filtros Avanzados | HealthView</title>
+    <link rel="icon" href="../img/logo-icono.png" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/busqueda.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Menú lateral -->
+      <aside class="sidebar" aria-label="Navegación principal">
+        <a class="marca" href="index.html">Health<span>View</span></a>
+
+        <nav>
+          <p class="nav-grupo">Análisis</p>
+          <a class="nav-item" href="dashboard.html">Panel inteligente</a>
+          <a class="nav-item" href="tendencias.html">Tendencias</a>
+          <a class="nav-item" href="mapa.html">Mapa epidemiológico</a>
+          <a class="nav-item" href="alertas.html">Alertas</a>
+          <a class="nav-item activo" href="busqueda.html" aria-current="page"
+            >Búsqueda y filtros</a
+          >
+          <a class="nav-item" href="reportes.html">Reportes</a>
+          <a class="nav-item" href="comparador.html">Comparador</a>
+          <a class="nav-item" href="prediccion.html">Predicción</a>
+
+          <div id="nav-admin" hidden>
+            <p class="nav-grupo">Administración</p>
+            <a class="nav-item" href="usuarios.html">Usuarios</a>
+            <a class="nav-item" href="registros.html"
+              >Registros de hospitalización</a
+            >
+            <a class="nav-item" href="configuracion.html">Configuración</a>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Contenido Principal -->
+      <div class="principal">
+        <header class="barra-superior">
+          <p class="migas">
+            Análisis / <strong>Búsqueda y filtros avanzados</strong>
+          </p>
+          <p class="sesion">
+            <span id="usuario-nombre">…</span> ·
+            <span id="usuario-rol"></span> ·
+            <button type="button" id="btn-salir" class="enlace-boton">
+              Cerrar sesión
+            </button>
+          </p>
+        </header>
+
+        <main class="contenido">
+          <!-- Encabezado del Módulo -->
+          <div class="seccion-cabecera">
+            <div>
+              <h1 class="titulo-modulo">
+                Exploración Clínica y Búsqueda Multicriterio
+              </h1>
+              <p class="descripcion-modulo">
+                Filtre sobre más de 830.000 atenciones hospitalarias por
+                patología CIE-10, características sociodemográficas,
+                aseguradora, IPS y temporalidad.
+              </p>
+            </div>
+          </div>
+
+          <!-- Filtros Rápidos (Presets Clínicos) -->
+          <div class="tarjeta-presets">
+            <p class="etiqueta-presets">Consultas clínicas rápidas:</p>
+            <div class="botones-presets">
+              <button
+                type="button"
+                class="btn-preset"
+                data-preset="mujeres_60_epoc"
+              >
+                🫁 Mujeres 60+ con EPOC
+              </button>
+              <button
+                type="button"
+                class="btn-preset"
+                data-preset="covid19_estancia_larga"
+              >
+                🦠 COVID-19 Estancia &gt; 14d
+              </button>
+              <button
+                type="button"
+                class="btn-preset"
+                data-preset="pediatria_urgente"
+              >
+                👶 Urgencias Pediátricas (&lt;5 años)
+              </button>
+              <button
+                type="button"
+                class="btn-preset"
+                data-preset="fallecidos_criticos"
+              >
+                ⚠️ Casos de Mortalidad Hospitalaria
+              </button>
+              <button
+                type="button"
+                class="btn-preset"
+                data-preset="rural_remitido"
+              >
+                🚑 Pacientes Rurales Remitidos
+              </button>
+            </div>
+          </div>
+
+          <!-- Panel de Filtros Avanzados -->
+          <form id="form-busqueda" class="tarjeta formulario-filtros">
+            <div class="rejilla-campos">
+              <!-- Diagnóstico CIE-10 -->
+              <div class="campo">
+                <label for="filtro-dx"
+                  >Diagnóstico Principal (CIE-10 o Nombre)</label
+                >
+                <input
+                  type="text"
+                  id="filtro-dx"
+                  placeholder="Ej. J44, COVID, Neumonía, I10..."
+                  autocomplete="off"
+                />
+              </div>
+
+              <!-- Diagnóstico Adicional / Complicación -->
+              <div class="campo">
+                <label for="filtro-dx-adicional"
+                  >Diagnóstico Adicional / Complicación</label
+                >
+                <input
+                  type="text"
+                  id="filtro-dx-adicional"
+                  placeholder="Código CIE-10 adicional"
+                />
+              </div>
+
+              <!-- Sexo -->
+              <div class="campo">
+                <label for="filtro-sexo">Sexo Biológico</label>
+                <select id="filtro-sexo">
+                  <option value="">Todos los sexos</option>
+                  <option value="F">Femenino (F)</option>
+                  <option value="M">Masculino (M)</option>
+                </select>
+              </div>
+
+              <!-- Rango de Edad -->
+              <div class="campo campo-doble">
+                <label>Edad (Años)</label>
+                <div class="grupo-inputs">
+                  <input
+                    type="number"
+                    id="filtro-edad-min"
+                    placeholder="Mín"
+                    min="0"
+                    max="120"
+                  />
+                  <span>a</span>
+                  <input
+                    type="number"
+                    id="filtro-edad-max"
+                    placeholder="Máx"
+                    min="0"
+                    max="120"
+                  />
+                </div>
+              </div>
+
+              <!-- Municipio de Residencia -->
+              <div class="campo">
+                <label for="filtro-municipio">Municipio de Residencia</label>
+                <select id="filtro-municipio">
+                  <option value="">Todos los municipios</option>
+                </select>
+              </div>
+
+              <!-- EPS / Aseguradora -->
+              <div class="campo">
+                <label for="filtro-eps">Aseguradora (EPS)</label>
+                <select id="filtro-eps">
+                  <option value="">Todas las aseguradoras</option>
+                </select>
+              </div>
+
+              <!-- Prestador (IPS) -->
+              <div class="campo">
+                <label for="filtro-prestador"
+                  >Institución Prestadora (IPS)</label
+                >
+                <select id="filtro-prestador">
+                  <option value="">Todas las instituciones</option>
+                </select>
+              </div>
+
+              <!-- Vía de Ingreso -->
+              <div class="campo">
+                <label for="filtro-via">Vía de Ingreso</label>
+                <select id="filtro-via">
+                  <option value="">Todas las vías</option>
+                  <option value="1">Urgencias</option>
+                  <option value="2">Consulta externa o programada</option>
+                  <option value="3">Remitido</option>
+                  <option value="4">Nacimiento en institución</option>
+                </select>
+              </div>
+
+              <!-- Estado de Salida -->
+              <div class="campo">
+                <label for="filtro-estado">Estado de Salida</label>
+                <select id="filtro-estado">
+                  <option value="">Todos los desenlaces</option>
+                  <option value="1">Vivo (Egreso favorable)</option>
+                  <option value="2">Fallecido (Mortalidad)</option>
+                </select>
+              </div>
+
+              <!-- Zona de Residencia -->
+              <div class="campo">
+                <label for="filtro-zona">Zona de Residencia</label>
+                <select id="filtro-zona">
+                  <option value="">Urbana y Rural</option>
+                  <option value="U">Urbana (U)</option>
+                  <option value="R">Rural (R)</option>
+                </select>
+              </div>
+
+              <!-- Fechas de Ingreso -->
+              <div class="campo campo-doble">
+                <label>Fecha de Ingreso (Desde / Hasta)</label>
+                <div class="grupo-inputs">
+                  <input type="date" id="filtro-desde" />
+                  <span>a</span>
+                  <input type="date" id="filtro-hasta" />
+                </div>
+              </div>
+
+              <!-- Estancia en días -->
+              <div class="campo campo-doble">
+                <label>Estancia (Días)</label>
+                <div class="grupo-inputs">
+                  <input
+                    type="number"
+                    id="filtro-estancia-min"
+                    placeholder="Mín días"
+                    min="0"
+                  />
+                  <span>a</span>
+                  <input
+                    type="number"
+                    id="filtro-estancia-max"
+                    placeholder="Máx días"
+                    min="0"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones de Acción del Formulario -->
+            <div class="acciones-formulario">
+              <button type="submit" class="boton-primario">
+                🔍 Aplicar filtros y buscar
+              </button>
+              <button type="button" id="btn-restablecer" class="enlace-boton">
+                Restablecer campos
+              </button>
+              <span id="indicador-cargando" class="texto-cargando" hidden
+                >Procesando consulta...</span
+              >
+            </div>
+          </form>
+
+          <!-- Resumen de Métricas del Segmento Filtrado -->
+          <section class="kpis" aria-label="Métricas del resultado">
+            <article class="tarjeta kpi">
+              <p class="kpi-etiqueta">Hospitalizaciones Filtradas</p>
+              <p class="kpi-valor" id="metric-total">—</p>
+              <p class="kpi-delta" id="metric-delta">
+                Coincidencias en base de datos
+              </p>
+            </article>
+            <article class="tarjeta kpi">
+              <p class="kpi-etiqueta">Estancia Media</p>
+              <p class="kpi-valor" id="metric-estancia">—</p>
+              <p class="kpi-delta">Días promedio por paciente</p>
+            </article>
+            <article class="tarjeta kpi">
+              <p class="kpi-etiqueta">Tasa de Mortalidad</p>
+              <p class="kpi-valor" id="metric-mortalidad">—</p>
+              <p class="kpi-delta">Porcentaje de fallecidos</p>
+            </article>
+            <article class="tarjeta kpi">
+              <p class="kpi-etiqueta">Proporción por Sexo</p>
+              <p class="kpi-valor" id="metric-sexo">—</p>
+              <p class="kpi-delta">% Mujeres / % Hombres</p>
+            </article>
+          </section>
+
+          <!-- Tabla de Resultados con Paginación -->
+          <section class="tarjeta">
+            <div class="tabla-cabecera">
+              <div>
+                <h2 class="tarjeta-titulo">Resultados de Hospitalización</h2>
+                <p id="subtitulo-resultados" class="tabla-subtitulo">
+                  Mostrando registros coincidentes
+                </p>
+              </div>
+              <div class="opciones-tabla">
+                <label for="selector-per-page">Mostrar:</label>
+                <select id="selector-per-page">
+                  <option value="15">15 por página</option>
+                  <option value="25" selected>25 por página</option>
+                  <option value="50">50 por página</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="tabla-scroll">
+              <table class="tabla" id="tabla-resultados">
+                <thead>
+                  <tr>
+                    <th>ID / Factura</th>
+                    <th>Fecha Ingreso</th>
+                    <th>Paciente</th>
+                    <th>Diagnóstico Principal (Egreso)</th>
+                    <th>IPS Prestadora</th>
+                    <th>Aseguradora (EPS)</th>
+                    <th>Municipio</th>
+                    <th>Estancia</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="cuerpo-tabla-resultados">
+                  <tr>
+                    <td colspan="10" class="tabla-vacia">
+                      Cargando datos clínicos...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Barra de Paginación -->
+            <div class="paginacion-contenedor">
+              <span id="info-paginacion" class="info-paginacion"
+                >Página 1 de 1</span
+              >
+              <div class="paginacion-botones">
+                <button type="button" id="btn-pag-ant" class="btn-pag" disabled>
+                  Anterior
+                </button>
+                <button type="button" id="btn-pag-sig" class="btn-pag">
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- Modal Detalle Clínico -->
+    <div id="modal-detalle-paciente" class="modal-fondo" hidden>
+      <div class="modal-tarjeta">
+        <div class="modal-cabecera">
+          <h3>Ficha de Hospitalización</h3>
+          <button
+            type="button"
+            id="btn-cerrar-modal-paciente"
+            class="enlace-boton"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="modal-cuerpo" id="modal-contenido-paciente">
+          <!-- Contenido inyectado por JS -->
+        </div>
+      </div>
+    </div>
+
+    <script src="../javascript/busqueda.js"></script>
+  </body>
+</html>
