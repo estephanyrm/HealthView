@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Usuarios de la plataforma | HealthView</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+  </head>
+  <body>
+    <div class="admin-container">
+      <!-- Barra lateral (Sidebar) -->
+      <aside class="admin-sidebar">
+        <a class="brand" href="index.html">
+          <img src="../img/logo-icono.png" alt="HealthView" />
+          <span>Health<b>View</b></span>
+        </a>
+
+        <!-- ANÁLISIS -->
+        <div class="sidebar-group">
+          <div class="sidebar-title">Análisis</div>
+          <nav class="sidebar-menu">
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Panel inteligente')"
+            >
+              Panel inteligente
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Tendencias')"
+            >
+              Tendencias
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Mapa epidemiológico')"
+            >
+              Mapa epidemiológico
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Alertas')"
+            >
+              Alertas
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Búsqueda y filtros')"
+            >
+              Búsqueda y filtros
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Reportes')"
+            >
+              Reportes
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Comparador')"
+            >
+              Comparador
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Predicción')"
+            >
+              Predicción
+            </button>
+          </nav>
+        </div>
+
+        <!-- ADMINISTRACIÓN -->
+        <div class="sidebar-group">
+          <div class="sidebar-title">Administración</div>
+          <nav class="sidebar-menu">
+            <a class="sidebar-item active" href="usuarios.html">Usuarios</a>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Registros de hospitalización')"
+            >
+              Registros de hospitalización
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Configuración')"
+            >
+              Configuración
+            </button>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Contenedor Principal -->
+      <div class="admin-main">
+        <!-- Topbar Superior -->
+        <header class="admin-topbar">
+          <div class="topbar-breadcrumb">
+            <a href="usuarios.html">Administración</a>
+            <span>/</span>
+            <span class="current">Usuarios</span>
+          </div>
+
+          <div class="topbar-profile">
+            <span id="nombre-usuario-sesion"
+              >[Brandon Londoño] · Administrador</span
+            >
+            <span>·</span>
+            <button type="button" onclick="abrirModalCambiarClave()">
+              Cambiar contraseña
+            </button>
+            <span>·</span>
+            <button type="button" onclick="cerrarSesion()">
+              Cerrar sesión
+            </button>
+          </div>
+        </header>
+
+        <!-- Área de Contenido -->
+        <main class="admin-view">
+          <!-- Tarjeta: Usuarios de la plataforma (Exacta a la imagen) -->
+          <section class="panel-card">
+            <div class="panel-card-header">
+              <div>
+                <h1 class="panel-title">Usuarios de la plataforma</h1>
+              </div>
+              <div style="display: flex; align-items: center; gap: 16px">
+                <span class="panel-subtitle"
+                  >4 roles · cuentas creadas solo por el administrador</span
+                >
+                <!-- Botón de navegación clara a la página separada de creación -->
+                <a
+                  href="crear-usuario.html"
+                  class="btn-green"
+                  style="padding: 8px 16px; font-size: 13px"
+                >
+                  + Crear usuario
+                </a>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table class="users-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Último acceso</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-usuarios-body">
+                  <!-- Se llena dinámicamente con javascript/usuarios.js -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- Modal: Cambiar Contraseña del Administrador -->
+    <div id="modal-cambiar-clave" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3 class="modal-title">Cambiar contraseña</h3>
+        <p class="modal-body">
+          Ingresa tu contraseña actual y la nueva contraseña (mínimo 8
+          caracteres):
+        </p>
+        <form id="form-cambiar-clave-modal" onsubmit="guardarNuevaClave(event)">
+          <div class="form-field">
+            <label class="form-label" for="clave-actual"
+              >Contraseña actual</label
+            >
+            <input
+              class="form-input"
+              style="max-width: 100%"
+              type="password"
+              id="clave-actual"
+              required
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="clave-nueva">Nueva contraseña</label>
+            <input
+              class="form-input"
+              style="max-width: 100%"
+              type="password"
+              id="clave-nueva"
+              minlength="8"
+              required
+            />
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn-outline"
+              onclick="cerrarModalCambiarClave()"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn-green">Actualizar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal: Reiniciar Clave / Contraseña Temporal -->
+    <div id="modal-temp-clave" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3 class="modal-title">Contraseña temporal generada</h3>
+        <p class="modal-body" id="modal-temp-clave-texto">
+          Se ha restablecido la clave para el usuario. Compártela de forma
+          segura:
+        </p>
+
+        <div class="password-box">
+          <div>
+            <div class="password-label">Contraseña temporal:</div>
+            <div id="temp-clave-code" class="password-text"></div>
+          </div>
+          <button
+            type="button"
+            id="btn-copiar-temp"
+            class="btn-green"
+            style="padding: 6px 14px; font-size: 12px"
+          >
+            Copiar
+          </button>
+        </div>
+
+        <p
+          style="
+            font-size: 12px;
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 8px;
+          "
+        >
+          El usuario deberá cambiar esta clave en su primer inicio de sesión.
+        </p>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn-green"
+            onclick="
+              document.getElementById('modal-temp-clave').style.display = 'none'
+            "
+          >
+            Entendido
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../javascript/usuarios.js"></script>
+  </body>
+</html>
