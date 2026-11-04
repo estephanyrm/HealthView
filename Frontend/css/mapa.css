@@ -1,0 +1,36 @@
+/* Mapa epidemiológico (mapa.html). Se apoya en base.css y dashboard.css */
+.rejilla-mapa { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 16px; }
+.rejilla-mapa.solo-lista { grid-template-columns: 1fr; }
+.rejilla-mapa.solo-lista #tarjeta-mapa { display: none; }
+.rejilla-mapa h2, .comparar h2 { font-size: 17px; font-weight: 700; }
+
+.mapa-caja { position: relative; margin-top: 10px; }
+#mapa { display: block; width: 100%; max-height: 560px; }
+.muni { stroke: #fff; stroke-width: 0.6; cursor: pointer; transition: fill 0.2s; }
+.muni:hover, .muni:focus-visible { stroke: var(--ink); stroke-width: 1.6; outline: none; }
+.muni.sel-a { stroke: var(--accent); stroke-width: 3; }
+.muni.sel-b { stroke: var(--ink); stroke-width: 3; }
+.tip { position: absolute; pointer-events: none; padding: 6px 10px; border-radius: 8px;
+  background: var(--ink); color: #fff; font-size: 12.5px; line-height: 1.4; white-space: nowrap; z-index: 2; }
+.tip b { display: block; }
+
+.leyenda { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.leyenda i { display: inline-block; width: 12px; height: 12px; margin-right: 5px; border-radius: 3px; vertical-align: -1px; }
+
+.ranking li.clic { cursor: pointer; border-radius: 8px; }
+.ranking li.clic:hover { background: var(--green-light); }
+.ranking li { padding: 7px 6px; }
+
+.comparar-selects { display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 0; }
+.comparar-selects label { display: flex; flex-direction: column; gap: 3px; font-size: 13px; font-weight: 600; }
+.comparar-selects select { min-width: 220px; padding: 7px 12px; border: 1px solid var(--line);
+  border-radius: 10px; background: var(--surface); font: inherit; color: var(--ink); }
+.comparacion table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.comparacion th, .comparacion td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+.comparacion th { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.comparacion td.num { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--green); }
+.comparacion td ol { font-size: 13px; }
+.comparacion td ol li { padding: 1px 0; }
+
+@media (max-width: 1100px) { .rejilla-mapa { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .comparar-selects select { min-width: 0; width: 100%; } .comparar-selects label { width: 100%; } }

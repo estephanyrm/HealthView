@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapa epidemiológico | HealthView</title>
+    <link rel="icon" href="../img/logo-icono.png" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/mapa.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- ───── Menú lateral ───── -->
+      <aside class="sidebar" aria-label="Navegación principal">
+        <a class="marca" href="index.html">Health<span>View</span></a>
+
+        <nav>
+          <p class="nav-grupo">Análisis</p>
+          <a class="nav-item" href="dashboard.html"
+            >Panel inteligente</a
+          >
+          <a class="nav-item" href="tendencias.html">Tendencias</a>
+          <a class="nav-item activo" href="mapa.html" aria-current="page">Mapa epidemiológico</a>
+          <a class="nav-item" href="alertas.html">Alertas</a>
+          <a class="nav-item" href="busqueda.html">Búsqueda y filtros</a>
+          <a class="nav-item" href="reportes.html">Reportes</a>
+          <a class="nav-item" href="comparador.html">Comparador</a>
+          <a class="nav-item" href="prediccion.html">Predicción</a>
+
+          <div id="nav-admin" hidden>
+            <p class="nav-grupo">Administración</p>
+            <a class="nav-item" href="usuarios.html">Usuarios</a>
+            <a class="nav-item" href="registros.html"
+              >Registros de hospitalización</a
+            >
+            <a class="nav-item" href="configuracion.html">Configuración</a>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- ───── Contenido ───── -->
+      <div class="principal">
+        <header class="barra-superior">
+          <p class="migas">Análisis / <strong>Mapa epidemiológico</strong></p>
+          <p class="sesion">
+            <span id="usuario-nombre">…</span> ·
+            <span id="usuario-rol"></span> ·
+            <button type="button" id="btn-salir" class="enlace-boton">Cerrar sesión</button>
+          </p>
+        </header>
+
+        <main class="contenido">
+          <div class="filtros">
+            <label for="filtro-anio">Periodo</label>
+            <select id="filtro-anio"><option value="todos">Todos los años</option></select>
+            <label for="filtro-metrica">Indicador</label>
+            <select id="filtro-metrica">
+              <option value="hospitalizaciones">Hospitalizaciones</option>
+              <option value="estancia_promedio">Estancia promedio</option>
+              <option value="mortalidad">Mortalidad</option>
+            </select>
+            <div class="selector" role="group" aria-label="Nivel de detalle">
+              <button type="button" class="activo" data-vista="municipios">Municipios</button>
+              <button type="button" data-vista="departamentos">Departamentos</button>
+            </div>
+          </div>
+
+          <div id="aviso-error" class="aviso-error" role="alert" hidden>
+            <span id="aviso-error-texto"></span>
+            <button type="button" id="btn-reintentar" class="enlace-boton">Reintentar</button>
+          </div>
+
+          <section class="rejilla-mapa" id="rejilla-mapa">
+            <article class="tarjeta" id="tarjeta-mapa">
+              <h2 id="titulo-mapa">Hospitalizaciones por municipio de residencia</h2>
+              <p class="subtitulo" id="sub-mapa"></p>
+              <div class="mapa-caja">
+                <svg id="mapa" role="group" aria-label="Mapa de Antioquia por municipio"></svg>
+                <div id="tip" class="tip" hidden></div>
+              </div>
+              <div class="leyenda" id="leyenda"></div>
+              <p class="subtitulo" id="nota-fuera"></p>
+            </article>
+
+            <article class="tarjeta">
+              <h2 id="titulo-ranking">Los 10 con más hospitalizaciones</h2>
+              <p class="subtitulo" id="sub-ranking">Haz clic en uno para compararlo.</p>
+              <ol class="ranking" id="lista-ranking"></ol>
+            </article>
+          </section>
+
+          <section class="tarjeta comparar" aria-labelledby="titulo-comparar">
+            <h2 id="titulo-comparar">Comparar municipios</h2>
+            <p class="subtitulo">Elígelos en las listas o haz clic en dos municipios del mapa.</p>
+            <div class="comparar-selects">
+              <label>Municipio A <select id="sel-a"><option value="">Elegir…</option></select></label>
+              <label>Municipio B <select id="sel-b"><option value="">Elegir…</option></select></label>
+            </div>
+            <div id="comparacion" class="comparacion"></div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="../javascript/antioquia-geo.js"></script>
+    <script src="../javascript/mapa.js"></script>
+  </body>
+</html>

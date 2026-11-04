@@ -7,6 +7,7 @@ from flask import current_app
 
 from app.extensions import db
 from app.models import Hospitalizacion
+from app.utils.cache import limpiar as limpiar_cache
 from app.utils.errors import ApiError
 
 OBLIGATORIOS = [
@@ -137,6 +138,7 @@ def crear(datos):
     _validar_fechas(h)
     db.session.add(h)
     db.session.commit()
+    limpiar_cache()  # los paneles deben incluir el registro nuevo
     db.session.refresh(h)  # recarga las columnas generadas (dias_estancia, edad_anios)
     return h
 
@@ -151,6 +153,7 @@ def actualizar(id_, datos, parcial):
                 setattr(h, campo, None)
     _validar_fechas(h)
     db.session.commit()
+    limpiar_cache()
     db.session.refresh(h)
     return h
 
@@ -159,3 +162,4 @@ def eliminar(id_):
     h = obtener(id_)
     db.session.delete(h)
     db.session.commit()
+    limpiar_cache()
