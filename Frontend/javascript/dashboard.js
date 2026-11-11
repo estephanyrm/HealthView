@@ -55,7 +55,7 @@ $("btn-salir").addEventListener("click", async () => {
       credentials: "include",
     });
   } finally {
-    sessionStorage.removeItem("usuario");
+    HVAuth.limpiarSesion();
     window.location.href = "login.html";
   }
 });
@@ -72,7 +72,7 @@ async function cargar() {
       credentials: "include",
     });
     if (r.status === 401 || r.status === 403) {
-      sessionStorage.removeItem("usuario");
+      HVAuth.limpiarSesion();
       window.location.href = "login.html";
       return;
     }

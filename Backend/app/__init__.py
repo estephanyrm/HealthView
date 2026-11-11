@@ -2,7 +2,7 @@ from flask import Flask
 
 from config import Config
 
-from .extensions import cors, db
+from .extensions import cors, db, jwt
 from .routes import register_blueprints
 from .utils.errors import register_error_handlers
 
@@ -14,6 +14,7 @@ def create_app(config_class=Config):
     app.json.ensure_ascii = False  # tildes y ñ legibles en el JSON (Flask 3)
 
     db.init_app(app)
+    jwt.init_app(app)
     # CORS explícito: solo los orígenes declarados en .env pueden llamar a la API
     cors.init_app(
         app,
