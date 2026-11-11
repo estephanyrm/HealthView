@@ -6,9 +6,53 @@
     <title>HealthView | Datos de hospitalización para decidir mejor</title>
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/landing.css" />
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+    ></script>
+    <script
+      defer
+      src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+    ></script>
+    <script
+      defer
+      src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+    ></script>
+    <script defer src="../javascript/react-metricas.js"></script>
   </head>
 
-  <body>
+  <body class="is-loading">
+    <canvas id="bg-canvas-3d" aria-hidden="true"></canvas>
+    <div
+      class="page-loader"
+      id="page-loader"
+      role="status"
+      aria-live="polite"
+      aria-label="Cargando HealthView"
+    >
+      <div class="page-loader__content">
+        <span class="page-loader__eyebrow">HealthView</span>
+        <p>Preparando tu experiencia</p>
+        <div
+          class="page-loader__track"
+          role="progressbar"
+          aria-label="Carga de la página"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <span class="page-loader__bar"></span>
+        </div>
+        <span class="page-loader__percentage">0%</span>
+      </div>
+    </div>
+    <noscript>
+      <style>
+        body.is-loading #bg-canvas-3d { z-index: -1; }
+        #page-loader { display: none; }
+      </style>
+    </noscript>
+
     <!-- Encabezado principal -->
     <header class="nav">
       <div class="wrap">
@@ -18,10 +62,10 @@
         </a>
 
         <nav class="links" aria-label="Principal">
-          <a href="#ofrecemos">Qué ofrecemos</a>
-          <a href="#para-quien">Para quién es</a>
-          <a href="#datos">Los datos</a>
-          <a href="#nosotros">Quiénes somos</a>
+          <a href="#ofrecemos" data-section-link>Qué ofrecemos</a>
+          <a href="#para-quien" data-section-link>Para quién es</a>
+          <a href="#datos" data-section-link>Los datos</a>
+          <a href="#nosotros" data-section-link>Quiénes somos</a>
           <a class="btn" href="login.html">Iniciar sesión</a>
         </nav>
       </div>
@@ -48,9 +92,15 @@
             aria-label="Vista previa del panel con indicadores y un gráfico de barras"
           >
             <h3>Vista previa del panel</h3>
-            <div class="pk">
-              <div>Hospitalizaciones<b>833.586</b></div>
-              <div>Estancia promedio<b>4,8 días</b></div>
+            <div class="pk" id="metricas-react">
+              <div>
+                Hospitalizaciones
+                <b>833.586</b>
+              </div>
+              <div>
+                Estancia promedio
+                <b>4,8 días</b>
+              </div>
             </div>
             <div class="spark" aria-hidden="true">
               <i style="height: 62%"></i>
@@ -72,7 +122,6 @@
           </div>
         </div>
       </div>
-
       <!-- Problema y solución -->
       <section id="problema">
         <div class="wrap">
@@ -103,8 +152,22 @@
                 de cálculo.
               </p>
               <p>
-                Todo parte de datos reales: más de 833.000 hospitalizaciones
-                depuradas entre 2019 y 2022.
+                Todo parte de datos reales: más de
+                <strong class="data-number" data-count-up="833000">833.000</strong>
+                hospitalizaciones depuradas entre
+                <strong
+                  class="data-number"
+                  data-count-up="2019"
+                  data-count-format="year"
+                  >2019</strong
+                >
+                y
+                <strong
+                  class="data-number"
+                  data-count-up="2022"
+                  data-count-format="year"
+                  >2022</strong
+                >.
               </p>
             </div>
           </div>
@@ -218,11 +281,11 @@
           </p>
           <div class="facts">
             <div>
-              <b>839.738</b>
+              <b data-count-up="839738">839.738</b>
               <span>registros originales</span>
             </div>
             <div>
-              <b>833.586</b>
+              <b data-count-up="833586">833.586</b>
               <span>registros tras la limpieza</span>
             </div>
             <div>
@@ -230,7 +293,21 @@
               <span>cobertura geográfica</span>
             </div>
             <div>
-              <b>2019 a 2022</b>
+              <b>
+                <span
+                  class="counter-number"
+                  data-count-up="2019"
+                  data-count-format="year"
+                  >2019</span
+                >
+                a
+                <span
+                  class="counter-number"
+                  data-count-up="2022"
+                  data-count-format="year"
+                  >2022</span
+                >
+              </b>
               <span>periodo analizado</span>
             </div>
           </div>
@@ -289,5 +366,9 @@
         <span>Proyecto del Grupo Chill, Universidad Libre</span>
       </div>
     </footer>
+    <script defer src="../javascript/fondo3d.js"></script>
+    <script defer src="../javascript/revelar.js"></script>
+    <script defer src="../javascript/navegacion.js"></script>
+    <script defer src="../javascript/carga.js"></script>
   </body>
 </html>
