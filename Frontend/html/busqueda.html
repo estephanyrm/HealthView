@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Búsqueda con Filtros Avanzados | HealthView</title>
     <link rel="icon" href="../img/logo-icono.png" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
     <link rel="stylesheet" href="../css/busqueda.css" />
@@ -112,7 +116,7 @@
           </div>
 
           <!-- Panel de Filtros Avanzados -->
-          <form id="form-busqueda" class="tarjeta formulario-filtros">
+          <form id="form-busqueda" class="tarjeta card formulario-filtros">
             <div class="rejilla-campos">
               <!-- Diagnóstico CIE-10 -->
               <div class="campo">
@@ -120,6 +124,7 @@
                   >Diagnóstico Principal (CIE-10 o Nombre)</label
                 >
                 <input
+                  class="form-control"
                   type="text"
                   id="filtro-dx"
                   placeholder="Ej. J44, COVID, Neumonía, I10..."
@@ -133,6 +138,7 @@
                   >Diagnóstico Adicional / Complicación</label
                 >
                 <input
+                  class="form-control"
                   type="text"
                   id="filtro-dx-adicional"
                   placeholder="Código CIE-10 adicional"
@@ -142,7 +148,7 @@
               <!-- Sexo -->
               <div class="campo">
                 <label for="filtro-sexo">Sexo Biológico</label>
-                <select id="filtro-sexo">
+                <select id="filtro-sexo" class="form-select">
                   <option value="">Todos los sexos</option>
                   <option value="F">Femenino (F)</option>
                   <option value="M">Masculino (M)</option>
@@ -154,6 +160,7 @@
                 <label>Edad (Años)</label>
                 <div class="grupo-inputs">
                   <input
+                    class="form-control"
                     type="number"
                     id="filtro-edad-min"
                     placeholder="Mín"
@@ -162,6 +169,7 @@
                   />
                   <span>a</span>
                   <input
+                    class="form-control"
                     type="number"
                     id="filtro-edad-max"
                     placeholder="Máx"
@@ -174,7 +182,7 @@
               <!-- Municipio de Residencia -->
               <div class="campo">
                 <label for="filtro-municipio">Municipio de Residencia</label>
-                <select id="filtro-municipio">
+                <select id="filtro-municipio" class="form-select">
                   <option value="">Todos los municipios</option>
                 </select>
               </div>
@@ -182,7 +190,7 @@
               <!-- EPS / Aseguradora -->
               <div class="campo">
                 <label for="filtro-eps">Aseguradora (EPS)</label>
-                <select id="filtro-eps">
+                <select id="filtro-eps" class="form-select">
                   <option value="">Todas las aseguradoras</option>
                 </select>
               </div>
@@ -192,7 +200,7 @@
                 <label for="filtro-prestador"
                   >Institución Prestadora (IPS)</label
                 >
-                <select id="filtro-prestador">
+                <select id="filtro-prestador" class="form-select">
                   <option value="">Todas las instituciones</option>
                 </select>
               </div>
@@ -200,7 +208,7 @@
               <!-- Vía de Ingreso -->
               <div class="campo">
                 <label for="filtro-via">Vía de Ingreso</label>
-                <select id="filtro-via">
+                <select id="filtro-via" class="form-select">
                   <option value="">Todas las vías</option>
                   <option value="1">Urgencias</option>
                   <option value="2">Consulta externa o programada</option>
@@ -212,7 +220,7 @@
               <!-- Estado de Salida -->
               <div class="campo">
                 <label for="filtro-estado">Estado de Salida</label>
-                <select id="filtro-estado">
+                <select id="filtro-estado" class="form-select">
                   <option value="">Todos los desenlaces</option>
                   <option value="1">Vivo (Egreso favorable)</option>
                   <option value="2">Fallecido (Mortalidad)</option>
@@ -222,7 +230,7 @@
               <!-- Zona de Residencia -->
               <div class="campo">
                 <label for="filtro-zona">Zona de Residencia</label>
-                <select id="filtro-zona">
+                <select id="filtro-zona" class="form-select">
                   <option value="">Urbana y Rural</option>
                   <option value="U">Urbana (U)</option>
                   <option value="R">Rural (R)</option>
@@ -233,9 +241,9 @@
               <div class="campo campo-doble">
                 <label>Fecha de Ingreso (Desde / Hasta)</label>
                 <div class="grupo-inputs">
-                  <input type="date" id="filtro-desde" />
+                  <input type="date" id="filtro-desde" class="form-control" />
                   <span>a</span>
-                  <input type="date" id="filtro-hasta" />
+                  <input type="date" id="filtro-hasta" class="form-control" />
                 </div>
               </div>
 
@@ -244,6 +252,7 @@
                 <label>Estancia (Días)</label>
                 <div class="grupo-inputs">
                   <input
+                    class="form-control"
                     type="number"
                     id="filtro-estancia-min"
                     placeholder="Mín días"
@@ -251,6 +260,7 @@
                   />
                   <span>a</span>
                   <input
+                    class="form-control"
                     type="number"
                     id="filtro-estancia-max"
                     placeholder="Máx días"
@@ -262,10 +272,10 @@
 
             <!-- Botones de Acción del Formulario -->
             <div class="acciones-formulario">
-              <button type="submit" class="boton-primario">
+              <button type="submit" class="btn btn-primary boton-primario">
                 🔍 Aplicar filtros y buscar
               </button>
-              <button type="button" id="btn-restablecer" class="enlace-boton">
+              <button type="button" id="btn-restablecer" class="btn btn-outline-secondary enlace-boton">
                 Restablecer campos
               </button>
               <span id="indicador-cargando" class="texto-cargando" hidden
@@ -311,7 +321,7 @@
               </div>
               <div class="opciones-tabla">
                 <label for="selector-per-page">Mostrar:</label>
-                <select id="selector-per-page">
+                <select id="selector-per-page" class="form-select">
                   <option value="15">15 por página</option>
                   <option value="25" selected>25 por página</option>
                   <option value="50">50 por página</option>

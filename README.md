@@ -86,7 +86,7 @@ Datos originales (CSV) → Limpieza (Python/pandas) → Base de datos (MariaDB/M
 | Limpieza de datos | Python 3 + pandas                                                   |
 | Base de datos     | MariaDB 10.4+ / MySQL 8 (XAMPP)                                     |
 | Backend           | Python 3 + Flask 3, Flask-SQLAlchemy, Flask-CORS, PyMySQL, Werkzeug |
-| Frontend          | HTML5, CSS3 (Bootstrap 5 en el login) y JavaScript (Fetch API)      |
+| Frontend          | HTML5, CSS3, JavaScript vanilla (Fetch API), Bootstrap 5 y React 18 vía CDN para las métricas de la página de inicio |
 
 Cómo se comunican las partes: el navegador carga las páginas HTML, el JavaScript pide datos a la API en `http://127.0.0.1:5000/api/...`, la API consulta la base de datos con SQLAlchemy y responde en JSON.
 
@@ -236,6 +236,8 @@ Abre `Frontend/html/index.html` con **Live Server** (clic derecho → _Open with
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `html/index.html`     | Página de presentación con hero, módulos, roles, datos y equipo.                                                           |
 | `html/login.html`     | Formulario de inicio de sesión con Bootstrap.                                                                              |
+| `javascript/react-metricas.js` | Componente React 18 vía CDN que anima las métricas de la vista previa en `index.html`.                             |
+| `html/crear-usuario.html` | Formulario administrativo con controles y botones de Bootstrap.                                                       |
 | `css/base.css`        | Paleta de colores compartida (`--green`, `--ink`, `--accent`...) y `box-sizing`.                                           |
 | `css/landing.css`     | Estilos de `index.html`.                                                                                                   |
 | `css/login.css`       | Estilos de `login.html`.                                                                                                   |
@@ -276,9 +278,14 @@ Todas las respuestas son JSON. Prefijo común: `/api`.
 | PATCH  | `/hospitalizaciones/<id>` | Modifica parcialmente una hospitalización                                                                        |
 | DELETE | `/hospitalizaciones/<id>` | Elimina una hospitalización                                                                                      |
 
+## three- -loop  desing
+https://threejs.org/
+
+
 ## Modelo entidad-relación
 
 ![Diagrama entidad-relación](docs/Diagrama%20entidad%20relacion.png)
+
 
 ## Equipo
 
