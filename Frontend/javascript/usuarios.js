@@ -1,116 +1,66 @@
 // ==========================================================================
 // HealthView - Gestión de Usuarios (usuarios.js)
-// Conexión con Backend Flask (/api/usuarios) y persistencia local de respaldo
+// Página solo para Administrador (guarda en auth.js + validación en el backend).
+// Todos los cambios se hacen contra la API; no hay datos locales de respaldo.
 // ==========================================================================
 
-const API_BASE = "/api/usuarios";
+const API_BASE = `${HVAuth.API_URL}/usuarios`;
 
-const USUARIOS_INICIALES = [
-  {
-    id_usuario: 1,
-    nombre: "Usuario 1",
-    correo: "usuario1@ejemplo.co",
-    rol: "Administrador",
-    activo: true,
-    ultimo_acceso: "Hoy",
-  },
-  {
-    id_usuario: 2,
-    nombre: "Usuario 2",
-    correo: "usuario2@ejemplo.co",
-    rol: "Analista",
-    activo: true,
-    ultimo_acceso: "Ayer",
-  },
-  {
-    id_usuario: 3,
-    nombre: "Usuario 3",
-    correo: "usuario3@ejemplo.co",
-    rol: "Investigador",
-    activo: true,
-    ultimo_acceso: "Hace 3 días",
-  },
-  {
-    id_usuario: 4,
-    nombre: "Usuario 4",
-    correo: "usuario4@ejemplo.co",
-    rol: "Médico",
-    activo: true,
-    ultimo_acceso: "Hace 1 semana",
-  },
-  {
-    id_usuario: 5,
-    nombre: "Usuario 5",
-    correo: "usuario5@ejemplo.co",
-    rol: "Analista",
-    activo: false,
-    ultimo_acceso: "Nunca",
-  },
-];
-
-// Obtener lista de usuarios
-async function cargarUsuarios() {
+// Llama a la API y devuelve el JSON; si falla, lanza un Error con el mensaje del servidor.
+async function llamarApi(url, opciones = {}) {
+  const cabeceras = { ...(opciones.body ? { "Content-Type": "application/json" } : {}) };
+  let respuesta;
   try {
-    const respuesta = await fetch(API_BASE, { credentials: "include" });
-    if (respuesta.ok) {
-      const json = await respuesta.json();
-      if (Array.isArray(json.datos) && json.datos.length > 0) {
-        guardarLocalmente(json.datos);
-        return json.datos;
-      }
-    }
-  } catch (error) {
-    // Si la API Python no está corriendo en segundo plano, usamos almacenamiento local
-    console.log(
-      "Servidor local Flask no detectado. Utilizando almacenamiento local de respaldo.",
-    );
-  }
-  return obtenerLocalmente();
-}
-
-function obtenerLocalmente() {
-  const guardados = localStorage.getItem("healthview_usuarios");
-  if (!guardados) {
-    localStorage.setItem(
-      "healthview_usuarios",
-      JSON.stringify(USUARIOS_INICIALES),
-    );
-    return USUARIOS_INICIALES;
-  }
-  try {
-    return JSON.parse(guardados);
+    respuesta = await fetch(url, { ...opciones, headers: cabeceras });
   } catch (e) {
-    return USUARIOS_INICIALES;
+    throw new Error("No se pudo conectar con el servidor. Verifica que la API esté encendida.");
   }
+  const datos = await respuesta.json().catch(() => ({}));
+  if (!respuesta.ok) {
+    throw new Error(datos.error?.mensaje || "No se pudo completar la operación.");
+  }
+  return datos;
 }
 
-function guardarLocalmente(lista) {
-  localStorage.setItem("healthview_usuarios", JSON.stringify(lista));
+function escapeHtml(str) {
+  if (!str) return "";
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function formatearAcceso(iso) {
+  if (!iso) return "Nunca";
+  const f = new Date(iso);
+  return isNaN(f) ? "Nunca" : f.toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" });
 }
 
 // Renderizado de la tabla de usuarios
 async function renderizarTabla() {
-  const usuarios = await cargarUsuarios();
   const tbody = document.getElementById("tabla-usuarios-body");
   if (!tbody) return;
 
-  tbody.innerHTML = "";
+  let usuarios;
+  try {
+    usuarios = (await llamarApi(API_BASE)).datos || [];
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6">${escapeHtml(e.message)}</td></tr>`;
+    return;
+  }
 
+  tbody.innerHTML = "";
   usuarios.forEach((u) => {
     const tr = document.createElement("tr");
 
-    // Rol Badge
     const badgeRol =
       u.rol === "Administrador"
         ? '<span class="badge-admin">Administrador</span>'
         : `<span class="badge-role">${escapeHtml(u.rol)}</span>`;
 
-    // Estado Badge
     const badgeEstado = u.activo
       ? '<span class="badge-active">Activo</span>'
       : '<span class="badge-inactive">Inactivo</span>';
 
-    // Acciones
     let accionesHtml = "";
     if (u.rol !== "Administrador") {
       accionesHtml += `<button type="button" onclick="accionCambiarRol(${u.id_usuario})">Cambiar rol</button>`;
@@ -123,29 +73,22 @@ async function renderizarTabla() {
       <td>${escapeHtml(u.correo)}</td>
       <td>${badgeRol}</td>
       <td>${badgeEstado}</td>
-      <td>${escapeHtml(u.ultimo_acceso || "Nunca")}</td>
-      <td>
-        <div class="table-actions">
-          ${accionesHtml}
-        </div>
-      </td>
+      <td>${escapeHtml(formatearAcceso(u.ultimo_acceso))}</td>
+      <td><div class="table-actions">${accionesHtml}</div></td>
     `;
-
     tbody.appendChild(tr);
   });
+  // Se guardan para que las acciones muestren el nombre sin volver a pedirlos
+  window.__usuarios = usuarios;
 }
 
-function escapeHtml(str) {
-  if (!str) return "";
-  const d = document.createElement("div");
-  d.textContent = str;
-  return d.innerHTML;
+function buscarUsuario(id) {
+  return (window.__usuarios || []).find((u) => u.id_usuario === id);
 }
 
 // Acción: Cambiar rol
 async function accionCambiarRol(id) {
-  const lista = obtenerLocalmente();
-  const usuario = lista.find((u) => u.id_usuario === id);
+  const usuario = buscarUsuario(id);
   if (!usuario) return;
 
   const roles = ["Administrador", "Analista", "Investigador", "Médico"];
@@ -153,94 +96,58 @@ async function accionCambiarRol(id) {
     `Cambiar rol para ${usuario.nombre} (actual: ${usuario.rol}):\n\nIngresa uno de los roles:\n- Administrador\n- Analista\n- Investigador\n- Médico`,
     usuario.rol,
   );
-
-  if (!nuevoRol || !roles.includes(nuevoRol.trim())) {
-    if (nuevoRol)
-      alert(
-        "Rol no válido. Debes ingresar Administrador, Analista, Investigador o Médico.",
-      );
+  if (!nuevoRol) return;
+  if (!roles.includes(nuevoRol.trim())) {
+    alert("Rol no válido. Debes ingresar Administrador, Analista, Investigador o Médico.");
     return;
   }
 
-  const rolNormalizado = nuevoRol.trim();
-
-  // Intentar API Flask
   try {
-    await fetch(`${API_BASE}/${id}/rol`, {
+    await llamarApi(`${API_BASE}/${id}/rol`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rol: rolNormalizado }),
-      credentials: "include",
+      body: JSON.stringify({ rol: nuevoRol.trim() }),
     });
+    alert(`El rol de ${usuario.nombre} fue actualizado a ${nuevoRol.trim()}.`);
+    renderizarTabla();
   } catch (e) {
-    // Modo local
+    alert(e.message);
   }
-
-  usuario.rol = rolNormalizado;
-  guardarLocalmente(lista);
-  renderizarTabla();
-  alert(`El rol de ${usuario.nombre} fue actualizado a ${rolNormalizado}.`);
 }
 
 // Acción: Cambiar estado (Activar / Desactivar)
 async function accionCambiarEstado(id, nuevoEstado) {
-  const lista = obtenerLocalmente();
-  const usuario = lista.find((u) => u.id_usuario === id);
+  const usuario = buscarUsuario(id);
   if (!usuario) return;
 
   const accionTexto = nuevoEstado ? "activar" : "desactivar";
-  if (
-    !confirm(
-      `¿Estás seguro de que deseas ${accionTexto} la cuenta de ${usuario.nombre}?`,
-    )
-  ) {
+  if (!confirm(`¿Estás seguro de que deseas ${accionTexto} la cuenta de ${usuario.nombre}?`)) return;
+
+  try {
+    await llamarApi(`${API_BASE}/${id}/estado`, {
+      method: "PATCH",
+      body: JSON.stringify({ activo: nuevoEstado }),
+    });
+    alert(`Usuario ${usuario.nombre} ${nuevoEstado ? "activado" : "desactivado"} exitosamente.`);
+    renderizarTabla();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+// Acción: Reiniciar clave (la contraseña temporal la genera SOLO el servidor)
+async function accionReiniciarClave(id) {
+  const usuario = buscarUsuario(id);
+  if (!usuario) return;
+
+  let claveGenerada;
+  try {
+    const data = await llamarApi(`${API_BASE}/${id}/reiniciar-clave`, { method: "POST" });
+    claveGenerada = data.contrasena_temporal;
+  } catch (e) {
+    alert(e.message);
     return;
   }
 
-  // Intentar API Flask
-  try {
-    await fetch(`${API_BASE}/${id}/estado`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ activo: nuevoEstado }),
-      credentials: "include",
-    });
-  } catch (e) {
-    // Modo local
-  }
-
-  usuario.activo = nuevoEstado;
-  guardarLocalmente(lista);
-  renderizarTabla();
-  alert(
-    `Usuario ${usuario.nombre} ${nuevoEstado ? "activado" : "desactivado"} exitosamente.`,
-  );
-}
-
-// Acción: Reiniciar clave
-async function accionReiniciarClave(id) {
-  const lista = obtenerLocalmente();
-  const usuario = lista.find((u) => u.id_usuario === id);
-  if (!usuario) return;
-
-  let claveGenerada =
-    "HV-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "!";
-
-  // Intentar API Flask
-  try {
-    const res = await fetch(`${API_BASE}/${id}/reiniciar-clave`, {
-      method: "POST",
-      credentials: "include",
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.contrasena_temporal) claveGenerada = data.contrasena_temporal;
-    }
-  } catch (e) {
-    // Modo local
-  }
-
-  // Mostrar modal con clave temporal
   const modal = document.getElementById("modal-temp-clave");
   const texto = document.getElementById("modal-temp-clave-texto");
   const display = document.getElementById("temp-clave-code");
@@ -249,17 +156,13 @@ async function accionReiniciarClave(id) {
   if (texto) {
     texto.innerHTML = `Se ha generado una nueva contraseña temporal para <b>${escapeHtml(usuario.nombre)}</b> (${escapeHtml(usuario.correo)}):`;
   }
-  if (display) {
-    display.textContent = claveGenerada;
-  }
+  if (display) display.textContent = claveGenerada;
   if (btnCopiar) {
     btnCopiar.textContent = "Copiar";
     btnCopiar.onclick = () => {
       navigator.clipboard.writeText(claveGenerada).then(() => {
         btnCopiar.textContent = "¡Copiada!";
-        setTimeout(() => {
-          btnCopiar.textContent = "Copiar";
-        }, 2000);
+        setTimeout(() => (btnCopiar.textContent = "Copiar"), 2000);
       });
     };
   }
@@ -282,7 +185,7 @@ function cerrarModalCambiarClave() {
   if (modal) modal.style.display = "none";
 }
 
-function guardarNuevaClave(e) {
+async function guardarNuevaClave(e) {
   e.preventDefault();
   const actual = document.getElementById("clave-actual").value;
   const nueva = document.getElementById("clave-nueva").value;
@@ -292,18 +195,28 @@ function guardarNuevaClave(e) {
     return;
   }
 
-  alert("Contraseña actualizada exitosamente.");
-  cerrarModalCambiarClave();
-  document.getElementById("form-cambiar-clave-modal").reset();
+  try {
+    const data = await llamarApi(`${HVAuth.API_URL}/auth/cambiar-clave`, {
+      method: "POST",
+      body: JSON.stringify({ contrasena_actual: actual, contrasena_nueva: nueva }),
+    });
+    HVAuth.guardarSesion(data.token, data.usuario);
+    alert("Contraseña actualizada exitosamente.");
+    cerrarModalCambiarClave();
+    document.getElementById("form-cambiar-clave-modal").reset();
+  } catch (err) {
+    alert(err.message);
+  }
 }
 
 function cerrarSesion() {
-  if (confirm("¿Deseas cerrar tu sesión?")) {
-    window.location.href = "login.html";
-  }
+  if (confirm("¿Deseas cerrar tu sesión?")) HVAuth.cerrarSesion();
 }
 
 // Inicialización
 document.addEventListener("DOMContentLoaded", () => {
+  const u = HVAuth.usuario();
+  const etiqueta = document.getElementById("nombre-usuario-sesion");
+  if (u && etiqueta) etiqueta.textContent = `${u.nombre} · ${u.rol}`;
   renderizarTabla();
 });

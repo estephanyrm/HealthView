@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
@@ -21,7 +22,12 @@ class Config:
     CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
     MAX_PER_PAGE = 100
 
+    # JWT: clave propia para firmar tokens (si no existe, usa SECRET_KEY) y duración del token
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY") or SECRET_KEY
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=float(os.getenv("JWT_EXPIRA_HORAS", "8")))
+
 
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    JWT_SECRET_KEY = "clave-solo-para-pruebas-0123456789-abcdef"
