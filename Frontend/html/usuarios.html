@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Usuarios de la plataforma | HealthView</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/admin.css" />
   </head>
@@ -130,7 +134,7 @@
         <!-- Área de Contenido -->
         <main class="admin-view">
           <!-- Tarjeta: Usuarios de la plataforma (Exacta a la imagen) -->
-          <section class="panel-card">
+          <section class="panel-card card">
             <div class="panel-card-header">
               <div>
                 <h1 class="panel-title">Usuarios de la plataforma</h1>
@@ -142,7 +146,7 @@
                 <!-- Botón de navegación clara a la página separada de creación -->
                 <a
                   href="crear-usuario.html"
-                  class="btn-green"
+                  class="btn btn-primary btn-green"
                   style="padding: 8px 16px; font-size: 13px"
                 >
                   + Crear usuario
@@ -186,7 +190,7 @@
               >Contraseña actual</label
             >
             <input
-              class="form-input"
+              class="form-input form-control"
               style="max-width: 100%"
               type="password"
               id="clave-actual"
@@ -196,7 +200,7 @@
           <div class="form-field">
             <label class="form-label" for="clave-nueva">Nueva contraseña</label>
             <input
-              class="form-input"
+              class="form-input form-control"
               style="max-width: 100%"
               type="password"
               id="clave-nueva"
@@ -212,7 +216,7 @@
             >
               Cancelar
             </button>
-            <button type="submit" class="btn-green">Actualizar</button>
+            <button type="submit" class="btn btn-primary btn-green">Actualizar</button>
           </div>
         </form>
       </div>
