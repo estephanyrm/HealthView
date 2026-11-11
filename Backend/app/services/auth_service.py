@@ -33,3 +33,27 @@ def autenticar_usuario(datos):
     db.session.commit()
 
     return usuario
+
+
+def cambiar_clave(usuario, datos):
+    """Cambia la contraseña propia y retira la marca de contraseña temporal."""
+    if not isinstance(datos, dict):
+        raise ApiError("El cuerpo de la petición debe ser un objeto JSON.", 400)
+
+    actual = str(datos.get("contrasena_actual") or "")
+    nueva = str(datos.get("contrasena_nueva") or "")
+
+    if not actual or not nueva:
+        raise ApiError("Debes ingresar la contraseña actual y la nueva.", 400)
+    # 400 (no 401) para que el cliente no confunda esto con una sesión vencida
+    if not check_password_hash(usuario.password_hash, actual):
+        raise ApiError("La contraseña actual es incorrecta.", 400)
+    if len(nueva) < 8:
+        raise ApiError("La nueva contraseña debe tener al menos 8 caracteres.", 400)
+    if nueva == actual:
+        raise ApiError("La nueva contraseña debe ser distinta de la actual.", 400)
+
+    usuario.password_hash = generate_password_hash(nueva)
+    usuario.debe_cambiar_clave = False
+    db.session.commit()
+    return usuario
