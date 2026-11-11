@@ -15,12 +15,8 @@ let estadoAlertas = {
 function verificarSesion() {
   const usuario = JSON.parse(sessionStorage.getItem("usuario") || "null");
   if (!usuario) {
-    // Si no hay sesión en demo, ponemos usuario analista por defecto para permitir exploración fluida
-    const usuarioDemo = { nombre: "Usuario Clínico", rol: "Médico" };
-    sessionStorage.setItem("usuario", JSON.stringify(usuarioDemo));
-    $("usuario-nombre").textContent = usuarioDemo.nombre;
-    $("usuario-rol").textContent = usuarioDemo.rol;
-    return true;
+    window.location.href = "login.html";
+    return false;
   }
   $("usuario-nombre").textContent = usuario.nombre;
   $("usuario-rol").textContent = usuario.rol;
@@ -35,7 +31,7 @@ $("btn-salir").addEventListener("click", async () => {
       credentials: "include",
     });
   } finally {
-    sessionStorage.removeItem("usuario");
+    HVAuth.limpiarSesion();
     window.location.href = "login.html";
   }
 });

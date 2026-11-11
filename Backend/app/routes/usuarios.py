@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.services import usuario_service
+from app.utils.auth import ROL_ADMIN, rol_requerido
 from app.utils.errors import ApiError
 
 bp = Blueprint("usuarios", __name__)
@@ -13,12 +14,14 @@ def _json_o_error():
 
 
 @bp.get("")
+@rol_requerido(ROL_ADMIN)
 def listar():
     usuarios = usuario_service.listar_usuarios()
     return jsonify({"datos": usuarios}), 200
 
 
 @bp.post("")
+@rol_requerido(ROL_ADMIN)
 def crear():
     datos = _json_o_error()
     resultado = usuario_service.crear_usuario(datos)
@@ -26,6 +29,7 @@ def crear():
 
 
 @bp.patch("/<int:id_usuario>/rol")
+@rol_requerido(ROL_ADMIN)
 def actualizar_rol(id_usuario):
     datos = _json_o_error()
     nuevo_rol = datos.get("rol")
@@ -36,6 +40,7 @@ def actualizar_rol(id_usuario):
 
 
 @bp.patch("/<int:id_usuario>/estado")
+@rol_requerido(ROL_ADMIN)
 def actualizar_estado(id_usuario):
     datos = _json_o_error()
     if "activo" not in datos:
@@ -45,6 +50,7 @@ def actualizar_estado(id_usuario):
 
 
 @bp.post("/<int:id_usuario>/reiniciar-clave")
+@rol_requerido(ROL_ADMIN)
 def reiniciar_clave(id_usuario):
     resultado = usuario_service.reiniciar_clave(id_usuario)
     return jsonify(resultado), 200

@@ -6,6 +6,7 @@
     <title>Usuarios de la plataforma | HealthView</title>
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/admin.css" />
+      <script src="../javascript/auth.js" data-requiere="admin"></script>
   </head>
   <body>
     <div class="admin-container">
@@ -20,13 +21,7 @@
         <div class="sidebar-group">
           <div class="sidebar-title">Análisis</div>
           <nav class="sidebar-menu">
-            <button
-              class="sidebar-item"
-              type="button"
-              onclick="alert('Módulo de Análisis: Panel inteligente')"
-            >
-              Panel inteligente
-            </button>
+            <a class="sidebar-item" href="dashboard.html">Panel inteligente</a>
             <button
               class="sidebar-item"
               type="button"
@@ -34,34 +29,10 @@
             >
               Tendencias
             </button>
-            <button
-              class="sidebar-item"
-              type="button"
-              onclick="alert('Módulo de Análisis: Mapa epidemiológico')"
-            >
-              Mapa epidemiológico
-            </button>
-            <button
-              class="sidebar-item"
-              type="button"
-              onclick="alert('Módulo de Análisis: Alertas')"
-            >
-              Alertas
-            </button>
-            <button
-              class="sidebar-item"
-              type="button"
-              onclick="alert('Módulo de Análisis: Búsqueda y filtros')"
-            >
-              Búsqueda y filtros
-            </button>
-            <button
-              class="sidebar-item"
-              type="button"
-              onclick="alert('Módulo de Análisis: Reportes')"
-            >
-              Reportes
-            </button>
+            <a class="sidebar-item" href="mapa.html">Mapa epidemiológico</a>
+            <a class="sidebar-item" href="alertas.html">Alertas</a>
+            <a class="sidebar-item" href="busqueda.html">Búsqueda y filtros</a>
+            <a class="sidebar-item" href="reportes.html">Reportes</a>
             <button
               class="sidebar-item"
               type="button"
