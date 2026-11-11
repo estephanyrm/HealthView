@@ -42,7 +42,6 @@ const setupFormLogin = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Permite guardar la cookie de sesión de Flask
         body: JSON.stringify({ correo, contrasena }),
       });
 
@@ -56,8 +55,8 @@ const setupFormLogin = () => {
         return;
       }
 
-      // Guardamos los datos básicos del usuario en sessionStorage para usarlos en la interfaz
-      sessionStorage.setItem("usuario", JSON.stringify(datos.usuario));
+      // Guardamos el JWT y los datos básicos del usuario (auth.js los adjunta en cada petición)
+      HVAuth.guardarSesion(datos.token, datos.usuario);
 
       // Si el usuario debe cambiar su contraseña, lo redirigimos a la página de cambio de contraseña
       if (datos.usuario.debe_cambiar_clave) {

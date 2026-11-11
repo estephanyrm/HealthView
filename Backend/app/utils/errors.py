@@ -22,6 +22,21 @@ def _respuesta(status, mensaje, detalles=None):
 
 
 def register_error_handlers(app):
+    from app.extensions import jwt
+
+    # Errores de JWT con el mismo formato {"error": {...}} que el resto de la API
+    @jwt.unauthorized_loader
+    def token_ausente(motivo):
+        return _respuesta(401, "Debes iniciar sesión para ver esta información.")
+
+    @jwt.invalid_token_loader
+    def token_invalido(motivo):
+        return _respuesta(401, "Token inválido. Inicia sesión de nuevo.")
+
+    @jwt.expired_token_loader
+    def token_expirado(cabecera, payload):
+        return _respuesta(401, "Tu sesión expiró. Inicia sesión de nuevo.")
+
     @app.errorhandler(ApiError)
     def api_error(e):
         return _respuesta(e.status, e.mensaje, e.detalles)

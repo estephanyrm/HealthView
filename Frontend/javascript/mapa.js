@@ -33,13 +33,13 @@ function iniciarSesionUI() {
 }
 $("btn-salir").addEventListener("click", async () => {
   try { await fetch(`${API_URL}/auth/logout`, { method: "POST", credentials: "include" }); }
-  finally { sessionStorage.removeItem("usuario"); window.location.href = "login.html"; }
+  finally { HVAuth.limpiarSesion(); window.location.href = "login.html"; }
 });
 
 async function pedir(ruta) {
   const r = await fetch(`${API_URL}${ruta}`, { credentials: "include" });
   if (r.status === 401 || r.status === 403) {
-    sessionStorage.removeItem("usuario");
+    HVAuth.limpiarSesion();
     window.location.href = "login.html";
     throw new Error("sesion");
   }
