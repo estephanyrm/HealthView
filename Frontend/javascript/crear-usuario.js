@@ -26,13 +26,19 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!form) return;
 
   function mostrarError(mensaje) {
-    if (alertError) {
-      alertError.textContent = mensaje;
-      alertError.style.display = "block";
-    } else {
-      alert(mensaje);
-    }
+    HVNotificar.error(mensaje, { titulo: "No se pudo crear el usuario" });
   }
+
+  // Muestra la insignia del rol elegido y a qué módulos tiene acceso
+  const selectRol = document.getElementById("rol");
+  const descRol = document.getElementById("rol-descripcion");
+  function mostrarDescripcionRol() {
+    if (!selectRol || !descRol) return;
+    const info = HVRoles.info[selectRol.value];
+    descRol.innerHTML = `${HVRoles.html(selectRol.value)} ${info ? info.acceso : ""}`;
+  }
+  selectRol?.addEventListener("change", mostrarDescripcionRol);
+  mostrarDescripcionRol();
 
   function restaurarBoton() {
     if (btnSubmit) {
@@ -83,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (tempPassSpan) tempPassSpan.textContent = datos.contrasena_temporal;
+    HVNotificar.toast("Usuario creado exitosamente");
     if (modal) modal.style.display = "flex";
 
     form.reset();

@@ -51,10 +51,7 @@ function renderizarTabla() {
   filtrados.forEach((u) => {
     const tr = document.createElement("tr");
 
-    const badgeRol =
-      u.rol === "Administrador"
-        ? '<span class="badge-admin">Administrador</span>'
-        : `<span class="badge-role">${escapeHtml(u.rol)}</span>`;
+    const badgeRol = HVRoles.html(u.rol);
 
     const badgeEstado = u.activo
       ? '<span class="badge-active">Activo</span>'
@@ -102,26 +99,18 @@ async function accionCambiarRol(id) {
   const usuario = buscarUsuario(id);
   if (!usuario) return;
 
-  const roles = ["Administrador", "Analista", "Investigador", "Médico"];
-  const nuevoRol = prompt(
-    `Cambiar rol para ${usuario.nombre} (actual: ${usuario.rol}):\n\nIngresa uno de los roles:\n- Administrador\n- Analista\n- Investigador\n- Médico`,
-    usuario.rol,
-  );
-  if (!nuevoRol) return;
-  if (!roles.includes(nuevoRol.trim())) {
-    alert("Rol no válido. Debes ingresar Administrador, Analista, Investigador o Médico.");
-    return;
-  }
+  const nuevoRol = await HVNotificar.elegirRol(usuario.nombre, usuario.rol);
+  if (!nuevoRol || nuevoRol === usuario.rol) return;
 
   try {
     await llamarApi(`${API_BASE}/${id}/rol`, {
       method: "PATCH",
-      body: JSON.stringify({ rol: nuevoRol.trim() }),
+      body: JSON.stringify({ rol: nuevoRol }),
     });
     alert(`El rol de ${usuario.nombre} fue actualizado a ${nuevoRol.trim()}.`);
     await cargarUsuarios();
   } catch (e) {
-    alert(e.message);
+    HVNotificar.error(e.message);
   }
 }
 
@@ -131,7 +120,13 @@ async function accionCambiarEstado(id, nuevoEstado) {
   if (!usuario) return;
 
   const accionTexto = nuevoEstado ? "activar" : "desactivar";
-  if (!confirm(`¿Estás seguro de que deseas ${accionTexto} la cuenta de ${usuario.nombre}?`)) return;
+  const acepta = await HVNotificar.confirmar({
+    titulo: `¿${accionTexto.charAt(0).toUpperCase() + accionTexto.slice(1)} cuenta?`,
+    texto: `¿Estás seguro de que deseas ${accionTexto} la cuenta de ${usuario.nombre}?`,
+    confirmar: `Sí, ${accionTexto}`,
+    peligro: !nuevoEstado,
+  });
+  if (!acepta) return;
 
   try {
     await llamarApi(`${API_BASE}/${id}/estado`, {
@@ -141,7 +136,7 @@ async function accionCambiarEstado(id, nuevoEstado) {
     alert(`Usuario ${usuario.nombre} ${nuevoEstado ? "activado" : "desactivado"} exitosamente.`);
     await cargarUsuarios();
   } catch (e) {
-    alert(e.message);
+    HVNotificar.error(e.message);
   }
 }
 
@@ -155,7 +150,7 @@ async function accionReiniciarClave(id) {
     const data = await llamarApi(`${API_BASE}/${id}/reiniciar-clave`, { method: "POST" });
     claveGenerada = data.contrasena_temporal;
   } catch (e) {
-    alert(e.message);
+    HVNotificar.error(e.message);
     return;
   }
 
@@ -181,7 +176,7 @@ async function accionReiniciarClave(id) {
   if (modal) {
     modal.style.display = "flex";
   } else {
-    alert(`Contraseña temporal para ${usuario.nombre}: ${claveGenerada}`);
+    HVNotificar.info(`Contraseña temporal para ${usuario.nombre}: ${claveGenerada}`, "Contraseña temporal");
   }
 }
 
@@ -202,7 +197,7 @@ async function guardarNuevaClave(e) {
   const nueva = document.getElementById("clave-nueva").value;
 
   if (nueva.length < 8) {
-    alert("La nueva contraseña debe tener al menos 8 caracteres.");
+    HVNotificar.aviso("La nueva contraseña debe tener al menos 8 caracteres.");
     return;
   }
 
@@ -212,16 +207,21 @@ async function guardarNuevaClave(e) {
       body: JSON.stringify({ contrasena_actual: actual, contrasena_nueva: nueva }),
     });
     HVAuth.guardarSesion(data.token, data.usuario);
-    alert("Contraseña actualizada exitosamente.");
+    HVNotificar.exito("Contraseña actualizada exitosamente.");
     cerrarModalCambiarClave();
     document.getElementById("form-cambiar-clave-modal").reset();
   } catch (err) {
-    alert(err.message);
+    HVNotificar.error(err.message);
   }
 }
 
-function cerrarSesion() {
-  if (confirm("¿Deseas cerrar tu sesión?")) HVAuth.cerrarSesion();
+async function cerrarSesion() {
+  const acepta = await HVNotificar.confirmar({
+    titulo: "Cerrar sesión",
+    texto: "¿Deseas cerrar tu sesión?",
+    confirmar: "Sí, cerrar sesión",
+  });
+  if (acepta) HVAuth.cerrarSesion();
 }
 
 // Inicialización

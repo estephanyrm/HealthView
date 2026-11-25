@@ -246,12 +246,7 @@ $("btn-export-json").addEventListener("click", () => {
 });
 
 function mostrarFeedbackDescarga(txt) {
-  const el = $("mensaje-export");
-  el.textContent = txt;
-  el.hidden = false;
-  setTimeout(() => {
-    el.hidden = true;
-  }, 4000);
+  HVNotificar.toast(txt, "info");
 }
 
 // ───────── Eventos de Cambio ─────────
