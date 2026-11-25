@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, request
 
 from app.models import (CausaExterna, Departamento, Diagnostico, Eps, Municipio,
                         Prestador, TipoUsuario, ViaIngreso)
+from app.utils.auth import roles_requeridos
 from app.utils.errors import ApiError
 
 bp = Blueprint("catalogos", __name__)
@@ -21,6 +22,7 @@ CATALOGOS = {
 
 
 @bp.get("/<nombre>")
+@roles_requeridos("Administrador", "Analista", "Investigador", "Médico")
 def listar(nombre):
     if nombre not in CATALOGOS:
         raise ApiError("Catálogo no encontrado.", 404, {"disponibles": sorted(CATALOGOS)})

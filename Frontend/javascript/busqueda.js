@@ -5,21 +5,19 @@ const $ = (id) => document.getElementById(id);
 
 let estadoBusqueda = {
   pagina: 1,
-  porPagina: 25,
+  porPagina: 10,
   totalPaginas: 1,
   presetActivo: null,
   resultados: [],
 };
+let controladorBusqueda;
 
 // ───────── Sesión ─────────
 function verificarSesion() {
   const usuario = JSON.parse(sessionStorage.getItem("usuario") || "null");
   if (!usuario) {
-    const usuarioDemo = { nombre: "Investigador Clínico", rol: "Analista" };
-    sessionStorage.setItem("usuario", JSON.stringify(usuarioDemo));
-    $("usuario-nombre").textContent = usuarioDemo.nombre;
-    $("usuario-rol").textContent = usuarioDemo.rol;
-    return true;
+    window.location.href = "login.html";
+    return false;
   }
   $("usuario-nombre").textContent = usuario.nombre;
   $("usuario-rol").textContent = usuario.rol;
@@ -34,7 +32,7 @@ $("btn-salir").addEventListener("click", async () => {
       credentials: "include",
     });
   } finally {
-    sessionStorage.removeItem("usuario");
+    HVAuth.limpiarSesion();
     window.location.href = "login.html";
   }
 });
@@ -132,7 +130,12 @@ function poblarCatalogosDefault(id) {
 
 // ───────── Búsqueda ─────────
 async function ejecutarBusqueda() {
+  controladorBusqueda?.abort();
+  controladorBusqueda = new AbortController();
+  const solicitud = controladorBusqueda;
   $("indicador-cargando").hidden = false;
+  $("aviso-error-busqueda").hidden = true;
+  $("aviso-demo-busqueda").hidden = true;
 
   const params = new URLSearchParams();
   params.set("page", estadoBusqueda.pagina);
@@ -190,19 +193,40 @@ async function ejecutarBusqueda() {
   try {
     const res = await fetch(`${API_URL}/busqueda?${params}`, {
       credentials: "include",
+      signal: solicitud.signal,
     });
 
     if (res.ok) {
       const data = await res.json();
+      if (controladorBusqueda !== solicitud) return;
       renderizarResultados(data);
     } else {
-      throw new Error("No se pudo conectar a /api/busqueda");
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.error?.mensaje || "No se pudo completar la búsqueda.");
     }
   } catch (err) {
-    console.warn("Fallo en API remota, usando motor de búsqueda local:", err);
-    renderizarResultados(simularBusquedaLocal(params));
+    if (err.name === "AbortError") return;
+    if (controladorBusqueda !== solicitud) return;
+    if (err instanceof TypeError) {
+      $("aviso-demo-busqueda").textContent =
+        "MODO DEMOSTRACIÓN: la API no está disponible. Los resultados mostrados son sintéticos y no representan pacientes ni datos clínicos reales.";
+      $("aviso-demo-busqueda").hidden = false;
+      renderizarResultados(simularBusquedaLocal(params));
+    } else {
+      $("aviso-error-busqueda").textContent = err.message;
+      $("aviso-error-busqueda").hidden = false;
+      $("cuerpo-tabla-resultados").innerHTML =
+        '<tr><td colspan="10" class="tabla-vacia">No se pudo completar la búsqueda.</td></tr>';
+      $("subtitulo-resultados").textContent = "Consulta no disponible.";
+      $("info-paginacion").textContent = "Sin datos";
+      $("btn-pag-ant").disabled = true;
+      $("btn-pag-sig").disabled = true;
+      ["metric-total", "metric-estancia", "metric-mortalidad", "metric-sexo"].forEach((id) => {
+        $(id).textContent = "—";
+      });
+    }
   } finally {
-    $("indicador-cargando").hidden = true;
+    if (controladorBusqueda === solicitud) $("indicador-cargando").hidden = true;
   }
 }
 
@@ -221,7 +245,7 @@ function renderizarResultados(data) {
     `${estadisticas_segmento.pct_mujeres}% F / ${estadisticas_segmento.pct_hombres}% M`;
 
   $("subtitulo-resultados").textContent =
-    `Mostrando ${datos.length} de ${paginacion.total.toLocaleString("es-CO")} coincidencias en Antioquia`;
+    `${data.modo_demo ? "Demostración sintética · " : ""}Mostrando ${datos.length} de ${paginacion.total.toLocaleString("es-CO")} coincidencias en Antioquia`;
   $("info-paginacion").textContent =
     `Página ${paginacion.pagina} de ${Math.max(paginacion.paginas, 1)}`;
 
@@ -363,7 +387,7 @@ document.querySelectorAll(".btn-preset").forEach((btn) => {
 });
 
 $("selector-per-page").addEventListener("change", (e) => {
-  estadoBusqueda.porPagina = parseInt(e.target.value, 10);
+  estadoBusqueda.porPagina = Math.min(parseInt(e.target.value, 10) || 10, 10);
   estadoBusqueda.pagina = 1;
   ejecutarBusqueda();
 });
@@ -578,6 +602,7 @@ function simularBusquedaLocal(params) {
   ];
 
   return {
+    modo_demo: true,
     datos: dataset.map((d) => ({
       id_hospitalizacion: d.id,
       numero_factura: d.factura,
@@ -605,7 +630,7 @@ function simularBusquedaLocal(params) {
     })),
     paginacion: {
       pagina: 1,
-      por_pagina: 25,
+      por_pagina: 10,
       total: 833586,
       paginas: 33344,
     },

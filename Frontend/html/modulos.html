@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Módulos de análisis | HealthView</title>
+    <link rel="icon" href="../img/logo-icono.png" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/modulos.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="../javascript/auth.js" data-requiere="sesion"></script>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" aria-label="Navegación principal">
+        <a class="marca" href="index.html">Health<span>View</span></a>
+        <nav>
+          <p class="nav-grupo">Análisis</p>
+          <a class="nav-item" href="dashboard.html">Panel inteligente</a>
+          <a class="nav-item" href="tendencias.html" data-modulo="tendencias">Tendencias</a>
+          <a class="nav-item" href="mapa.html">Mapa epidemiológico</a>
+          <a class="nav-item" href="alertas.html">Alertas</a>
+          <a class="nav-item" href="busqueda.html">Búsqueda y filtros</a>
+          <a class="nav-item" href="reportes.html">Reportes</a>
+          <a class="nav-item" href="comparador.html" data-modulo="comparador">Comparador</a>
+          <a class="nav-item" href="prediccion.html" data-modulo="prediccion">Predicción exploratoria</a>
+          <div id="nav-admin" hidden>
+            <p class="nav-grupo">Administración</p>
+            <a class="nav-item" href="usuarios.html">Usuarios</a>
+            <a class="nav-item" href="registros.html">Registros de hospitalización</a>
+            <a class="nav-item" href="configuracion.html">Configuración</a>
+          </div>
+        </nav>
+      </aside>
+      <div class="principal">
+        <header class="barra-superior">
+          <p class="migas">Análisis / <strong id="miga-modulo">Tendencias</strong></p>
+          <p class="sesion">
+            <span id="usuario-nombre">…</span> · <span id="usuario-rol"></span> ·
+            <button type="button" id="btn-salir" class="enlace-boton">Cerrar sesión</button>
+          </p>
+        </header>
+        <main class="contenido modulo-contenido">
+          <section class="modulo-hero tarjeta">
+            <span class="modulo-etiqueta">HealthView · analítica hospitalaria</span>
+            <h1 id="titulo-modulo">Tendencias</h1>
+            <p id="descripcion-modulo"></p>
+            <div id="controles-modulo" class="modulo-controles"></div>
+          </section>
+          <div id="aviso-modulo" class="aviso-error" role="alert" hidden></div>
+          <section id="panel-tendencias" class="tarjeta modulo-panel" hidden>
+            <h2>Hospitalizaciones por mes</h2>
+            <p class="descripcion-grafica">Gráfica de líneas: compara el volumen de ingresos mensuales entre los años disponibles.</p>
+            <div class="modulo-chart"><canvas id="grafica-tendencias" role="img" aria-label="Tendencia mensual de hospitalizaciones"></canvas></div>
+          </section>
+          <section id="panel-comparador" class="tarjeta modulo-panel" hidden>
+            <h2>Comparación de indicadores por periodo</h2>
+            <p class="descripcion-grafica">Tabla comparativa: contrasta volumen, estancia promedio, egreso vivo y mortalidad.</p>
+            <div class="tabla-scroll">
+              <table class="tabla">
+                <thead><tr><th>Indicador</th><th id="comparador-anio-a">Periodo A</th><th id="comparador-anio-b">Periodo B</th><th>Diferencia B − A</th></tr></thead>
+                <tbody id="tabla-comparador"></tbody>
+              </table>
+            </div>
+          </section>
+          <section id="panel-prediccion" class="tarjeta modulo-panel" hidden>
+            <h2>Estimación direccional de volumen</h2>
+            <p class="descripcion-grafica">Proyección lineal de referencia basada en los totales anuales observados; no es un modelo clínico ni reemplaza análisis epidemiológico.</p>
+            <div class="modulo-chart"><canvas id="grafica-prediccion" role="img" aria-label="Proyección lineal de hospitalizaciones"></canvas></div>
+            <p id="nota-prediccion" class="nota-modulo"></p>
+          </section>
+          <section id="panel-configuracion" class="tarjeta modulo-panel" hidden>
+            <h2>Cuenta y permisos de acceso</h2>
+            <div class="perfil-resumen">
+              <div><span>Usuario</span><strong id="perfil-nombre"></strong></div>
+              <div><span>Correo</span><strong id="perfil-correo"></strong></div>
+              <div><span>Rol</span><strong id="perfil-rol"></strong></div>
+            </div>
+            <p id="descripcion-permisos" class="nota-modulo"></p>
+            <a class="boton-modulo" href="cambiar-clave.html">Cambiar contraseña</a>
+            <a id="enlace-usuarios" class="boton-modulo boton-secundario" href="usuarios.html" hidden>Administrar usuarios</a>
+          </section>
+        </main>
+      </div>
+    </div>
+    <script src="../javascript/modulos.js"></script>
+  </body>
+</html>

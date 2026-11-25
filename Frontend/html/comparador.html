@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comparador | HealthView</title>
+    <link rel="icon" href="../img/logo-icono.png" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" aria-label="Navegación principal">
+        <a class="marca" href="index.html">Health<span>View</span></a>
+        <nav>
+          <p class="nav-grupo">Análisis</p>
+          <a class="nav-item" href="dashboard.html">Panel inteligente</a>
+          <a class="nav-item" href="tendencias.html">Tendencias</a>
+          <a class="nav-item" href="mapa.html">Mapa epidemiológico</a>
+          <a class="nav-item" href="alertas.html">Alertas</a>
+          <a class="nav-item" href="busqueda.html">Búsqueda y filtros</a>
+          <a class="nav-item" href="reportes.html">Reportes</a>
+          <a class="nav-item activo" href="comparador.html" aria-current="page">Comparador</a>
+          <a class="nav-item" href="prediccion.html">Predicción</a>
+          <div id="nav-admin" hidden>
+            <p class="nav-grupo">Administración</p>
+            <a class="nav-item" href="usuarios.html">Usuarios</a>
+            <a class="nav-item" href="registros.html">Registros de hospitalización</a>
+            <a class="nav-item" href="configuracion.html">Configuración</a>
+          </div>
+        </nav>
+      </aside>
+      <div class="principal">
+        <header class="barra-superior">
+          <p class="migas">Análisis / <strong>Comparador de municipios</strong></p>
+          <p class="sesion">
+            <span id="usuario-nombre">…</span> · <span id="usuario-rol"></span> ·
+            <button type="button" id="btn-salir" class="enlace-boton">Cerrar sesión</button>
+          </p>
+        </header>
+        <main class="contenido">
+          <div class="filtros">
+            <label for="filtro-anio">Periodo</label>
+            <select id="filtro-anio" class="form-select">
+              <option value="todos">Todos los años</option>
+            </select>
+            <label for="municipio-a">Municipio A</label>
+            <select id="municipio-a" class="form-select">
+              <option value="">Selecciona un municipio</option>
+            </select>
+            <label for="municipio-b">Municipio B</label>
+            <select id="municipio-b" class="form-select">
+              <option value="">Selecciona un municipio</option>
+            </select>
+          </div>
+          <div id="aviso-error" class="aviso-error" role="alert" hidden>
+            <span id="aviso-error-texto"></span>
+            <button type="button" id="btn-reintentar" class="enlace-boton">Reintentar</button>
+          </div>
+          <section class="tarjeta" aria-labelledby="titulo-comparacion">
+            <h1 id="titulo-comparacion">Comparación de municipios</h1>
+            <p class="subtitulo">Selecciona dos municipios para comparar sus indicadores disponibles.</p>
+            <div id="resultado-comparacion" class="kpis" aria-live="polite">
+              <p>Selecciona los dos municipios para ver el resultado.</p>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+    <script src="../javascript/autorizacion.js"></script>
+    <script src="../javascript/sesion.js"></script>
+    <script src="../javascript/comparador.js"></script>
+  </body>
+</html>

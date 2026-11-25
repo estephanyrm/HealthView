@@ -2,6 +2,7 @@
 from flask import Blueprint, jsonify, request
 
 from app.services import hospitalizacion_service as servicio
+from app.utils.auth import roles_requeridos
 from app.utils.errors import ApiError
 
 bp = Blueprint("hospitalizaciones", __name__)
@@ -15,16 +16,19 @@ def _json_o_error():
 
 
 @bp.get("")
+@roles_requeridos("Administrador")
 def listar():
     return jsonify(servicio.listar(request.args)), 200
 
 
 @bp.get("/<int:id_>")
+@roles_requeridos("Administrador")
 def detalle(id_):
     return jsonify(servicio.obtener(id_).to_dict()), 200
 
 
 @bp.post("")
+@roles_requeridos("Administrador")
 def crear():
     h = servicio.crear(_json_o_error())
     respuesta = jsonify(h.to_dict())
@@ -33,16 +37,19 @@ def crear():
 
 
 @bp.put("/<int:id_>")
+@roles_requeridos("Administrador")
 def reemplazar(id_):
     return jsonify(servicio.actualizar(id_, _json_o_error(), parcial=False).to_dict()), 200
 
 
 @bp.patch("/<int:id_>")
+@roles_requeridos("Administrador")
 def modificar(id_):
     return jsonify(servicio.actualizar(id_, _json_o_error(), parcial=True).to_dict()), 200
 
 
 @bp.delete("/<int:id_>")
+@roles_requeridos("Administrador")
 def eliminar(id_):
     servicio.eliminar(id_)
     return "", 204

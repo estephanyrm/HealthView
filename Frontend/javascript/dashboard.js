@@ -55,7 +55,7 @@ $("btn-salir").addEventListener("click", async () => {
       credentials: "include",
     });
   } finally {
-    sessionStorage.removeItem("usuario");
+    HVAuth.limpiarSesion();
     window.location.href = "login.html";
   }
 });
@@ -72,7 +72,7 @@ async function cargar() {
       credentials: "include",
     });
     if (r.status === 401 || r.status === 403) {
-      sessionStorage.removeItem("usuario");
+      HVAuth.limpiarSesion();
       window.location.href = "login.html";
       return;
     }
@@ -224,6 +224,8 @@ function pintarMensual(series, anio) {
     $("titulo-mensual").textContent = `Hospitalizaciones por mes · ${anio}`;
     $("sub-mensual").textContent =
       `Pico en ${MESES[datos.indexOf(max)]} (${num(max)}). La línea punteada es el promedio mensual.`;
+    $("tipo-mensual").textContent =
+      "Gráfica combinada de barras y línea: barras por mes y línea punteada para el promedio mensual.";
     reemplazar("graf-mensual", {
       type: "bar",
       data: {
@@ -267,6 +269,8 @@ function pintarMensual(series, anio) {
     $("titulo-mensual").textContent = "Hospitalizaciones por mes";
     $("sub-mensual").textContent =
       "Una línea por año, para comparar temporadas de mayor demanda.";
+    $("tipo-mensual").textContent =
+      "Gráfica de líneas: compara el volumen mensual entre años.";
     reemplazar("graf-mensual", {
       type: "line",
       data: {
