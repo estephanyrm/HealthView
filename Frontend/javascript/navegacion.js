@@ -12,6 +12,7 @@
   }
 
   function updateActiveLink() {
+    header.classList.toggle("is-scrolled", window.scrollY > 8);
     const marker = window.scrollY + header.offsetHeight + 48;
     let activeSection = null;
 
