@@ -37,6 +37,7 @@ function formatearAcceso(iso) {
 
 // Renderizado de la tabla de usuarios
 async function renderizarTabla() {
+  const usuarios = await cargarUsuarios();
   const tbody = document.getElementById("tabla-usuarios-body");
   if (!tbody) return;
 
@@ -48,7 +49,15 @@ async function renderizarTabla() {
     return;
   }
 
+  const usuarios = window.__usuarios || [];
+  const consulta = (document.getElementById("filtro-usuarios")?.value || "").trim().toLocaleLowerCase("es");
+  const rolFiltro = document.getElementById("filtro-rol-usuarios")?.value || "";
+  const filtrados = usuarios.filter((u) =>
+    (!consulta || `${u.nombre} ${u.correo}`.toLocaleLowerCase("es").includes(consulta)) &&
+    (!rolFiltro || u.rol === rolFiltro)
+  );
   tbody.innerHTML = "";
+
   usuarios.forEach((u) => {
     const tr = document.createElement("tr");
 
@@ -78,12 +87,13 @@ async function renderizarTabla() {
     `;
     tbody.appendChild(tr);
   });
-  // Se guardan para que las acciones muestren el nombre sin volver a pedirlos
-  window.__usuarios = usuarios;
 }
 
-function buscarUsuario(id) {
-  return (window.__usuarios || []).find((u) => u.id_usuario === id);
+function escapeHtml(str) {
+  if (!str) return "";
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
 }
 
 // Acción: Cambiar rol
@@ -107,8 +117,6 @@ async function accionCambiarRol(id) {
       method: "PATCH",
       body: JSON.stringify({ rol: nuevoRol.trim() }),
     });
-    alert(`El rol de ${usuario.nombre} fue actualizado a ${nuevoRol.trim()}.`);
-    renderizarTabla();
   } catch (e) {
     alert(e.message);
   }
@@ -127,8 +135,6 @@ async function accionCambiarEstado(id, nuevoEstado) {
       method: "PATCH",
       body: JSON.stringify({ activo: nuevoEstado }),
     });
-    alert(`Usuario ${usuario.nombre} ${nuevoEstado ? "activado" : "desactivado"} exitosamente.`);
-    renderizarTabla();
   } catch (e) {
     alert(e.message);
   }
@@ -215,8 +221,5 @@ function cerrarSesion() {
 
 // Inicialización
 document.addEventListener("DOMContentLoaded", () => {
-  const u = HVAuth.usuario();
-  const etiqueta = document.getElementById("nombre-usuario-sesion");
-  if (u && etiqueta) etiqueta.textContent = `${u.nombre} · ${u.rol}`;
   renderizarTabla();
 });

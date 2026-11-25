@@ -4,6 +4,8 @@ const API_URL = "http://127.0.0.1:5000/api";
 const botonMostrar = document.getElementById("mostrar-contrasena");
 const inputContrasena = document.getElementById("contrasena");
 const icono = botonMostrar.querySelector("i");
+const linkRegistro = document.getElementById("link-registro");
+const mensajeRegistro = document.getElementById("mensaje-registro");
 
 botonMostrar.addEventListener("click", () => {
   if (inputContrasena.type === "password") {
@@ -15,6 +17,11 @@ botonMostrar.addEventListener("click", () => {
     icono.classList.remove("fa-eye-slash");
     icono.classList.add("fa-eye");
   }
+});
+
+linkRegistro.addEventListener("click", (evento) => {
+  evento.preventDefault();
+  mensajeRegistro.classList.remove("d-none");
 });
 
 // Envío del formulario a Flask
