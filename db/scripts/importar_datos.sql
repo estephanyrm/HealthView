@@ -1,7 +1,6 @@
-
 -- TAREA 7 - Importar los datos (usa los CSV generados por 01_limpieza_datos.py)
 --  2. Habilita LOCAL INFILE (ver guía, sección XAMPP) y abre el cliente así:
---        C:\xampp\mysql\bin\mysql.exe -u root --local-infile=1
+--        C:/xampp/mysql/bin/mysql.exe -u root --local-infile=1
 --     Luego:  SOURCE C:/proyecto/sql/03_importar_datos.sql;
 -- ORDEN: primero las tablas referenciadas, luego las que dependen de ellas.
 
@@ -12,8 +11,8 @@ SET foreign_key_checks = 0;   -- acelera la carga; se verifica después en 04_va
 SET unique_checks = 0;
 
 -- 1. departamento 
-LOAD DATA LOCAL INFILE "C:/proyecto/datos_limpios/departamento.csv"
-INTO TABLE departamento
+LOAD DATA LOCAL INFILE "C:/Users/anyrm/OneDrive/Documentos/HealthView-main/db/datos_limpios/departamento.csv"
+INTO TABLE departamento 
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
 LINES TERMINATED BY '\n'
@@ -21,7 +20,7 @@ IGNORE 1 LINES
 (cod_depto, nombre);
 
 -- 2. municipio 
-LOAD DATA LOCAL INFILE "C:/proyecto/datos_limpios/municipio.csv"
+LOAD DATA LOCAL INFILE "C:/Users/anyrm/OneDrive/Documentos/HealthView-main/db/datos_limpios/municipio.csv"
 INTO TABLE municipio
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
@@ -30,7 +29,7 @@ IGNORE 1 LINES
 (id_municipio, cod_depto, cod_municipio, nombre);
 
 -- 3. eps 
-LOAD DATA LOCAL INFILE "C:/proyecto/datos_limpios/eps.csv"
+LOAD DATA LOCAL INFILE "C:/Users/anyrm/OneDrive/Documentos/HealthView-main/db/datos_limpios/eps.csv"
 INTO TABLE eps
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
@@ -39,7 +38,7 @@ IGNORE 1 LINES
 (id_eps, nombre);
 
 -- 4. prestador 
-LOAD DATA LOCAL INFILE "C:/proyecto/datos_limpios/prestador.csv"
+LOAD DATA LOCAL INFILE "C:/Users/anyrm/OneDrive/Documentos/HealthView-main/db/datos_limpios/prestador.csv"
 INTO TABLE prestador
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
@@ -48,7 +47,7 @@ IGNORE 1 LINES
 (id_prestador, nombre, id_municipio);
 
 -- 5. diagnostico 
-LOAD DATA LOCAL INFILE "C:/proyecto/datos_limpios/diagnostico.csv"
+LOAD DATA LOCAL INFILE "C:/Users/anyrm/OneDrive/Documentos/HealthView-main/db/datos_limpios/diagnostico.csv"
 INTO TABLE diagnostico
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
@@ -57,7 +56,7 @@ IGNORE 1 LINES
 (codigo, descripcion, grupo_cie10);
 
 -- 6. hospitalizacion 
-LOAD DATA LOCAL INFILE "C:/proyecto/datos_limpios/hospitalizacion.csv"
+LOAD DATA LOCAL INFILE "C:/Users/anyrm/OneDrive/Documentos/HealthView-main/db/datos_limpios/hospitalizacion.csv"
 INTO TABLE hospitalizacion
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
@@ -69,7 +68,7 @@ IGNORE 1 LINES
  edad_valor, unidad_edad, zona_residencia, anio);
 
 -- 7. hospitalizacion_diagnostico   
-LOAD DATA LOCAL INFILE "C:/proyecto/datos_limpios/hospitalizacion_diagnostico.csv"
+LOAD DATA LOCAL INFILE "C:/Users/anyrm/OneDrive/Documentos/HealthView-main/db/datos_limpios/hospitalizacion_diagnostico.csv"
 INTO TABLE hospitalizacion_diagnostico
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'

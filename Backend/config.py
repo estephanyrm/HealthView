@@ -15,11 +15,26 @@ def _database_uri() -> str:
     return f"mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset=utf8mb4"
 
 
+# Orígenes por defecto (Live Server de VS Code, XAMPP, etc.) cuando CORS_ORIGINS no está en .env
+_ORIGENES_POR_DEFECTO = [
+    "http://127.0.0.1:5500", "http://localhost:5500",
+    "http://127.0.0.1:5501", "http://localhost:5501",
+    "http://127.0.0.1:8000", "http://localhost:8000",
+    "http://127.0.0.1:8080", "http://localhost:8080",
+    "http://localhost", "http://127.0.0.1",
+]
+
+
+def _origenes_cors() -> list:
+    lista = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+    return lista or _ORIGENES_POR_DEFECTO
+
+
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me")
     SQLALCHEMY_DATABASE_URI = _database_uri()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+    CORS_ORIGINS = _origenes_cors()
     MAX_PER_PAGE = 100
 
     # JWT: clave propia para firmar tokens (si no existe, usa SECRET_KEY) y duración del token

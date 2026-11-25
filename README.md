@@ -11,13 +11,12 @@ HealthView convierte los registros de hospitalización en información útil par
 3. [Módulos de la plataforma](#módulos-de-la-plataforma)
 4. [Roles de usuario y flujo de autenticación](#roles-de-usuario-y-flujo-de-autenticación)
 5. [Arquitectura y tecnologías](#arquitectura-y-tecnologías)
-6. [Estado del proyecto](#estado-del-proyecto)
-7. [Estructura del repositorio](#estructura-del-repositorio)
-8. [Cómo ejecutar el proyecto](#cómo-ejecutar-el-proyecto)
-9. [Guía de archivos](#guía-de-archivos)
-10. [API: endpoints disponibles](#api-endpoints-disponibles)
-11. [Modelo entidad-relación](#modelo-entidad-relación)
-12. [Equipo](#equipo)
+6. [Estructura del repositorio](#estructura-del-repositorio)
+7. [Cómo ejecutar el proyecto](#cómo-ejecutar-el-proyecto)
+8. [Guía de archivos](#guía-de-archivos)
+9. [API: endpoints disponibles](#api-endpoints-disponibles)
+10. [Modelo entidad-relación](#modelo-entidad-relación)
+11. [Equipo](#equipo)
 
 ---
 
@@ -92,7 +91,9 @@ La plataforma **no cuenta con registro público** (`signin.html` / `/api/auth/re
 5. **Recuperación de contraseña**: Si un usuario olvida su contraseña, solicita al hospital/Administrador la generación de una nueva clave temporal, lo cual vuelve a activar `debe_cambiar_clave = 1`.
 
 ## Arquitectura y tecnologías
+## Arquitectura Cliente Servidor
 
+![Diagrama entidad-relación](docs/arquitectura-cliente-servidor.png)
 ```
 Datos originales (CSV) → Limpieza (Python/pandas) → Base de datos (MariaDB/MySQL) → API (Flask) → Frontend web
 ```
@@ -106,23 +107,8 @@ Datos originales (CSV) → Limpieza (Python/pandas) → Base de datos (MariaDB/M
 
 Cómo se comunican las partes: el navegador carga las páginas HTML, el JavaScript pide datos a la API en `http://127.0.0.1:5000/api/...`, la API consulta la base de datos con SQLAlchemy y responde en JSON.
 
-## Estado del proyecto
 
-| Parte                                                                                       | Estado      |
-| ------------------------------------------------------------------------------------------- | ----------- |
-| Base de datos (12 tablas, 3 vistas, scripts de carga y validación, columnas de acceso)      | Hecho       |
-| Script de arranque para el primer Administrador (`Backend/crear_admin.py`)                  | Hecho       |
-| API: CRUD de hospitalizaciones, catálogos, `/health`, manejo de errores                     | Hecho       |
-| Frontend: página de presentación y pantalla de login                                        | Hecho       |
-| Login funcional (validación contra BD con hashes Werkzeug, sesión y cambio de clave)        | Hecho       |
-| Gestión de usuarios por el Administrador (`POST /api/usuarios` y clave temporal)            | Pendiente   |
-| Control de acceso por rol en la API y navegación de páginas internas                        | Hecho       |
-| Endpoints de los módulos 1-7 (estadísticas, tendencias, mapa, alertas, filtros, comparador) | Pendiente   |
-| Páginas internas (panel, mapa, alertas, búsqueda, reportes, tendencias, comparador y registros) | Parcial     |
-| Modelo de predicción y opciones de configuración global                                    | Pendiente   |
-| Reportes PDF / Excel                                                                        | Pendiente   |
-| Predicción con Machine Learning                                                             | Pendiente   |
-| Pruebas automáticas                                                                         | Pendiente   |
+
 
 ## Estructura del repositorio
 
@@ -165,140 +151,291 @@ HealthView/
 
 ## Cómo ejecutar el proyecto
 
-### Requisitos
+Esta guía está pensada para alguien que nunca ha ejecutado el proyecto. Sigue los pasos **en orden** y no te saltes ninguno. Las instrucciones son para **Windows**. 
 
-- [XAMPP](https://www.apachefriends.org/) con MySQL/MariaDB.
-- Python 3.10 o superior.
-- Los CSV limpios (ver [Datos del proyecto](#datos-del-proyecto)).
-- Para el frontend: la extensión **Live Server** de VS Code, o cualquier servidor estático.
+Para que puedas copiar las rutas tal cual, toda la guía usa esta carpeta de ejemplo:
 
-> Clona el proyecto en una **ruta corta, sin espacios y fuera de OneDrive** (por ejemplo `C:\proyecto\`). Las rutas con espacios o sincronizadas por OneDrive dan errores al importar.
-
-### Paso 1. Base de datos
-
-**1.1. Habilita `LOCAL INFILE`** en `C:\xampp\mysql\bin\my.ini` y reinicia MySQL desde el panel de XAMPP:
-
-```ini
-[mysqld]
-local_infile=1
-
-[mysql]
-local-infile=1
+```
+C:\proyecto\HealthView
 ```
 
-**1.2. Abre el cliente de MySQL:**
+Si usas otra carpeta, cambia `C:\proyecto\HealthView` por la tuya **en cada comando y en cada archivo** donde aparezca. La guía avisa cada vez que haya que cambiar una ruta.
 
-```bash
+> **Importante:** usa una ruta **corta, sin espacios, sin tildes y fuera de OneDrive**. El comando `SOURCE` de MySQL falla con rutas que tienen espacios, y OneDrive puede bloquear los archivos mientras los sincroniza.
+
+### Paso 0. Instalar los programas necesarios
+
+| Programa | Para qué | Descarga |
+| --- | --- | --- |
+| **XAMPP** (incluye MySQL/MariaDB) | Base de datos | <https://www.apachefriends.org/> |
+| **Python 3.10 o superior** | Backend (API) | <https://www.python.org/downloads/> |
+| **Visual Studio Code** | Editar archivos y abrir el frontend | <https://code.visualstudio.com/> |
+| Extensión **Live Server** de VS Code | Servir el frontend | En VS Code: pestaña Extensiones (Ctrl+Shift+X) → buscar "Live Server" (de Ritwick Dey) → Instalar |
+| **Git** (opcional) | Clonar el repositorio | <https://git-scm.com/> |
+
+Al instalar Python, **marca la casilla "Add python.exe to PATH"** en la primera pantalla del instalador. Para comprobar que quedó bien, abre una terminal (tecla Windows → escribe `PowerShell` → Enter) y ejecuta:
+
+```powershell
+python --version
+```
+
+Debe mostrar `Python 3.10` o una versión mayor. Si dice que no se reconoce el comando, reinstala Python marcando esa casilla.
+
+### Paso 1. Descargar el proyecto y los datos
+
+**1.1. Descarga el código** en `C:\proyecto\HealthView`. Elige una de las dos opciones:
+
+- Con Git:
+
+  ```powershell
+  mkdir C:\proyecto
+  cd C:\proyecto
+  git clone https://github.com/estephanyrm/HealthView.git
+  ```
+
+- Sin Git: en GitHub pulsa **Code → Download ZIP** y descomprime el ZIP de forma que la carpeta quede exactamente en `C:\proyecto\HealthView`. Dentro debe haber `Backend`, `Frontend`, `db`, `docs` y `README.md`. Si al descomprimir queda una carpeta extra, por ejemplo `HealthView-main\HealthView-main`, mueve el contenido un nivel arriba.
+
+**1.2. Consigue los datos limpios.** Los CSV pesan unos 100 MB y **no están en GitHub**, porque GitHub no acepta archivos tan grandes. El script de limpieza tampoco está en el repositorio, así que **pide al equipo (Grupo Chill) la carpeta `datos_limpios`** y cópiala en:
+
+```
+C:\proyecto\HealthView\db\datos_limpios\
+```
+
+Esa carpeta debe contener **estos 7 archivos**. Si falta alguno, la importación falla.
+
+| Archivo | Filas que debe tener (sin contar el encabezado) |
+| --- | --- |
+| `departamento.csv` | 33 |
+| `municipio.csv` | 714 |
+| `eps.csv` | 289 |
+| `prestador.csv` | 71 |
+| `diagnostico.csv` | 8.361 |
+| `hospitalizacion.csv` | 833.586 (unos 88 MB) |
+| `hospitalizacion_diagnostico.csv` | 608.624 (unos 16 MB) |
+
+> Git ignora la carpeta `datos_limpios` (está en `.gitignore`), así que no se subirá al repositorio por error.
+
+### Paso 2. Preparar MySQL (XAMPP)
+
+**2.1. Habilita la carga de archivos locales (`LOCAL INFILE`).** Sin esto, la importación del paso 3 falla con el error *"Loading local data is disabled"*.
+
+1. Abre el **XAMPP Control Panel**.
+2. En la fila **MySQL**, pulsa **Config → my.ini**. El archivo es `C:\xampp\mysql\bin\my.ini`.
+3. Busca la línea `[mysqld]` y escribe **justo debajo**:
+
+   ```ini
+   local_infile=1
+   ```
+
+4. Busca la línea `[mysql]`. Si no existe, créala al final del archivo. Escribe debajo:
+
+   ```ini
+   local-infile=1
+   ```
+
+5. Guarda el archivo.
+6. En XAMPP pulsa **Stop** y luego **Start** en MySQL. El nombre debe quedar en verde.
+
+**2.2. Abre el cliente de MySQL** en una terminal de PowerShell:
+
+```powershell
 C:\xampp\mysql\bin\mysql.exe -u root --local-infile=1
 ```
 
-**1.3. Crea la base de datos** (¡borra `hospitalizacion_db` si ya existe!):
+Debe aparecer el indicador `MariaDB [(none)]>`. XAMPP crea el usuario `root` **sin contraseña**. Si tú le pusiste una, agrega `-p` al final del comando y escríbela cuando la pida.
+
+> Deja esta ventana abierta: los pasos 3.1 a 3.5 se escriben aquí. En `SOURCE` las rutas van con barras normales `/`, no con `\`.
+
+### Paso 3. Crear la base de datos e importar los datos
+
+**3.1. Crea la base de datos y sus tablas.** Este script **borra `hospitalizacion_db` si ya existe** y la crea de nuevo, vacía:
 
 ```sql
-SOURCE C:/proyecto/db/scripts/crear_base_datos.sql;
+SOURCE C:/proyecto/HealthView/db/scripts/crear_base_datos.sql;
 ```
 
-**1.4. Actualiza la tabla `usuario` (si aún no tiene las columnas de control de acceso):**
+Al final debe mostrar la lista de tablas (`SHOW TABLES`). Este script ya agrega a `usuario` las columnas `fecha_creacion`, `ultimo_acceso` y `debe_cambiar_clave`. **No las agregues a mano**: obtendrías el error *"Duplicate column name"*.
+
+**3.2. Cambia las rutas en el script de importación.** El archivo `db/scripts/importar_datos.sql` tiene las rutas de los CSV escritas a mano. Hay **7 líneas** como esta:
 
 ```sql
-USE hospitalizacion_db;
-ALTER TABLE usuario
-  ADD COLUMN fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  ADD COLUMN ultimo_acceso DATETIME NULL,
-  ADD COLUMN debe_cambiar_clave TINYINT(1) NOT NULL DEFAULT 1;
+LOAD DATA LOCAL INFILE "C:/proyecto/datos_limpios/departamento.csv"
 ```
 
-**1.5. Importa los datos y valida:**
+1. Abre `C:\proyecto\HealthView\db\scripts\importar_datos.sql` en VS Code.
+2. Pulsa **Ctrl+H** (Buscar y reemplazar).
+3. En **Buscar** escribe: `C:/proyecto/datos_limpios`
+4. En **Reemplazar** escribe la ruta real de tu carpeta de datos, con barras `/` y **sin** barra final. Con la carpeta del paso 1.2 sería:
+
+   ```
+   C:/proyecto/HealthView/db/datos_limpios
+   ```
+
+5. Pulsa **Reemplazar todo** (Ctrl+Alt+Enter) y guarda con **Ctrl+S**.
+
+Al terminar, la primera línea debe quedar así:
 
 ```sql
-SOURCE C:/proyecto/db/scripts/importar_datos.sql;
-SOURCE C:/proyecto/db/scripts/validaciones.sql;
-SOURCE C:/proyecto/db/scripts/consultas_prueba.sql;
+LOAD DATA LOCAL INFILE "C:/proyecto/HealthView/db/datos_limpios/departamento.csv"
 ```
 
-### Paso 2. Backend (API) y creación del primer Administrador
+> Si usas otra carpeta, por ejemplo `D:/datos/datos_limpios`, pon esa ruta. Lo importante es que las 7 líneas apunten a la carpeta donde están de verdad los 7 CSV.
 
-Desde la carpeta `Backend/`:
+**3.3. Importa los datos.** Tarda varios minutos (son más de 830 mil filas) y la ventana parece quieta mientras trabaja: no la cierres.
 
-```bash
-# 1. Crear y activar el entorno virtual
+```sql
+SOURCE C:/proyecto/HealthView/db/scripts/importar_datos.sql;
+```
+
+Al terminar muestra una tabla con el conteo de filas por tabla, que debe coincidir con la del paso 1.2: `hospitalizacion` 833586, `hospitalizacion_diagnostico` 608624, etc.
+
+**3.4. Crea los índices de rendimiento.** Son muy recomendables: sin ellos, el Panel inteligente puede tardar más de 2 minutos en cargar la primera vez; con ellos, unos 7 segundos.
+
+```sql
+SOURCE C:/proyecto/HealthView/db/scripts/optimizacion_indices_dashboard.sql;
+SOURCE C:/proyecto/HealthView/db/scripts/modulo_alertas_busqueda_reportes.sql;
+```
+
+Ejecútalos **en este orden**. Si ves *"Duplicate key name"* en algún índice, es que ya existía y puedes ignorarlo.
+
+**3.5. (Opcional) Valida los datos.** Muestra los conteos y comprueba las reglas de integridad:
+
+```sql
+SOURCE C:/proyecto/HealthView/db/scripts/validaciones.sql;
+```
+
+> `consultas_prueba.sql` tiene consultas de ejemplo de cada módulo. No es necesario para ejecutar la plataforma y puede tardar varios minutos.
+
+Escribe `exit` para salir del cliente de MySQL. **MySQL debe seguir encendido en XAMPP** mientras uses la plataforma.
+
+### Paso 4. Configurar y arrancar el backend (API)
+
+Abre una **terminal nueva** de PowerShell y entra en la carpeta del backend:
+
+```powershell
+cd C:\proyecto\HealthView\Backend
+```
+
+**4.1. Crea el entorno virtual de Python.** Se hace una sola vez:
+
+```powershell
 python -m venv .venv
-.venv\Scripts\activate            # Windows
-# source .venv/bin/activate       # Linux / macOS
+```
 
-# 2. Instalar dependencias
+**4.2. Activa el entorno virtual.** Hay que hacerlo **cada vez que abras una terminal nueva** para el backend:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+El indicador de la terminal debe empezar con `(.venv)`. Si aparece el error *"la ejecución de scripts está deshabilitada en este sistema"*, ejecuta esto **una sola vez** y vuelve a activar el entorno:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+> Si usas **CMD** en lugar de PowerShell, el comando de activación es `.venv\Scripts\activate.bat`.
+
+**4.3. Instala las dependencias.** Con `(.venv)` activo:
+
+```powershell
 pip install -r requirements.txt
+```
 
-# 3. Crear tu archivo de configuración
-copy .env.example .env            # Windows (cp .env.example .env en Linux/macOS)
+**4.4. Crea el archivo de configuración `.env`** a partir de la plantilla:
 
-# 4. Crear el primer Administrador (se ejecuta una sola vez)
+```powershell
+copy .env.example .env
+```
+
+Abre `C:\proyecto\HealthView\Backend\.env` en VS Code y revisa estos valores:
+
+| Variable | Qué poner |
+| --- | --- |
+| `SECRET_KEY` | Una clave larga y aleatoria. Genera una con el comando de abajo y pégala. |
+| `JWT_SECRET_KEY` | **Otra** clave distinta, generada igual. Es la que firma las sesiones (JWT). |
+| `DB_HOST`, `DB_PORT` | `localhost` y `3306` (los de XAMPP). Cámbialos solo si tu MySQL usa otro puerto. |
+| `DB_USER`, `DB_PASSWORD` | `root` y vacío, que son los de XAMPP. Si le pusiste contraseña a `root`, escríbela en `DB_PASSWORD`. |
+| `DB_NAME` | `hospitalizacion_db`. No lo cambies. |
+| `CORS_ORIGINS` | Las direcciones desde las que se abre el frontend. El valor de la plantilla (`http://127.0.0.1:5500,http://localhost:5500`) sirve para Live Server. Si Live Server usa otro puerto (ver paso 5.3), **agrégalo aquí** separado por coma. |
+
+Para generar cada clave aleatoria, ejecuta este comando dos veces, una para cada clave:
+
+```powershell
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+Guarda el archivo con **Ctrl+S**.
+
+**4.5. Crea el primer usuario Administrador.** Se hace una sola vez:
+
+```powershell
 python crear_admin.py
+```
 
-# 5. Arrancar el servidor
+El script pide nombre, correo y contraseña (mínimo 8 caracteres). La contraseña no se ve mientras la escribes; es normal. **Anota el correo y la contraseña**, porque son los que usarás para iniciar sesión. Si responde *"Ya existe un Administrador"*, ya hay uno creado y puedes seguir.
+
+**4.6. Arranca la API:**
+
+```powershell
 python run.py
 ```
 
-La API queda en `http://127.0.0.1:5000`. Compruébalo abriendo `http://127.0.0.1:5000/api/health`: debe responder `{"estado": "ok", "base_de_datos": "conectada"}`.
+Debe mostrar `Running on http://127.0.0.1:5000`. **Deja esta terminal abierta**: si la cierras, la API se apaga.
 
-### Paso 3. Frontend
+**4.7. Comprueba que funciona.** Abre en el navegador <http://127.0.0.1:5000/api/health>. Debe responder:
 
-Abre `Frontend/html/index.html` con **Live Server** (clic derecho → _Open with Live Server_). Desde ahí el botón "Iniciar sesión" lleva a `login.html`.
+```json
+{ "base_de_datos": "conectada", "estado": "ok" }
+```
 
-## Guía de archivos
+> Al arrancar, la API calcula en segundo plano el Panel, el Mapa y las Alertas y los guarda en caché. Durante los **primeros 1-2 minutos** esas páginas pueden tardar en cargar; después cargan al instante.
+>
+> La documentación interactiva de la API (Swagger) está en <http://127.0.0.1:5000/api/docs>.
 
-### Frontend
+### Paso 5. Abrir el frontend
 
-| Archivo               | Qué hace                                                                                                                   |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `html/index.html`     | Página de presentación con hero, módulos, roles, datos y equipo.                                                           |
-| `html/login.html`     | Formulario de inicio de sesión con Bootstrap.                                                                              |
-| `html/cambiar-clave.html` | Cambio obligatorio de la contraseña temporal tras el primer inicio de sesión.                                           |
-| `javascript/react-metricas.js` | Componente React 18 vía CDN que anima las métricas de la vista previa en `index.html`.                             |
-| `html/crear-usuario.html` | Formulario administrativo con controles y botones de Bootstrap.                                                       |
-| `css/base.css`        | Paleta de colores compartida (`--green`, `--ink`, `--accent`...) y `box-sizing`.                                           |
-| `css/landing.css`     | Estilos de `index.html`.                                                                                                   |
-| `css/login.css`       | Estilos de `login.html`.                                                                                                   |
-| `javascript/login.js` | Alterna visibilidad de contraseña, envía credenciales a `POST /api/auth/login` con `fetch` y redirige según el estado/rol. |
-| `javascript/cambiar-clave.js` | Envía `POST /api/auth/cambiar-clave`, actualiza la sesión local y redirige al usuario a su página de inicio.          |
+**5.1.** En VS Code abre la **carpeta raíz del proyecto**: menú **File → Open Folder…** → `C:\proyecto\HealthView`.
 
-### Backend
+**5.2.** En el explorador de la izquierda, abre `Frontend/html/index.html`. Haz **clic derecho** dentro del archivo → **Open with Live Server**. También puedes pulsar el botón **Go Live** de la barra inferior.
 
-| Archivo                                   | Qué hace                                                                                                                      |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `run.py`                                  | Punto de entrada. Arranca Flask en el puerto 5000.                                                                            |
-| `crear_admin.py`                          | Script CLI interactivo que crea el primer Administrador con contraseña hasheada (`werkzeug.security.generate_password_hash`). |
-| `config.py`                               | Lee el `.env` y configura SQLAlchemy y CORS.                                                                                  |
-| `app/__init__.py`                         | `create_app()`: inicializa Flask, SQLAlchemy, CORS, modelos, blueprints y manejadores de error.                               |
-| `app/models/usuario.py`                   | Modelos `Rol` y `Usuario` (incluye `fecha_creacion`, `ultimo_acceso` y `debe_cambiar_clave`).                                 |
-| `app/routes/auth.py`                      | Endpoints de autenticación (`/api/auth/login`, `/api/auth/cambiar-clave`, `/api/auth/logout`, `/api/auth/me`).                |
-| `app/services/auth_service.py`            | Validación de credenciales con `check_password_hash`, actualización de `ultimo_acceso` y cambio de contraseña.                |
-| `app/models/catalogos.py`                 | Modelos de las 8 tablas catálogo.                                                                                             |
-| `app/models/hospitalizacion.py`           | Modelos `Hospitalizacion` y `HospitalizacionDiagnostico`.                                                                     |
-| `app/routes/hospitalizaciones.py`         | Endpoints CRUD de hospitalizaciones.                                                                                          |
-| `app/services/hospitalizacion_service.py` | Validaciones de negocio, filtros y paginación de hospitalizaciones.                                                           |
-| `app/utils/errors.py`                     | Formato JSON unificado para errores HTTP y de base de datos.                                                                  |
+**5.3.** Se abrirá el navegador en una dirección como:
 
-## API: endpoints disponibles
+```
+http://127.0.0.1:5500/Frontend/html/index.html
+```
 
-Todas las respuestas son JSON. Prefijo común: `/api`.
+Fíjate en el **puerto** (el número después de `:`). Si **no es 5500**, por ejemplo `5501` porque el 5500 estaba ocupado, agrégalo a `CORS_ORIGINS` en `Backend\.env`, por ejemplo `...,http://127.0.0.1:5501`. Después reinicia la API: en su terminal pulsa **Ctrl+C** y vuelve a ejecutar `python run.py`.
 
-| Método | Ruta                      | Descripción                                                                                                      |
-| ------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| GET    | `/health`                 | Estado de la API y la base                                                                                       |
-| POST   | `/auth/login`             | Inicia sesión validando correo y contraseña contra MySQL. Indica si `debe_cambiar_clave` es verdadero            |
-| POST   | `/auth/cambiar-clave`     | Permite al usuario cambiar su contraseña temporal o actual                                                       |
-| POST   | `/auth/logout`            | Cierra la sesión activa                                                                                          |
-| GET    | `/catalogos/<nombre>`     | Lista catálogos (`departamentos`, `municipios`, `eps`, `prestadores`, `diagnosticos`, etc.) con filtro `?q=`     |
-| GET    | `/hospitalizaciones`      | Lista paginada con filtros (`anio`, `id_prestador`, `id_eps`, `id_municipio`, `sexo`, `dx_ingreso`, `dx_egreso`) |
-| GET    | `/hospitalizaciones/<id>` | Detalle de una hospitalización                                                                                   |
-| POST   | `/hospitalizaciones`      | Crea un registro de hospitalización                                                                              |
-| PUT    | `/hospitalizaciones/<id>` | Reemplaza todos los campos de una hospitalización                                                                |
-| PATCH  | `/hospitalizaciones/<id>` | Modifica parcialmente una hospitalización                                                                        |
-| DELETE | `/hospitalizaciones/<id>` | Elimina una hospitalización                                                                                      |
+> **No abras los HTML con doble clic** (`file:///...`). El navegador bloquea las peticiones a la API desde archivos locales y verás *"No se pudo conectar con el servidor"*. Usa siempre Live Server.
 
-## three- -loop  desing
-https://threejs.org/
+**5.4.** Pulsa **Iniciar sesión** y entra con el correo y la contraseña del Administrador del paso 4.5.
+
+### Paso 6. Crear las demás cuentas (opcional)
+
+No hay registro público: las cuentas las crea el Administrador.
+
+1. En el menú, entra en **Usuarios → Crear usuario**.
+2. Escribe nombre, correo y rol (Analista, Investigador o Médico).
+3. El sistema muestra **una sola vez** una contraseña temporal. Cópiala y entrégala al usuario.
+4. La primera vez que ese usuario inicie sesión, el sistema lo obliga a cambiarla.
+
+Cada rol solo ve los módulos que tiene permitidos (ver [Acceso por rol](#acceso-por-rol)).
+
+### Cómo volver a abrir el proyecto otro día
+
+Ya no hace falta repetir la instalación. Solo:
+
+1. Abre **XAMPP** y pulsa **Start** en **MySQL**.
+2. En una terminal, arranca la API:
+
+   ```powershell
+   cd C:\proyecto\HealthView\Backend
+   .\.venv\Scripts\Activate.ps1
+   python run.py
+   ```
+
+3. En VS Code, abre `Frontend/html/index.html` con **Open with Live Server**.
 
 
 ## Modelo entidad-relación

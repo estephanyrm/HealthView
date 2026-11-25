@@ -70,6 +70,9 @@ async function cargar() {
     if (estado.eps) params.set("eps", estado.eps);
     const r = await fetch(`${API_URL}/dashboard?${params}`, {
       credentials: "include",
+    }).catch(() => {
+      // Solo un fallo de red real es "API no conectada"
+      throw new Error("No se pudo conectar con el servidor. Verifica que la API esté encendida.");
     });
     if (r.status === 401 || r.status === 403) {
       HVAuth.limpiarSesion();
@@ -83,12 +86,8 @@ async function cargar() {
       );
     pintar(datos);
   } catch (e) {
-    HVNotificar.error(
-      e instanceof TypeError
-        ? "No se pudo conectar con el servidor. Verifica que la API esté encendida."
-        : e.message,
-      { reintentar: cargar },
-    );
+    console.error(e);
+    HVNotificar.error(e.message, { reintentar: cargar });
   } finally {
     document.body.classList.remove("cargando");
   }
@@ -129,7 +128,8 @@ async function llenarCatalogo(nombre, selectId) {
     const select = $(selectId);
     datos.forEach((d) => {
       const id = d.id_municipio ?? d.id_eps;
-      select.add(new Option(d.nombre, id));
+      // La API completa los nombres que faltan en la BD; etiqueta incluye el código si no hay nombre
+      select.add(new Option(d.etiqueta || d.nombre || id, id));
     });
   } catch {
     /* si falla, el filtro queda solo con "Todos" */

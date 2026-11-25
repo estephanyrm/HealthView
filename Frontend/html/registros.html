@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="../css/dashboard.css" />
     <link rel="stylesheet" href="../css/registros.css" />
     <script src="../javascript/auth.js" data-requiere="admin"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+    <script src="../javascript/ui.js"></script>
   </head>
   <body>
     <div class="app">
@@ -42,26 +44,32 @@
           <section class="registro-intro tarjeta">
             <div>
               <span class="modulo-etiqueta">Herramientas administrativas</span>
-              <h1>Consulta y mantenimiento de registros</h1>
-              <p>Busca atenciones hospitalarias y administra correcciones autorizadas. Cada consulta devuelve un máximo de 10 filas.</p>
+              <h1>Registros de hospitalización</h1>
+              <p>Consulta, registra, modifica o elimina atenciones hospitalarias. Los cambios actualizan de inmediato el panel, el mapa y las alertas.</p>
             </div>
+            <button type="button" id="btn-nuevo-registro" class="boton-modulo">+ Nueva hospitalización</button>
           </section>
           <section class="tarjeta">
             <form id="form-registros" class="filtros-registros">
               <label>ID de hospitalización<input id="filtro-id" type="number" min="1" placeholder="Búsqueda exacta" /></label>
               <label>Año<select id="filtro-anio"><option value="">Todos</option><option>2019</option><option>2020</option><option>2021</option><option>2022</option></select></label>
               <label>Sexo<select id="filtro-sexo"><option value="">Todos</option><option value="F">Femenino</option><option value="M">Masculino</option></select></label>
-              <label>Diagnóstico CIE-10<input id="filtro-dx" maxlength="10" placeholder="Ej. J44" /></label>
+              <label>Diagnóstico egreso (CIE-10)<input id="filtro-dx" maxlength="10" placeholder="Ej. J44" /></label>
               <button type="submit" class="boton-modulo">Consultar</button>
               <button type="reset" id="btn-limpiar-registros" class="boton-modulo boton-secundario">Limpiar</button>
             </form>
             <div id="aviso-registros" class="aviso-error" role="alert" hidden></div>
-            <p id="resultado-registros" class="tabla-subtitulo">Ingresa filtros para consultar los registros.</p>
+            <p id="resultado-registros" class="tabla-subtitulo">Ingresa filtros y pulsa Consultar.</p>
             <div class="tabla-scroll">
               <table class="tabla">
                 <thead><tr><th>ID</th><th>Factura</th><th>Ingreso</th><th>Paciente</th><th>Diagnóstico egreso</th><th>Estancia</th><th>Estado</th><th>Acciones</th></tr></thead>
                 <tbody id="tabla-registros"><tr><td colspan="8" class="tabla-vacia">Sin consulta activa.</td></tr></tbody>
               </table>
+            </div>
+            <div class="paginacion">
+              <span id="info-pagina"></span>
+              <button type="button" id="btn-pag-ant" class="boton-modulo boton-secundario" disabled>Anterior</button>
+              <button type="button" id="btn-pag-sig" class="boton-modulo boton-secundario" disabled>Siguiente</button>
             </div>
           </section>
         </main>
@@ -71,32 +79,50 @@
     <div id="modal-editar-registro" class="registro-modal" hidden>
       <section class="registro-dialog tarjeta" role="dialog" aria-modal="true" aria-labelledby="titulo-edicion">
         <header class="registro-dialog-header">
-          <div><span class="modulo-etiqueta">Edición controlada</span><h2 id="titulo-edicion">Modificar hospitalización</h2></div>
+          <div><span class="modulo-etiqueta" id="etiqueta-edicion">Edición controlada</span><h2 id="titulo-edicion">Modificar hospitalización</h2></div>
           <button type="button" id="btn-cerrar-edicion" class="enlace-boton" aria-label="Cerrar">✕</button>
         </header>
         <p id="aviso-edicion" class="aviso-error" role="alert" hidden></p>
         <form id="form-editar-registro" class="form-edicion">
-          <label>Número de factura<input name="numero_factura" maxlength="25" /></label>
-          <label>Prestador (código)<input name="id_prestador" maxlength="12" required /></label>
-          <label>EPS (código)<input name="id_eps" maxlength="12" required /></label>
-          <label>Municipio (código)<input name="id_municipio" maxlength="5" /></label>
-          <label>Vía de ingreso<input name="via_ingreso" type="number" min="0" required /></label>
-          <label>Causa externa<input name="causa_externa" type="number" min="0" required /></label>
-          <label>Tipo de usuario<input name="tipo_usuario" type="number" min="0" required /></label>
-          <label>Fecha de ingreso<input name="fecha_ingreso" type="date" required /></label>
-          <label>Fecha de egreso<input name="fecha_egreso" type="date" required /></label>
-          <label>Estado al egreso<select name="estado_salida" required><option value="1">Vivo</option><option value="2">Fallecido</option></select></label>
-          <label>Diagnóstico ingreso<input name="id_dx_ingreso" maxlength="10" required /></label>
-          <label>Diagnóstico egreso<input name="id_dx_egreso" maxlength="10" required /></label>
-          <label>Sexo<select name="sexo" required><option value="F">Femenino</option><option value="M">Masculino</option></select></label>
-          <label>Edad registrada<input name="edad_valor" type="number" min="0" required /></label>
-          <label>Unidad edad<select name="unidad_edad" required><option value="1">Años</option><option value="2">Meses</option><option value="3">Días</option></select></label>
-          <label>Zona<select name="zona_residencia" required><option value="U">Urbana</option><option value="R">Rural</option></select></label>
+          <fieldset>
+            <legend>Atención</legend>
+            <label>Número de factura<input name="numero_factura" maxlength="25" placeholder="Opcional" /></label>
+            <label>Prestador (IPS)<input name="id_prestador" list="lista-prestadores" maxlength="12" required placeholder="Código del prestador" /></label>
+            <label>EPS<input name="id_eps" list="lista-eps" maxlength="12" required placeholder="Código de la EPS" /></label>
+            <label>Municipio de residencia<input name="id_municipio" list="lista-municipios" maxlength="5" placeholder="Código DANE (opcional)" /></label>
+            <label>Vía de ingreso<select name="via_ingreso" required></select></label>
+            <label>Causa externa<select name="causa_externa" required></select></label>
+            <label>Tipo de usuario<select name="tipo_usuario" required></select></label>
+          </fieldset>
+          <fieldset>
+            <legend>Fechas y desenlace</legend>
+            <label>Fecha de ingreso<input name="fecha_ingreso" type="date" min="2019-01-01" required /></label>
+            <label>Hora de ingreso<input name="hora_ingreso" type="time" /></label>
+            <label>Fecha de egreso<input name="fecha_egreso" type="date" min="2019-01-01" required /></label>
+            <label>Estado al egreso<select name="estado_salida" required><option value="1">Vivo</option><option value="2">Fallecido</option></select></label>
+          </fieldset>
+          <fieldset>
+            <legend>Diagnósticos (CIE-10)</legend>
+            <label>Diagnóstico de ingreso<input name="id_dx_ingreso" list="lista-dx" maxlength="10" required placeholder="Ej. J440" /></label>
+            <label>Diagnóstico de egreso<input name="id_dx_egreso" list="lista-dx" maxlength="10" required placeholder="Ej. J440" /></label>
+            <span class="ayuda">Escribe al menos 3 caracteres para ver sugerencias del catálogo.</span>
+          </fieldset>
+          <fieldset>
+            <legend>Paciente</legend>
+            <label>Sexo<select name="sexo" required><option value="F">Femenino</option><option value="M">Masculino</option></select></label>
+            <label>Edad registrada<input name="edad_valor" type="number" min="0" max="150" required /></label>
+            <label>Unidad de edad<select name="unidad_edad" required><option value="1">Años</option><option value="2">Meses</option><option value="3">Días</option></select></label>
+            <label>Zona de residencia<select name="zona_residencia" required><option value="U">Urbana</option><option value="R">Rural</option></select></label>
+          </fieldset>
           <div class="acciones-edicion">
             <button type="button" id="btn-cancelar-edicion" class="boton-modulo boton-secundario">Cancelar</button>
             <button type="submit" id="btn-guardar-edicion" class="boton-modulo">Guardar cambios</button>
           </div>
         </form>
+        <datalist id="lista-prestadores"></datalist>
+        <datalist id="lista-eps"></datalist>
+        <datalist id="lista-municipios"></datalist>
+        <datalist id="lista-dx"></datalist>
       </section>
     </div>
     <script src="../javascript/registros.js"></script>

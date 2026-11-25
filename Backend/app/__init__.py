@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask
 
 from config import Config
 
@@ -15,25 +15,22 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     jwt.init_app(app)
-    # CORS explícito: solo los orígenes declarados en .env pueden llamar a la API
+    # CORS explícito: solo los orígenes declarados en .env pueden llamar a la API.
+    # IMPORTANTE: hay que permitir la cabecera "Authorization", que es donde viaja el JWT
+    # (Bearer). Sin ella el navegador bloquea la petición "preflight" y el frontend
+    # no puede conectar con la API.
     cors.init_app(
         app,
-        resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
-        supports_credentials=True
+        resources={r"/api/*": {
+            "origins": app.config["CORS_ORIGINS"],
+            "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "expose_headers": ["Content-Disposition"],
+            "max_age": 600,
+        }},
+        supports_credentials=True,
     )
 
-    @app.after_request
-    def add_cors_headers(response):
-        origin = request.headers.get("Origin")
-        if origin in app.config["CORS_ORIGINS"]:
-            response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Credentials"] = "true"
-            response.headers["Vary"] = "Origin"
-            if request.method == "OPTIONS":
-                response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-                response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-        return response
-    
     from . import models  # noqa: F401  (registra los modelos en SQLAlchemy)
 
     register_blueprints(app)

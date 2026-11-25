@@ -1,0 +1,310 @@
+/* Estilos de las páginas administrativas y de módulo (registros, configuración, módulos).
+   Requiere base.css y dashboard.css. */
+
+.registros-contenido,
+.config-contenido {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+
+.modulo-etiqueta {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.registro-intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.registro-intro > div {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+.registro-intro h1 {
+  font-size: 22px;
+  font-weight: 700;
+}
+.registro-intro p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ── Botones ── */
+.boton-modulo {
+  padding: 9px 16px;
+  border: 1px solid var(--green);
+  border-radius: 10px;
+  background: var(--green);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+/* Enlaces con aspecto de botón: inline-flex para que el relleno no se monte sobre la línea siguiente */
+a.boton-modulo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.acciones-enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.boton-modulo:hover { filter: brightness(1.1); }
+.boton-modulo:disabled { opacity: 0.6; cursor: wait; }
+.boton-secundario {
+  background: var(--surface);
+  color: var(--green);
+}
+.boton-peligro {
+  border-color: #b42318;
+  background: #b42318;
+  color: #fff;
+}
+
+/* ── Filtros de consulta ── */
+.filtros-registros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.filtros-registros label,
+.form-edicion label,
+.config-form label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.filtros-registros input,
+.filtros-registros select,
+.form-edicion input,
+.form-edicion select,
+.config-form input,
+.config-form select {
+  min-width: 150px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+.form-edicion input:focus,
+.form-edicion select:focus,
+.filtros-registros input:focus,
+.filtros-registros select:focus,
+.config-form input:focus {
+  outline: 2px solid var(--green-light);
+  border-color: var(--green);
+}
+
+.tabla-subtitulo {
+  margin: 6px 0 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── Tabla ── */
+.tabla-scroll { overflow-x: auto; }
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.tabla th {
+  background: var(--paper);
+  color: var(--muted);
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--line);
+}
+.tabla td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.tabla tr:hover td { background: #f9faf8; }
+.tabla-vacia {
+  text-align: center;
+  color: var(--muted);
+  padding: 28px !important;
+}
+.acciones-registro {
+  display: flex;
+  gap: 6px;
+}
+.acciones-registro button {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--green);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.acciones-registro button[data-accion="eliminar"] { color: #b42318; }
+.acciones-registro button:hover { background: var(--green-light); }
+
+.paginacion {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── Ventana de creación / edición ── */
+.registro-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(24, 52, 46, 0.45);
+}
+.registro-modal[hidden] { display: none; }
+.registro-dialog {
+  width: min(880px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+.registro-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.registro-dialog-header h2 { font-size: 19px; font-weight: 700; }
+.form-edicion {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+  gap: 12px 14px;
+}
+.form-edicion fieldset {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+  gap: 12px 14px;
+  margin: 0;
+  padding: 12px 14px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.form-edicion legend {
+  padding: 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+}
+.form-edicion .ayuda {
+  font-size: 11.5px;
+  font-weight: 400;
+}
+.acciones-edicion {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* ── Configuración ── */
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 18px;
+}
+.config-grid h2 {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.config-lista {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+.config-lista li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.config-lista li span:first-child { color: var(--muted); }
+.config-lista li span:last-child { font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+.config-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+.estado-punto {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: #b0b8b4;
+}
+.estado-punto.ok { background: #1f9d55; }
+.estado-punto.mal { background: #b42318; }
+.tabla-permisos td:not(:first-child),
+.tabla-permisos th:not(:first-child) { text-align: center; }
+.si { color: #1f9d55; font-weight: 700; }
+.no { color: #b0b8b4; }
+
+/* ── Móvil ── */
+@media (max-width: 860px) {
+  .registro-intro h1 { font-size: 19px; }
+  .registro-modal { padding: 10px; align-items: start; }
+  .registro-dialog { max-height: calc(100vh - 20px); }
+}
+@media (max-width: 520px) {
+  .registro-intro > .boton-modulo,
+  .registro-intro > button { width: 100%; }
+  .filtros-registros { display: grid; grid-template-columns: 1fr 1fr; }
+  .filtros-registros label:first-child,
+  .filtros-registros label:nth-child(4) { grid-column: 1 / -1; }
+  .filtros-registros input,
+  .filtros-registros select { min-width: 0; width: 100%; }
+  .config-form input { min-width: 0; width: 100%; }
+  .paginacion { flex-wrap: wrap; justify-content: space-between; }
+  .paginacion span { width: 100%; text-align: center; }
+  .acciones-edicion { flex-direction: column-reverse; }
+  .acciones-edicion .boton-modulo,
+  .acciones-enlaces .boton-modulo { width: 100%; }
+  .config-lista li { flex-wrap: wrap; }
+}

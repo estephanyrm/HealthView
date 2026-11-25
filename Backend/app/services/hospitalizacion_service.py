@@ -105,6 +105,16 @@ def listar(args):
     for param, columna in FILTROS_IGUALDAD.items():
         if args.get(param):
             consulta = consulta.filter(getattr(Hospitalizacion, columna) == args[param])
+    id_hosp = str(args.get("id_hospitalizacion", "")).strip()
+    if id_hosp:
+        if not id_hosp.isdigit():
+            raise ApiError("'id_hospitalizacion' debe ser un número entero.", 400)
+        consulta = consulta.filter(Hospitalizacion.id_hospitalizacion == int(id_hosp))
+    # Diagnóstico por prefijo CIE-10 (J44 encuentra J440, J441, ...)
+    for param, columna in (("id_dx_egreso", "id_dx_egreso"), ("id_dx_ingreso", "id_dx_ingreso")):
+        valor = str(args.get(param, "")).strip().upper()
+        if valor:
+            consulta = consulta.filter(getattr(Hospitalizacion, columna).like(f"{valor}%"))
     if args.get("desde"):
         consulta = consulta.filter(Hospitalizacion.fecha_ingreso >= _fecha(args["desde"], "desde"))
     if args.get("hasta"):

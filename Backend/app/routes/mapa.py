@@ -13,6 +13,14 @@ def panel():
     return jsonify(servicio.panel(request.args)), 200
 
 
+@bp.get("/comparador/municipios")
+@roles_requeridos("Administrador")
+def comparador():
+    """Indicadores por municipio para el Comparador. Solo Administrador."""
+    datos = servicio.panel(request.args)
+    return jsonify({"filtros": datos["filtros"], "municipios": datos["municipios"]}), 200
+
+
 @bp.get("/<id_municipio>")
 @roles_requeridos("Administrador", "Analista", "Investigador")
 def detalle(id_municipio):

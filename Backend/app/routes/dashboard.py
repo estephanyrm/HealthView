@@ -11,3 +11,12 @@ bp = Blueprint("dashboard", __name__)
 @roles_requeridos("Administrador", "Analista", "Investigador", "Médico")
 def panel():
     return jsonify(servicio.panel(request.args)), 200
+
+
+@bp.get("/tendencias")
+@roles_requeridos("Administrador", "Analista")
+def tendencias():
+    """Serie mensual por año (módulo Tendencias). Solo Administrador y Analista."""
+    datos = servicio.panel(request.args)
+    return jsonify({"filtros": datos["filtros"], "mensual": datos["mensual"]}), 200
+

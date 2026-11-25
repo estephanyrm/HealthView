@@ -224,6 +224,12 @@ ol {
   grid-template-columns: 1.15fr 1fr;
   gap: 16px;
 }
+/* Títulos de tarjeta en páginas de un solo módulo (tendencias, comparador, configuración) */
+.tarjeta > h1 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
 .grafica h2 {
   font-size: 17px;
   font-weight: 700;
@@ -238,6 +244,19 @@ ol {
   position: relative;
   height: 290px;
   margin-top: 14px;
+}
+
+/* Leyenda que indica el tipo de gráfica de cada tarjeta */
+.descripcion-grafica,
+.tipo-grafica {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .encabezado-grafica {
@@ -334,6 +353,23 @@ ol {
 }
 
 /* ── Responsive ── */
+/* Tablas anchas: desplazamiento horizontal dentro de su tarjeta, nunca de toda la página */
+.tabla-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+img,
+svg,
+canvas {
+  max-width: 100%;
+}
+.sesion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
 @media (max-width: 1100px) {
   .kpis {
     grid-template-columns: repeat(2, 1fr);
@@ -342,44 +378,116 @@ ol {
     grid-template-columns: 1fr;
   }
 }
+
+/* Tableta y móvil: el menú lateral pasa a ser una barra superior fija y compacta */
 @media (max-width: 860px) {
   .app {
-    grid-template-columns: 1fr;
+    /* minmax(0, …): la fila de enlaces no debe ensanchar la página */
+    grid-template-columns: minmax(0, 1fr);
+    /* La barra superior ocupa solo su alto; el resto es para el contenido */
+    grid-template-rows: auto 1fr;
   }
   .sidebar {
-    position: static;
+    min-width: 0;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     height: auto;
+    padding: 8px 12px;
     border-right: 0;
     border-bottom: 1px solid var(--line);
-    padding: 16px 14px;
+    box-shadow: 0 2px 8px rgba(24, 52, 46, 0.06);
+    overflow: visible;
   }
   .marca {
-    padding-bottom: 8px;
+    flex-shrink: 0;
+    padding: 0 4px;
+    font-size: 18px;
   }
+  /* Enlaces en una sola fila deslizable (sin ocupar media pantalla) */
   .sidebar nav {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 4px;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(to right, #000 88%, transparent);
+  }
+  .sidebar nav::-webkit-scrollbar {
+    display: none;
+  }
+  .sidebar nav #nav-admin {
+    display: contents;
+  }
+  .sidebar nav #nav-admin[hidden] {
+    display: none;
   }
   .nav-grupo {
-    width: 100%;
-    padding: 8px 10px 2px;
+    display: none;
+  }
+  .nav-item {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 6px 11px;
+    font-size: 13.5px;
+    white-space: nowrap;
   }
   .barra-superior {
-    flex-direction: column;
-    gap: 4px;
-    padding: 12px 18px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 10px 16px;
+    font-size: 13px;
   }
   .contenido {
-    padding: 18px 16px 40px;
+    padding: 16px 14px 40px;
+  }
+  .tarjeta {
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .lienzo {
+    height: 240px;
+  }
+  .filtros select,
+  .filtros input {
+    max-width: 100%;
   }
 }
+
 @media (max-width: 520px) {
   .kpis {
     grid-template-columns: 1fr;
   }
   .kpi-valor {
     font-size: 30px;
+  }
+  /* Filtros: etiqueta encima y control a todo el ancho */
+  .filtros {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .filtros select,
+  .filtros input,
+  .filtros .form-select {
+    width: 100%;
+    max-width: none;
+  }
+  .filtros label {
+    margin-top: 4px;
+  }
+  .encabezado-grafica {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .lienzo {
+    height: 220px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

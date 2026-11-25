@@ -21,7 +21,7 @@ def listar_usuarios():
 
 
 def obtener_usuario_por_id(id_usuario):
-    usuario = Usuario.query.get(id_usuario)
+    usuario = db.session.get(Usuario, id_usuario)
     if usuario is None:
         raise ApiError(f"No existe un usuario con id {id_usuario}.", 404)
     return usuario
@@ -123,3 +123,24 @@ def reiniciar_clave(id_usuario):
         "contrasena_temporal": clave_temporal,
         "mensaje": "Contraseña restablecida exitosamente."
     }
+
+
+def eliminar_usuario(id_usuario, id_solicitante):
+    """Elimina definitivamente una cuenta. Protecciones: nadie puede eliminarse a sí mismo
+    y nunca se elimina al último Administrador activo (la plataforma quedaría sin gestión)."""
+    usuario = obtener_usuario_por_id(id_usuario)
+    if usuario.id_usuario == id_solicitante:
+        raise ApiError("No puedes eliminar tu propia cuenta.", 400)
+
+    if usuario.rol and usuario.rol.nombre == "Administrador":
+        admins_activos = (Usuario.query.join(Rol)
+                          .filter(Rol.nombre == "Administrador", Usuario.activo.is_(True),
+                                  Usuario.id_usuario != usuario.id_usuario)
+                          .count())
+        if admins_activos == 0:
+            raise ApiError("No se puede eliminar al último Administrador activo.", 400)
+
+    datos = {"id_usuario": usuario.id_usuario, "nombre": usuario.nombre, "correo": usuario.correo}
+    db.session.delete(usuario)
+    db.session.commit()
+    return datos
