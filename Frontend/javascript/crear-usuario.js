@@ -86,10 +86,34 @@ document.addEventListener("DOMContentLoaded", () => {
     if (modal) modal.style.display = "flex";
 
     form.reset();
-    document.getElementById("rol").value = "Analista";
-    restaurarBoton();
+    document.getElementById("rol").value = "Administrador";
+
+    if (btnSubmit) {
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = "Crear usuario";
+    }
   });
 
+  function mostrarError(mensaje) {
+    if (alertError) {
+      alertError.textContent = mensaje;
+      alertError.style.display = "block";
+    } else {
+      alert(mensaje);
+    }
+  }
+
+  function obtenerUsuariosLocal() {
+    const raw = localStorage.getItem("healthview_usuarios");
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Botón Copiar Contraseña
   if (copyBtn) {
     copyBtn.addEventListener("click", () => {
       const pass = tempPassSpan ? tempPassSpan.textContent : "";
