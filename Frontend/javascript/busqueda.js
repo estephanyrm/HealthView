@@ -213,7 +213,8 @@ async function ejecutarBusqueda() {
       $("aviso-demo-busqueda").hidden = false;
       renderizarResultados(simularBusquedaLocal(params));
     } else {
-      HVNotificar.error(err.message, { titulo: "No se pudo completar la búsqueda" });
+      $("aviso-error-busqueda").textContent = err.message;
+      $("aviso-error-busqueda").hidden = false;
       $("cuerpo-tabla-resultados").innerHTML =
         '<tr><td colspan="10" class="tabla-vacia">No se pudo completar la búsqueda.</td></tr>';
       $("subtitulo-resultados").textContent = "Consulta no disponible.";

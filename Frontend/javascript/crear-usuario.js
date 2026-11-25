@@ -10,9 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const usuarioActual = HVAuth.usuario();
   const nombreSesion = document.getElementById("nombre-usuario-sesion");
   if (nombreSesion && usuarioActual) {
-    const nombreSeguro = document.createElement("span");
-    nombreSeguro.textContent = usuarioActual.nombre;
-    nombreSesion.innerHTML = `${nombreSeguro.innerHTML} · ${HVRoles.html(usuarioActual.rol)}`;
+    nombreSesion.textContent = `${usuarioActual.nombre} · ${usuarioActual.rol}`;
   }
   document.getElementById("btn-salir")?.addEventListener("click", () => {
     HVAuth.cerrarSesion();
@@ -96,13 +94,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.reset();
     document.getElementById("rol").value = "Administrador";
-    mostrarDescripcionRol();
 
     if (btnSubmit) {
       btnSubmit.disabled = false;
       btnSubmit.textContent = "Crear usuario";
     }
   });
+
+  function mostrarError(mensaje) {
+    if (alertError) {
+      alertError.textContent = mensaje;
+      alertError.style.display = "block";
+    } else {
+      alert(mensaje);
+    }
+  }
 
   function obtenerUsuariosLocal() {
     const raw = localStorage.getItem("healthview_usuarios");
