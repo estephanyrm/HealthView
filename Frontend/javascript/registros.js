@@ -24,8 +24,7 @@ async function llamarApi(url, opciones = {}) {
 }
 
 function mostrarError(mensaje) {
-  $("aviso-registros").textContent = mensaje;
-  $("aviso-registros").hidden = false;
+  HVNotificar.error(mensaje);
 }
 
 async function consultar(evento) {
@@ -93,9 +92,16 @@ async function abrirEdicion(id) {
 }
 
 async function eliminarRegistro(id) {
-  if (!confirm(`¿Eliminar la hospitalización #${id}? Esta acción no se puede deshacer.`)) return;
+  const acepta = await HVNotificar.confirmar({
+    titulo: "Eliminar hospitalización",
+    texto: `¿Eliminar la hospitalización #${id}? Esta acción no se puede deshacer.`,
+    confirmar: "Sí, eliminar",
+    peligro: true,
+  });
+  if (!acepta) return;
   try {
     await llamarApi(`${API_URL}/${id}`, { method: "DELETE" });
+    HVNotificar.toast("Hospitalización eliminada");
     await consultar();
   } catch (error) {
     mostrarError(error.message);
@@ -131,10 +137,10 @@ async function guardarEdicion(evento) {
       body: JSON.stringify(datos),
     });
     $("modal-editar-registro").hidden = true;
+    HVNotificar.toast("Registro actualizado");
     await consultar();
   } catch (error) {
-    $("aviso-edicion").textContent = error.message;
-    $("aviso-edicion").hidden = false;
+    HVNotificar.error(error.message);
   } finally {
     boton.disabled = false;
   }

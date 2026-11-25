@@ -57,8 +57,7 @@ const setupFormLogin = () => {
       if (!respuesta.ok) {
         // Si Flask devuelve 400, 401 o 403, mostramos el mensaje que envía ApiError
         const mensaje = datos.error?.mensaje || "Error al iniciar sesión.";
-        cajaError.textContent = mensaje;
-        cajaError.classList.remove("d-none");
+        HVNotificar.error(mensaje, { titulo: "No se pudo iniciar sesión" });
         return;
       }
 
@@ -78,9 +77,9 @@ const setupFormLogin = () => {
         window.location.href = "dashboard.html";
       }
     } catch (error) {
-      cajaError.textContent =
-        "No se pudo conectar con el servidor. Verifica que la API esté encendida.";
-      cajaError.classList.remove("d-none");
+      HVNotificar.error(
+        "No se pudo conectar con el servidor. Verifica que la API esté encendida.",
+      );
     } finally {
       botonSubmit.disabled = false;
       botonSubmit.textContent = "Iniciar sesión";

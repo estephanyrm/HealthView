@@ -83,11 +83,12 @@ async function cargar() {
       );
     pintar(datos);
   } catch (e) {
-    $("aviso-error-texto").textContent =
+    HVNotificar.error(
       e instanceof TypeError
         ? "No se pudo conectar con el servidor. Verifica que la API esté encendida."
-        : e.message;
-    $("aviso-error").hidden = false;
+        : e.message,
+      { reintentar: cargar },
+    );
   } finally {
     document.body.classList.remove("cargando");
   }
