@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
     <link rel="stylesheet" href="../css/busqueda.css" />
+      <script src="../javascript/auth.js" data-requiere="sesion"></script>
   </head>
   <body>
     <div class="app">
@@ -72,6 +73,8 @@
               </p>
             </div>
           </div>
+          <div id="aviso-error-busqueda" class="aviso-error" role="alert" hidden></div>
+          <div id="aviso-demo-busqueda" class="aviso-demo" role="status" hidden></div>
 
           <!-- Filtros Rápidos (Presets Clínicos) -->
           <div class="tarjeta-presets">
@@ -322,9 +325,7 @@
               <div class="opciones-tabla">
                 <label for="selector-per-page">Mostrar:</label>
                 <select id="selector-per-page" class="form-select">
-                  <option value="15">15 por página</option>
-                  <option value="25" selected>25 por página</option>
-                  <option value="50">50 por página</option>
+                  <option value="10" selected>10 por página (máximo)</option>
                 </select>
               </div>
             </div>

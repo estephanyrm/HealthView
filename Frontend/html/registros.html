@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registros de hospitalización | HealthView</title>
+    <link rel="icon" href="../img/logo-icono.png" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/registros.css" />
+    <script src="../javascript/auth.js" data-requiere="admin"></script>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" aria-label="Navegación principal">
+        <a class="marca" href="index.html">Health<span>View</span></a>
+        <nav>
+          <p class="nav-grupo">Análisis</p>
+          <a class="nav-item" href="dashboard.html">Panel inteligente</a>
+          <a class="nav-item" href="tendencias.html">Tendencias</a>
+          <a class="nav-item" href="mapa.html">Mapa epidemiológico</a>
+          <a class="nav-item" href="alertas.html">Alertas</a>
+          <a class="nav-item" href="busqueda.html">Búsqueda y filtros</a>
+          <a class="nav-item" href="reportes.html">Reportes</a>
+          <a class="nav-item" href="comparador.html">Comparador</a>
+          <a class="nav-item" href="prediccion.html">Predicción exploratoria</a>
+          <p class="nav-grupo">Administración</p>
+          <a class="nav-item" href="usuarios.html">Usuarios</a>
+          <a class="nav-item activo" href="registros.html" aria-current="page">Registros de hospitalización</a>
+          <a class="nav-item" href="configuracion.html">Configuración</a>
+        </nav>
+      </aside>
+      <div class="principal">
+        <header class="barra-superior">
+          <p class="migas">Administración / <strong>Registros de hospitalización</strong></p>
+          <p class="sesion">
+            <span id="usuario-nombre">…</span> · <span id="usuario-rol"></span> ·
+            <button type="button" id="btn-salir" class="enlace-boton">Cerrar sesión</button>
+          </p>
+        </header>
+        <main class="contenido registros-contenido">
+          <section class="registro-intro tarjeta">
+            <div>
+              <span class="modulo-etiqueta">Herramientas administrativas</span>
+              <h1>Consulta y mantenimiento de registros</h1>
+              <p>Busca atenciones hospitalarias y administra correcciones autorizadas. Cada consulta devuelve un máximo de 10 filas.</p>
+            </div>
+          </section>
+          <section class="tarjeta">
+            <form id="form-registros" class="filtros-registros">
+              <label>ID de hospitalización<input id="filtro-id" type="number" min="1" placeholder="Búsqueda exacta" /></label>
+              <label>Año<select id="filtro-anio"><option value="">Todos</option><option>2019</option><option>2020</option><option>2021</option><option>2022</option></select></label>
+              <label>Sexo<select id="filtro-sexo"><option value="">Todos</option><option value="F">Femenino</option><option value="M">Masculino</option></select></label>
+              <label>Diagnóstico CIE-10<input id="filtro-dx" maxlength="10" placeholder="Ej. J44" /></label>
+              <button type="submit" class="boton-modulo">Consultar</button>
+              <button type="reset" id="btn-limpiar-registros" class="boton-modulo boton-secundario">Limpiar</button>
+            </form>
+            <div id="aviso-registros" class="aviso-error" role="alert" hidden></div>
+            <p id="resultado-registros" class="tabla-subtitulo">Ingresa filtros para consultar los registros.</p>
+            <div class="tabla-scroll">
+              <table class="tabla">
+                <thead><tr><th>ID</th><th>Factura</th><th>Ingreso</th><th>Paciente</th><th>Diagnóstico egreso</th><th>Estancia</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody id="tabla-registros"><tr><td colspan="8" class="tabla-vacia">Sin consulta activa.</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="modal-editar-registro" class="registro-modal" hidden>
+      <section class="registro-dialog tarjeta" role="dialog" aria-modal="true" aria-labelledby="titulo-edicion">
+        <header class="registro-dialog-header">
+          <div><span class="modulo-etiqueta">Edición controlada</span><h2 id="titulo-edicion">Modificar hospitalización</h2></div>
+          <button type="button" id="btn-cerrar-edicion" class="enlace-boton" aria-label="Cerrar">✕</button>
+        </header>
+        <p id="aviso-edicion" class="aviso-error" role="alert" hidden></p>
+        <form id="form-editar-registro" class="form-edicion">
+          <label>Número de factura<input name="numero_factura" maxlength="25" /></label>
+          <label>Prestador (código)<input name="id_prestador" maxlength="12" required /></label>
+          <label>EPS (código)<input name="id_eps" maxlength="12" required /></label>
+          <label>Municipio (código)<input name="id_municipio" maxlength="5" /></label>
+          <label>Vía de ingreso<input name="via_ingreso" type="number" min="0" required /></label>
+          <label>Causa externa<input name="causa_externa" type="number" min="0" required /></label>
+          <label>Tipo de usuario<input name="tipo_usuario" type="number" min="0" required /></label>
+          <label>Fecha de ingreso<input name="fecha_ingreso" type="date" required /></label>
+          <label>Fecha de egreso<input name="fecha_egreso" type="date" required /></label>
+          <label>Estado al egreso<select name="estado_salida" required><option value="1">Vivo</option><option value="2">Fallecido</option></select></label>
+          <label>Diagnóstico ingreso<input name="id_dx_ingreso" maxlength="10" required /></label>
+          <label>Diagnóstico egreso<input name="id_dx_egreso" maxlength="10" required /></label>
+          <label>Sexo<select name="sexo" required><option value="F">Femenino</option><option value="M">Masculino</option></select></label>
+          <label>Edad registrada<input name="edad_valor" type="number" min="0" required /></label>
+          <label>Unidad edad<select name="unidad_edad" required><option value="1">Años</option><option value="2">Meses</option><option value="3">Días</option></select></label>
+          <label>Zona<select name="zona_residencia" required><option value="U">Urbana</option><option value="R">Rural</option></select></label>
+          <div class="acciones-edicion">
+            <button type="button" id="btn-cancelar-edicion" class="boton-modulo boton-secundario">Cancelar</button>
+            <button type="submit" id="btn-guardar-edicion" class="boton-modulo">Guardar cambios</button>
+          </div>
+        </form>
+      </section>
+    </div>
+    <script src="../javascript/registros.js"></script>
+  </body>
+</html>
