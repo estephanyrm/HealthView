@@ -6,20 +6,20 @@ GET /api/alertas/epidemiologicas
 from flask import Blueprint, jsonify, request
 
 from app.services import alerta_service as servicio
-from app.utils.auth import login_requerido
+from app.utils.auth import roles_requeridos
 
 bp = Blueprint("alertas", __name__)
 
 
 @bp.get("")
-@login_requerido
+@roles_requeridos("Administrador", "Médico")
 def panel():
     """Devuelve el resumen consolidado de alertas activas y estadísticas."""
     return jsonify(servicio.panel_alertas(request.args)), 200
 
 
 @bp.get("/estancias-prolongadas")
-@login_requerido
+@roles_requeridos("Administrador", "Médico")
 def estancias_prolongadas():
     """Devuelve listado detallado de hospitalizaciones con estancia prolongada (>30 días)."""
     dias_min = int(request.args.get("dias_min", 30))
@@ -34,7 +34,7 @@ def estancias_prolongadas():
 
 
 @bp.get("/epidemiologicas")
-@login_requerido
+@roles_requeridos("Administrador", "Médico")
 def epidemiologicas():
     """Devuelve alertas de picos y brotes inusuales calculados con z-score."""
     anio = request.args.get("anio")
@@ -47,7 +47,7 @@ def epidemiologicas():
 
 
 @bp.get("/ocupacion")
-@login_requerido
+@roles_requeridos("Administrador", "Médico")
 def ocupacion():
     """Devuelve alertas de sobrecarga de capacidad en pacientes-día."""
     anio = request.args.get("anio")

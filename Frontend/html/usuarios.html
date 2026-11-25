@@ -26,6 +26,11 @@
           <div class="sidebar-title">Análisis</div>
           <nav class="sidebar-menu">
             <a class="sidebar-item" href="dashboard.html">Panel inteligente</a>
+<<<<<<< HEAD
+            <a class="sidebar-item" href="tendencias.html">
+              Tendencias
+            </a>
+=======
             <button
               class="sidebar-item"
               type="button"
@@ -33,24 +38,25 @@
             >
               Tendencias
             </button>
+>>>>>>> origin/main
             <a class="sidebar-item" href="mapa.html">Mapa epidemiológico</a>
             <a class="sidebar-item" href="alertas.html">Alertas</a>
             <a class="sidebar-item" href="busqueda.html">Búsqueda y filtros</a>
             <a class="sidebar-item" href="reportes.html">Reportes</a>
+<<<<<<< HEAD
+            <a class="sidebar-item" href="comparador.html">
+=======
             <button
               class="sidebar-item"
               type="button"
               onclick="alert('Módulo de Análisis: Comparador')"
             >
+>>>>>>> origin/main
               Comparador
-            </button>
-            <button
-              class="sidebar-item"
-              type="button"
-              onclick="alert('Módulo de Análisis: Predicción')"
-            >
+            </a>
+            <a class="sidebar-item" href="prediccion.html">
               Predicción
-            </button>
+            </a>
           </nav>
         </div>
 
@@ -59,20 +65,12 @@
           <div class="sidebar-title">Administración</div>
           <nav class="sidebar-menu">
             <a class="sidebar-item active" href="usuarios.html">Usuarios</a>
-            <button
-              class="sidebar-item"
-              type="button"
-              onclick="alert('Módulo de Registros de hospitalización')"
-            >
+            <a class="sidebar-item" href="registros.html">
               Registros de hospitalización
-            </button>
-            <button
-              class="sidebar-item"
-              type="button"
-              onclick="alert('Módulo de Configuración')"
-            >
+            </a>
+            <a class="sidebar-item" href="configuracion.html">
               Configuración
-            </button>
+            </a>
           </nav>
         </div>
       </aside>
@@ -123,6 +121,24 @@
                   + Crear usuario
                 </a>
               </div>
+            </div>
+
+            <div class="user-filters">
+              <label>
+                Buscar usuario
+                <input id="filtro-usuarios" type="search" placeholder="Nombre o correo" />
+              </label>
+              <label>
+                Rol
+                <select id="filtro-rol-usuarios">
+                  <option value="">Todos los roles</option>
+                  <option>Administrador</option>
+                  <option>Analista</option>
+                  <option>Investigador</option>
+                  <option>Médico</option>
+                </select>
+              </label>
+              <span id="resumen-usuarios" class="panel-subtitle"></span>
             </div>
 
             <div class="table-wrapper">

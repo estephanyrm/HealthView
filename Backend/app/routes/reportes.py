@@ -9,13 +9,13 @@ GET /api/reportes/exportar/excel
 from flask import Blueprint, Response, jsonify, request
 
 from app.services import reporte_service as servicio
-from app.utils.auth import login_requerido
+from app.utils.auth import roles_requeridos
 
 bp = Blueprint("reportes", __name__)
 
 
 @bp.get("/resumen")
-@login_requerido
+@roles_requeridos("Administrador", "Analista")
 def resumen():
     """Genera datos del reporte ejecutivo por vía de ingreso y año."""
     anio = request.args.get("anio")
@@ -24,7 +24,7 @@ def resumen():
 
 
 @bp.get("/epidemiologico")
-@login_requerido
+@roles_requeridos("Administrador", "Analista")
 def epidemiologico():
     """Genera reporte epidemiológico de frecuencias diagnósticas CIE-10."""
     anio = request.args.get("anio")
@@ -34,7 +34,7 @@ def epidemiologico():
 
 
 @bp.get("/prestadores")
-@login_requerido
+@roles_requeridos("Administrador", "Analista")
 def prestadores():
     """Genera comparativa de prestadores de salud (IPS)."""
     anio = request.args.get("anio")
@@ -43,7 +43,7 @@ def prestadores():
 
 
 @bp.get("/eps")
-@login_requerido
+@roles_requeridos("Administrador", "Analista")
 def eps():
     """Genera reporte por entidades promotoras de salud (EPS)."""
     anio = request.args.get("anio")
@@ -52,7 +52,7 @@ def eps():
 
 
 @bp.get("/exportar/csv")
-@login_requerido
+@roles_requeridos("Administrador", "Analista")
 def exportar_csv():
     """Descarga el reporte en formato CSV con delimitador ';' y codificación UTF-8 BOM."""
     tipo = request.args.get("tipo", "resumen_ejecutivo")
@@ -71,7 +71,7 @@ def exportar_csv():
 
 
 @bp.get("/exportar/excel")
-@login_requerido
+@roles_requeridos("Administrador", "Analista")
 def exportar_excel():
     """Descarga compatible con Microsoft Excel (CSV con formato de números y punto y coma)."""
     tipo = request.args.get("tipo", "resumen_ejecutivo")

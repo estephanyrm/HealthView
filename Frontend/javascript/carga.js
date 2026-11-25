@@ -46,6 +46,7 @@
         window.setTimeout(() => {
           loader.remove();
           document.body.classList.remove("is-loading");
+          document.dispatchEvent(new Event("healthview:page-ready"));
         }, 500);
       }, 180);
     }, remainingTime);

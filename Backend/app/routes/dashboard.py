@@ -2,12 +2,12 @@
 from flask import Blueprint, jsonify, request
 
 from app.services import dashboard_service as servicio
-from app.utils.auth import login_requerido
+from app.utils.auth import roles_requeridos
 
 bp = Blueprint("dashboard", __name__)
 
 
 @bp.get("")
-@login_requerido
+@roles_requeridos("Administrador", "Analista", "Investigador", "Médico")
 def panel():
     return jsonify(servicio.panel(request.args)), 200
