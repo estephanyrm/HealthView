@@ -107,7 +107,7 @@ async function accionCambiarRol(id) {
       method: "PATCH",
       body: JSON.stringify({ rol: nuevoRol }),
     });
-    HVNotificar.exito(`El rol de ${usuario.nombre} fue actualizado a ${nuevoRol}.`, "Rol actualizado");
+    alert(`El rol de ${usuario.nombre} fue actualizado a ${nuevoRol.trim()}.`);
     await cargarUsuarios();
   } catch (e) {
     HVNotificar.error(e.message);
@@ -133,7 +133,7 @@ async function accionCambiarEstado(id, nuevoEstado) {
       method: "PATCH",
       body: JSON.stringify({ activo: nuevoEstado }),
     });
-    HVNotificar.exito(`Usuario ${usuario.nombre} ${nuevoEstado ? "activado" : "desactivado"} exitosamente.`);
+    alert(`Usuario ${usuario.nombre} ${nuevoEstado ? "activado" : "desactivado"} exitosamente.`);
     await cargarUsuarios();
   } catch (e) {
     HVNotificar.error(e.message);
@@ -228,7 +228,7 @@ async function cerrarSesion() {
 document.addEventListener("DOMContentLoaded", () => {
   const u = HVAuth.usuario();
   const etiqueta = document.getElementById("nombre-usuario-sesion");
-  if (u && etiqueta) etiqueta.innerHTML = `${escapeHtml(u.nombre)} · ${HVRoles.html(u.rol)}`;
+  if (u && etiqueta) etiqueta.textContent = `${u.nombre} · ${u.rol}`;
   cargarUsuarios();
   document.getElementById("filtro-usuarios")?.addEventListener("input", renderizarTabla);
   document.getElementById("filtro-rol-usuarios")?.addEventListener("change", renderizarTabla);

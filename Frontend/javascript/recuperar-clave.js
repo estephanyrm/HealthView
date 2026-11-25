@@ -8,8 +8,8 @@ const formularioRestablecimiento = document.getElementById(
 const mensaje = document.getElementById("mensaje-recuperacion");
 
 const mostrarMensaje = (texto, tipo) => {
-  if (tipo === "success") HVNotificar.exito(texto);
-  else HVNotificar.error(texto);
+  mensaje.textContent = texto;
+  mensaje.className = `alert alert-${tipo} mt-3 py-2 small`;
 };
 
 if (token) {
@@ -33,9 +33,7 @@ formularioSolicitud.addEventListener("submit", async (evento) => {
     });
     const datos = await respuesta.json();
     if (!respuesta.ok) {
-      throw new Error(
-        datos.error?.mensaje || "No se pudo procesar la solicitud.",
-      );
+      throw new Error(datos.error?.mensaje || "No se pudo procesar la solicitud.");
     }
     mostrarMensaje(datos.mensaje, "success");
   } catch (error) {
@@ -51,9 +49,7 @@ formularioSolicitud.addEventListener("submit", async (evento) => {
 
 formularioRestablecimiento.addEventListener("submit", async (evento) => {
   evento.preventDefault();
-  const boton = formularioRestablecimiento.querySelector(
-    "button[type='submit']",
-  );
+  const boton = formularioRestablecimiento.querySelector("button[type='submit']");
   const nueva = document.getElementById("contrasena-nueva").value;
   const confirmar = document.getElementById("confirmar-contrasena").value;
   if (nueva !== confirmar) {
@@ -71,12 +67,13 @@ formularioRestablecimiento.addEventListener("submit", async (evento) => {
     });
     const datos = await respuesta.json();
     if (!respuesta.ok) {
-      throw new Error(
-        datos.error?.mensaje || "No se pudo cambiar la contraseña.",
-      );
+      throw new Error(datos.error?.mensaje || "No se pudo cambiar la contraseña.");
     }
     formularioRestablecimiento.classList.add("d-none");
-    mostrarMensaje(`${datos.mensaje} Ya puedes iniciar sesión.`, "success");
+    mostrarMensaje(
+      `${datos.mensaje} Ya puedes iniciar sesión.`,
+      "success",
+    );
   } catch (error) {
     mostrarMensaje(
       error.message || "No se pudo conectar con el servidor.",

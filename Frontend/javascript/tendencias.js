@@ -51,12 +51,11 @@ async function cargarTendencias() {
       },
     });
   } catch (error) {
-    HVNotificar.error(
+    document.getElementById("aviso-error-texto").textContent =
       error instanceof TypeError
         ? "No se pudo conectar con el servidor. Verifica que la API esté encendida."
-        : error.message,
-      { reintentar: cargarTendencias },
-    );
+        : error.message;
+    errorPanel.hidden = false;
   }
 }
 

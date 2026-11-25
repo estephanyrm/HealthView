@@ -30,7 +30,8 @@ const configuraciones = {
 };
 
 function mostrarError(mensaje) {
-  HVNotificar.error(mensaje);
+  $("aviso-modulo").textContent = mensaje;
+  $("aviso-modulo").hidden = false;
 }
 
 async function pedirDashboard(anio) {
