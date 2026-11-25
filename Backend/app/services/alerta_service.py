@@ -7,6 +7,7 @@ from sqlalchemy import case, func, text
 
 from app.extensions import db
 from app.models import Diagnostico, Hospitalizacion as H, Prestador
+from app.utils.cache import cacheado
 from app.utils.errors import ApiError
 
 
@@ -283,6 +284,7 @@ def obtener_alertas_mortalidad(anio=None):
     return alertas
 
 
+@cacheado()  # las cuatro consultas recorren toda la tabla: se guardan en caché
 def panel_alertas(args):
     """Consolida todas las alertas y estadísticas del Módulo 4."""
     anio = _anio(args)

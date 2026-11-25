@@ -115,6 +115,7 @@
             <article class="tarjeta grafica">
               <h2 id="titulo-mensual">Hospitalizaciones por mes</h2>
               <p class="subtitulo" id="sub-mensual"></p>
+              <p class="tipo-grafica" id="tipo-mensual">Tipo: gráfica de barras</p>
               <div class="lienzo">
                 <canvas
                   id="graf-mensual"
@@ -138,6 +139,9 @@
                   <button type="button" data-dx="ingreso">Ingreso</button>
                 </div>
               </div>
+              <p class="tipo-grafica">
+                Tipo: ranking de barras horizontales (con código CIE-10, casos y porcentaje)
+              </p>
               <ol class="ranking" id="lista-dx"></ol>
             </article>
 
@@ -145,6 +149,9 @@
               <h2>Pacientes por edad y sexo</h2>
               <p class="subtitulo">
                 Cantidad de hospitalizaciones por grupo de edad
+              </p>
+              <p class="tipo-grafica">
+                Tipo: gráfica de barras horizontales opuestas (hombres a la izquierda, mujeres a la derecha)
               </p>
               <div class="lienzo">
                 <canvas
@@ -158,6 +165,9 @@
             <article class="tarjeta grafica">
               <h2>Vía de ingreso</h2>
               <p class="subtitulo">Cómo llegan los pacientes al hospital</p>
+              <p class="tipo-grafica">
+                Tipo: gráfica de dona (la proporción de cada vía sobre el total)
+              </p>
               <div class="lienzo">
                 <canvas
                   id="graf-vias"

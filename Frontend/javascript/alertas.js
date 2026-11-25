@@ -64,12 +64,13 @@ async function cargarAlertas() {
     const data = await res.json();
     pintarAlertas(data);
   } catch (err) {
-    console.warn(
-      "Fallo cargando API local, usando datos simulados de referencia:",
-      err,
-    );
-    // Cargar datos epidemiológicos sintéticos basados en el dataset real de Antioquia
-    pintarAlertas(generarAlertasSimuladas(estadoAlertas.anio));
+    // Ya no se muestran datos simulados: un fallo se reporta al usuario
+    console.error("Fallo cargando alertas:", err);
+    $("aviso-error-texto").textContent =
+      err instanceof TypeError
+        ? "No se pudo conectar con el servidor. Verifica que la API esté encendida."
+        : err.message;
+    $("aviso-error").hidden = false;
   } finally {
     document.body.classList.remove("cargando");
   }
@@ -254,7 +255,8 @@ window.verDetalleAlerta = function (idx) {
   $("modal-detalle").hidden = false;
 };
 
-$("btn-cerrar-modal").addEventListener("click", () => {
+// Si la página en caché no tiene el modal, el resto del script debe seguir funcionando
+$("btn-cerrar-modal")?.addEventListener("click", () => {
   $("modal-detalle").hidden = true;
 });
 
