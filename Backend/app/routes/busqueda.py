@@ -5,20 +5,20 @@ GET /api/busqueda/presets
 from flask import Blueprint, jsonify, request
 
 from app.services import busqueda_service as servicio
-from app.utils.auth import login_requerido
+from app.utils.auth import roles_requeridos
 
 bp = Blueprint("busqueda", __name__)
 
 
 @bp.get("")
-@login_requerido
+@roles_requeridos("Administrador", "Analista")
 def buscar():
     """Ejecuta consulta avanzada multi-criterio."""
     return jsonify(servicio.buscar(request.args)), 200
 
 
 @bp.get("/presets")
-@login_requerido
+@roles_requeridos("Administrador", "Analista")
 def listar_presets():
     """Devuelve listado de búsquedas clínicas preconfiguradas."""
     presets = [

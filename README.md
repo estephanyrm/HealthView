@@ -65,6 +65,22 @@ Muchos hospitales guardan enormes cantidades de registros de hospitalización y 
 | **Investigador**  | Consulta y compara datos epidemiológicos |
 | **Médico**        | Revisa indicadores clínicos y alertas    |
 
+### Acceso por rol
+
+Los permisos se validan en la API; ocultar enlaces en la interfaz no sustituye
+esa validación.
+
+| Rol | Accesos |
+| --- | --- |
+| **Administrador** | Todos los módulos y operaciones de administración |
+| **Analista** | Panel, mapa, búsqueda y reportes |
+| **Investigador** | Panel y mapa |
+| **Médico** | Panel y alertas |
+
+La búsqueda devuelve como máximo 10 registros por solicitud. Los endpoints de
+catálogos requieren una sesión activa; las operaciones sobre usuarios y los
+registros de hospitalización son exclusivas del Administrador.
+
 ### Flujo de cuentas y seguridad (Sin registro público)
 
 La plataforma **no cuenta con registro público** (`signin.html` / `/api/auth/registro` quedan descartados). Las cuentas solo las crea un **Administrador** autenticado:
@@ -98,11 +114,12 @@ Cómo se comunican las partes: el navegador carga las páginas HTML, el JavaScri
 | Script de arranque para el primer Administrador (`Backend/crear_admin.py`)                  | Hecho       |
 | API: CRUD de hospitalizaciones, catálogos, `/health`, manejo de errores                     | Hecho       |
 | Frontend: página de presentación y pantalla de login                                        | Hecho       |
-| Login funcional (validación contra BD con hashes Werkzeug, sesión y cambio de clave)        | En progreso |
+| Login funcional (validación contra BD con hashes Werkzeug, sesión y cambio de clave)        | Hecho       |
 | Gestión de usuarios por el Administrador (`POST /api/usuarios` y clave temporal)            | Pendiente   |
-| Control de acceso por rol en la API                                                         | Pendiente   |
+| Control de acceso por rol en la API y navegación de páginas internas                        | Hecho       |
 | Endpoints de los módulos 1-7 (estadísticas, tendencias, mapa, alertas, filtros, comparador) | Pendiente   |
-| Páginas internas (panel, tendencias, mapa, etc.) y su JavaScript                            | Pendiente   |
+| Páginas internas (panel, mapa, alertas, búsqueda, reportes, tendencias, comparador y registros) | Parcial     |
+| Modelo de predicción y opciones de configuración global                                    | Pendiente   |
 | Reportes PDF / Excel                                                                        | Pendiente   |
 | Predicción con Machine Learning                                                             | Pendiente   |
 | Pruebas automáticas                                                                         | Pendiente   |
@@ -236,12 +253,14 @@ Abre `Frontend/html/index.html` con **Live Server** (clic derecho → _Open with
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `html/index.html`     | Página de presentación con hero, módulos, roles, datos y equipo.                                                           |
 | `html/login.html`     | Formulario de inicio de sesión con Bootstrap.                                                                              |
+| `html/cambiar-clave.html` | Cambio obligatorio de la contraseña temporal tras el primer inicio de sesión.                                           |
 | `javascript/react-metricas.js` | Componente React 18 vía CDN que anima las métricas de la vista previa en `index.html`.                             |
 | `html/crear-usuario.html` | Formulario administrativo con controles y botones de Bootstrap.                                                       |
 | `css/base.css`        | Paleta de colores compartida (`--green`, `--ink`, `--accent`...) y `box-sizing`.                                           |
 | `css/landing.css`     | Estilos de `index.html`.                                                                                                   |
 | `css/login.css`       | Estilos de `login.html`.                                                                                                   |
 | `javascript/login.js` | Alterna visibilidad de contraseña, envía credenciales a `POST /api/auth/login` con `fetch` y redirige según el estado/rol. |
+| `javascript/cambiar-clave.js` | Envía `POST /api/auth/cambiar-clave`, actualiza la sesión local y redirige al usuario a su página de inicio.          |
 
 ### Backend
 
