@@ -15,3 +15,23 @@
 * {
   box-sizing: border-box;
 }
+
+/* Insignias de rol: cada rol tiene su propio color para distinguirlos a simple vista. */
+.rol-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1.5;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.rol-administrador { background: #f6e3b4; color: #5a3d00; border-color: #d4a343; }
+.rol-analista      { background: #dbeafe; color: #1e3a8a; border-color: #93b4f0; }
+.rol-investigador  { background: #ece3fa; color: #54279a; border-color: #b99be6; }
+.rol-medico        { background: #d5f0ee; color: #0d5a55; border-color: #7cc7c0; }
+.rol-otro          { background: #e7eee8; color: #1e4e41; border-color: #b9c9bf; }
+
+/* SweetAlert2 siempre por encima de los modales propios */
+.swal2-container { z-index: 3000 !important; }

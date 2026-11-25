@@ -7,8 +7,7 @@ const cajaError = document.getElementById("mensaje-error");
 const botonSubmit = document.getElementById("btn-submit");
 
 function mostrarError(mensaje) {
-  cajaError.textContent = mensaje;
-  cajaError.classList.remove("d-none");
+  HVNotificar.error(mensaje);
 }
 
 document.getElementById("btn-cancelar").addEventListener("click", () => HVAuth.cerrarSesion());
