@@ -205,6 +205,44 @@
 }
 
 /* Formato de impresión */
+/* ── Móvil ── */
+@media (max-width: 860px) {
+  .hoja-reporte {
+    padding: 20px 16px;
+  }
+  .membrete-reporte {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .metadatos-reporte {
+    text-align: left;
+  }
+  .metricas-resumen-doc {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .pie-reporte {
+    flex-direction: column;
+    gap: 28px;
+    margin-top: 24px;
+  }
+  .linea-firma {
+    width: min(220px, 80%);
+  }
+}
+@media (max-width: 520px) {
+  .rejilla-config {
+    grid-template-columns: 1fr;
+  }
+  .grupo-botones-descarga,
+  .grupo-botones-descarga .btn-descarga {
+    width: 100%;
+  }
+  .grupo-botones-descarga .btn-descarga {
+    justify-content: center;
+  }
+}
+
 @media print {
   body {
     background: white !important;

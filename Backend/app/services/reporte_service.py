@@ -6,9 +6,10 @@ Cumple estrictamente las consultas definidas en consultas_prueba.sql.
 import csv
 import io
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import case, func
 
 from app.extensions import db
+from app.utils.cache import cacheado
 from app.models import (
     CausaExterna, Diagnostico, Eps, Hospitalizacion as H,
     Municipio, Prestador, TipoUsuario, ViaIngreso,
@@ -22,9 +23,9 @@ def reporte_resumen_ejecutivo(anio=None):
         ViaIngreso.nombre.label("via_ingreso"),
         func.count(H.id_hospitalizacion).label("casos"),
         func.round(func.avg(H.dias_estancia), 2).label("estancia_promedio"),
-        func.sum(func.case((H.estado_salida == 1, 1), else_=0)).label("egresos_vivos"),
-        func.sum(func.case((H.estado_salida == 2, 1), else_=0)).label("fallecidos"),
-        func.round(100.0 * func.sum(func.case((H.estado_salida == 2, 1), else_=0)) / func.count(H.id_hospitalizacion), 2).label("mortalidad_pct")
+        func.sum(case((H.estado_salida == 1, 1), else_=0)).label("egresos_vivos"),
+        func.sum(case((H.estado_salida == 2, 1), else_=0)).label("fallecidos"),
+        func.round(100.0 * func.sum(case((H.estado_salida == 2, 1), else_=0)) / func.count(H.id_hospitalizacion), 2).label("mortalidad_pct")
     ).select_from(H)\
      .join(ViaIngreso, ViaIngreso.id_via == H.via_ingreso)
 
@@ -55,8 +56,8 @@ def reporte_epidemiologico(anio=None, limite=25):
         Diagnostico.grupo_cie10.label("grupo"),
         func.count(H.id_hospitalizacion).label("casos"),
         func.round(func.avg(H.dias_estancia), 2).label("estancia_promedio"),
-        func.sum(func.case((H.estado_salida == 2, 1), else_=0)).label("fallecidos"),
-        func.round(100.0 * func.sum(func.case((H.estado_salida == 2, 1), else_=0)) / func.count(H.id_hospitalizacion), 2).label("mortalidad_pct")
+        func.sum(case((H.estado_salida == 2, 1), else_=0)).label("fallecidos"),
+        func.round(100.0 * func.sum(case((H.estado_salida == 2, 1), else_=0)) / func.count(H.id_hospitalizacion), 2).label("mortalidad_pct")
     ).select_from(H)\
      .join(Diagnostico, Diagnostico.codigo == H.id_dx_egreso)
 
@@ -85,11 +86,11 @@ def reporte_prestadores(anio=None, limite=20):
     """Comparativa de prestadores / IPS (Consulta 7.1)."""
     query = db.session.query(
         H.id_prestador,
-        func.coalesce(Prestador.nombre, "Sin nombre").label("prestador"),
+        func.coalesce(Prestador.nombre, "Prestador sin nombre").label("prestador"),
         func.count(H.id_hospitalizacion).label("hospitalizaciones"),
         func.round(func.avg(H.dias_estancia), 2).label("estancia_promedio"),
-        func.sum(func.case((H.estado_salida == 2, 1), else_=0)).label("fallecidos"),
-        func.round(100.0 * func.sum(func.case((H.estado_salida == 2, 1), else_=0)) / func.count(H.id_hospitalizacion), 2).label("mortalidad_pct")
+        func.sum(case((H.estado_salida == 2, 1), else_=0)).label("fallecidos"),
+        func.round(100.0 * func.sum(case((H.estado_salida == 2, 1), else_=0)) / func.count(H.id_hospitalizacion), 2).label("mortalidad_pct")
     ).select_from(H)\
      .join(Prestador, Prestador.id_prestador == H.id_prestador)
 
@@ -117,11 +118,11 @@ def reporte_eps(anio=None, limite=20):
     """Comparativa por aseguradora / EPS (Consulta 7.2)."""
     query = db.session.query(
         H.id_eps,
-        func.coalesce(Eps.nombre, H.id_eps).label("eps"),
+        func.coalesce(Eps.nombre, "EPS sin nombre").label("eps"),
         func.count(H.id_hospitalizacion).label("hospitalizaciones"),
         func.round(func.avg(H.dias_estancia), 2).label("estancia_promedio"),
-        func.sum(func.case((H.estado_salida == 2, 1), else_=0)).label("fallecidos"),
-        func.round(100.0 * func.sum(func.case((H.estado_salida == 2, 1), else_=0)) / func.count(H.id_hospitalizacion), 2).label("mortalidad_pct")
+        func.sum(case((H.estado_salida == 2, 1), else_=0)).label("fallecidos"),
+        func.round(100.0 * func.sum(case((H.estado_salida == 2, 1), else_=0)) / func.count(H.id_hospitalizacion), 2).label("mortalidad_pct")
     ).select_from(H)\
      .join(Eps, Eps.id_eps == H.id_eps)
 
@@ -163,8 +164,22 @@ def exportar_csv(datos, columnas=None):
     return output.getvalue()
 
 
-def generar_reporte_completo(tipo_reporte, anio=None):
-    """Consolida metadatos, tablas y resumen para visualización y exportación."""
+LIMITE_MAXIMO = 1000  # "Todos los registros": tope de seguridad para no devolver tablas enormes
+
+
+def generar_reporte_completo(tipo_reporte, anio=None, limite=25):
+    """Reporte listo para mostrar/exportar; la fecha de emisión siempre es la actual."""
+    reporte = _reporte_cacheado(tipo_reporte, anio, limite)
+    metadatos = dict(reporte["metadatos"],
+                     fecha_generacion=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    return {**reporte, "metadatos": metadatos}
+
+
+@cacheado()  # consultas de 4-30 s sobre ~830 mil filas; los datos históricos no cambian
+def _reporte_cacheado(tipo_reporte, anio, limite):
+    """Consolida metadatos, tablas y resumen para visualización y exportación.
+    limite=None devuelve todos los registros (hasta LIMITE_MAXIMO)."""
+    limite = LIMITE_MAXIMO if limite is None else min(limite, LIMITE_MAXIMO)
     fecha_generacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     if tipo_reporte == "resumen_ejecutivo":
@@ -173,15 +188,15 @@ def generar_reporte_completo(tipo_reporte, anio=None):
         columnas = ["anio", "via_ingreso", "casos", "estancia_promedio", "egresos_vivos", "fallecidos", "mortalidad_pct"]
     elif tipo_reporte == "epidemiologico":
         titulo = "Reporte Epidemiológico de Diagnósticos Principales (CIE-10)"
-        filas = reporte_epidemiologico(anio=anio)
+        filas = reporte_epidemiologico(anio=anio, limite=limite)
         columnas = ["codigo", "descripcion", "grupo", "casos", "estancia_promedio", "fallecidos", "mortalidad_pct"]
     elif tipo_reporte == "prestadores":
         titulo = "Reporte Comparativo de Desempeño por Prestador (IPS)"
-        filas = reporte_prestadores(anio=anio)
+        filas = reporte_prestadores(anio=anio, limite=limite)
         columnas = ["id_prestador", "prestador", "hospitalizaciones", "estancia_promedio", "fallecidos", "mortalidad_pct"]
     elif tipo_reporte == "eps":
         titulo = "Reporte de Ocupación por Aseguradora (EPS)"
-        filas = reporte_eps(anio=anio)
+        filas = reporte_eps(anio=anio, limite=limite)
         columnas = ["id_eps", "eps", "hospitalizaciones", "estancia_promedio", "fallecidos", "mortalidad_pct"]
     else:
         titulo = "Reporte General de Hospitalizaciones"

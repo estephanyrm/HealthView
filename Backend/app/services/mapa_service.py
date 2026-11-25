@@ -9,6 +9,12 @@ from app.models import Departamento, Hospitalizacion as H, Municipio
 from app.services import dashboard_service as dash
 from app.utils.errors import ApiError
 from app.utils.cache import cacheado
+from app.utils.nombres_municipios import MUNICIPIOS_ANTIOQUIA
+
+
+def nombre_municipio(id_municipio, nombre):
+    """El catálogo de la BD llegó casi sin nombres: se completan con los oficiales de Antioquia."""
+    return nombre or MUNICIPIOS_ANTIOQUIA.get(id_municipio) or f"Municipio sin nombre ({id_municipio})"
 
 
 def _fila(n, estancia, muertos):
@@ -35,7 +41,7 @@ def panel(args):
 
     municipios, deptos = [], {}
     for idm, nombre, cod, dep, n, est, mu in filas:
-        municipios.append({"id_municipio": idm, "nombre": nombre, "cod_depto": cod,
+        municipios.append({"id_municipio": idm, "nombre": nombre_municipio(idm, nombre), "cod_depto": cod,
                            "departamento": dep, **_fila(n, est, mu)})
         d = deptos.setdefault(cod, {"cod_depto": cod, "nombre": dep, "n": 0, "est": 0.0, "mu": 0})
         d["n"] += n; d["est"] += float(est or 0) * n; d["mu"] += int(mu or 0)
@@ -57,5 +63,5 @@ def detalle(id_municipio, args):
         raise ApiError("Municipio no encontrado.", 404)
     f = {"anio": dash._anio(args), "municipio": id_municipio}
     kpis = dash._indicadores(f)
-    return {"id_municipio": id_municipio, "nombre": muni.nombre, "indicadores": kpis,
+    return {"id_municipio": id_municipio, "nombre": nombre_municipio(id_municipio, muni.nombre), "indicadores": kpis,
             "diagnosticos": dash._diagnosticos(f, "egreso", 3, kpis["hospitalizaciones"])}

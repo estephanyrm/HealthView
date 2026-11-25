@@ -8,6 +8,10 @@ const $ = (id) => document.getElementById(id);
 const esc = (t) =>
   String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
+// Algunos municipios llegan sin nombre desde la BD (catálogo incompleto): se usa el del mapa.
+const NOMBRE_SVG = Object.fromEntries(MAPA_ANTIOQUIA.municipios.map((g) => [g.id, g.nombre]));
+const nombreMunicipio = (m) => m.nombre || NOMBRE_SVG[m.id_municipio] || `Municipio ${m.id_municipio}`;
+
 // Escala de verdes (de base.css) y color para "sin datos"
 const ESCALA = ["#e7f0e9", "#bcd5c7", "#8fb3a5", "#5f8f7e", "#285c4d"];
 const SIN_DATOS = "#eef0ea";
@@ -37,10 +41,21 @@ $("btn-salir").addEventListener("click", async () => {
 });
 
 async function pedir(ruta) {
-  const r = await fetch(`${API_URL}${ruta}`, { credentials: "include" });
-  if (r.status === 401 || r.status === 403) {
+  let r;
+  try {
+    r = await fetch(`${API_URL}${ruta}`, { credentials: "include" });
+  } catch {
+    // Solo los fallos de red llegan aquí; un error de código ya no se disfraza de "sin conexión"
+    throw new Error("No se pudo conectar con el servidor. Verifica que la API esté encendida.");
+  }
+  if (r.status === 401) {
     HVAuth.limpiarSesion();
     window.location.href = "login.html";
+    throw new Error("sesion");
+  }
+  if (r.status === 403) {
+    // El rol no tiene acceso a este módulo: se vuelve al Panel con un aviso (sin cerrar sesión)
+    window.location.replace("dashboard.html?acceso=denegado");
     throw new Error("sesion");
   }
   const datos = await r.json();
@@ -61,10 +76,9 @@ async function cargar() {
     comparar();
   } catch (e) {
     if (e.message === "sesion") return;
-    HVNotificar.error(
-      e instanceof TypeError ? "No se pudo conectar con el servidor. Verifica que la API esté encendida." : e.message,
-      { reintentar: cargar },
-    );
+    console.error(e);
+    // pedir() ya convierte los fallos de red en un mensaje claro; aquí no se disfrazan otros errores
+    HVNotificar.error(e.message, { reintentar: cargar });
   }
 }
 
@@ -76,8 +90,8 @@ function llenarMunicipios() {
   ["sel-a", "sel-b"].forEach((id) => {
     const s = $(id), previo = s.value;
     s.length = 1;
-    [...estado.datos.municipios].sort((x, y) => x.nombre.localeCompare(y.nombre, "es"))
-      .forEach((m) => s.add(new Option(m.nombre, m.id_municipio)));
+    [...estado.datos.municipios].sort((x, y) => nombreMunicipio(x).localeCompare(nombreMunicipio(y), "es"))
+      .forEach((m) => s.add(new Option(nombreMunicipio(m), m.id_municipio)));
     s.value = previo;
   });
 }
@@ -118,7 +132,7 @@ function pintar() {
   svg.innerHTML = MAPA_ANTIOQUIA.municipios.map((g) => {
     const fila = estado.porId[g.id], val = valorDe(fila);
     const k = claseDe(val, c);
-    const nombre = fila?.nombre || g.nombre;
+    const nombre = fila ? nombreMunicipio(fila) : g.nombre;
     return `<path class="muni" data-id="${g.id}" d="${g.d}" fill-rule="evenodd"
       fill="${k < 0 ? SIN_DATOS : ESCALA[k]}" tabindex="0" role="button"
       aria-label="${esc(nombre)}: ${fila ? num(fila.hospitalizaciones) + " hospitalizaciones" : "sin datos"}"></path>`;
@@ -151,7 +165,7 @@ function pintarRanking() {
   $("lista-ranking").innerHTML = lista.length ? lista.map(({ f, v }, i) => `
     <li ${enMunicipios ? `class="clic" data-id="${f.id_municipio}" tabindex="0"` : ""}>
       <div class="dx-fila">
-        <span class="dx-nombre"><b>${i + 1}</b>${esc(f.nombre)}${enMunicipios ? "" : ""}</span>
+        <span class="dx-nombre"><b>${i + 1}</b>${esc(enMunicipios ? nombreMunicipio(f) : f.nombre)}</span>
         <span class="dx-cifra"><b>${m.fmt(v)}</b> · ${num(f.hospitalizaciones)} casos</span>
         <span class="dx-barra"><span style="width:${((100 * v) / max).toFixed(1)}%"></span></span>
       </div></li>`).join("") : '<li class="vacio">Sin datos para este periodo.</li>';
@@ -165,7 +179,7 @@ $("mapa").addEventListener("mousemove", (e) => {
   const fila = estado.porId[p.dataset.id];
   const g = MAPA_ANTIOQUIA.municipios.find((x) => x.id === p.dataset.id);
   tip.innerHTML = fila
-    ? `<b>${esc(fila.nombre)}</b>${num(fila.hospitalizaciones)} hospitalizaciones<br>Estancia ${dec(fila.estancia_promedio)} días · Mortalidad ${dec(fila.mortalidad, 2)} %`
+    ? `<b>${esc(nombreMunicipio(fila))}</b>${num(fila.hospitalizaciones)} hospitalizaciones<br>Estancia ${dec(fila.estancia_promedio)} días · Mortalidad ${dec(fila.mortalidad, 2)} %`
     : `<b>${esc(g.nombre)}</b>Sin hospitalizaciones registradas`;
   const caja = $("mapa").parentElement.getBoundingClientRect();
   tip.hidden = false;

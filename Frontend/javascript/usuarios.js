@@ -63,6 +63,10 @@ function renderizarTabla() {
       accionesHtml += `<button type="button" onclick="accionCambiarEstado(${u.id_usuario}, ${!u.activo})">${u.activo ? "Desactivar" : "Activar"}</button>`;
     }
     accionesHtml += `<button type="button" onclick="accionReiniciarClave(${u.id_usuario})">Reiniciar clave</button>`;
+    // Nadie puede eliminar su propia cuenta (el backend también lo impide)
+    if (u.id_usuario !== HVAuth.usuario()?.id_usuario) {
+      accionesHtml += `<button type="button" class="btn-eliminar-usuario" onclick="accionEliminar(${u.id_usuario})">Eliminar</button>`;
+    }
 
     tr.innerHTML = `
       <td class="col-nombre">${escapeHtml(u.nombre)}</td>
@@ -107,7 +111,7 @@ async function accionCambiarRol(id) {
       method: "PATCH",
       body: JSON.stringify({ rol: nuevoRol }),
     });
-    alert(`El rol de ${usuario.nombre} fue actualizado a ${nuevoRol.trim()}.`);
+    HVNotificar.toast(`El rol de ${usuario.nombre} fue actualizado a ${nuevoRol.trim()}.`);
     await cargarUsuarios();
   } catch (e) {
     HVNotificar.error(e.message);
@@ -133,7 +137,30 @@ async function accionCambiarEstado(id, nuevoEstado) {
       method: "PATCH",
       body: JSON.stringify({ activo: nuevoEstado }),
     });
-    alert(`Usuario ${usuario.nombre} ${nuevoEstado ? "activado" : "desactivado"} exitosamente.`);
+    HVNotificar.toast(`Usuario ${usuario.nombre} ${nuevoEstado ? "activado" : "desactivado"}.`);
+    await cargarUsuarios();
+  } catch (e) {
+    HVNotificar.error(e.message);
+  }
+}
+
+// Acción: Eliminar usuario (definitivo; si solo se quiere quitar el acceso, usar Desactivar)
+async function accionEliminar(id) {
+  const usuario = buscarUsuario(id);
+  if (!usuario) return;
+
+  const acepta = await HVNotificar.confirmar({
+    titulo: "¿Eliminar usuario?",
+    texto: `Se eliminará definitivamente la cuenta de ${usuario.nombre} (${usuario.correo}). ` +
+      "Esta acción no se puede deshacer. Si solo quieres quitarle el acceso, usa Desactivar.",
+    confirmar: "Sí, eliminar",
+    peligro: true,
+  });
+  if (!acepta) return;
+
+  try {
+    await llamarApi(`${API_BASE}/${id}`, { method: "DELETE" });
+    HVNotificar.toast(`Usuario ${usuario.nombre} eliminado.`);
     await cargarUsuarios();
   } catch (e) {
     HVNotificar.error(e.message);

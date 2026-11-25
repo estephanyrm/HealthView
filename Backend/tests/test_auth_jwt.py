@@ -133,6 +133,29 @@ class AuthJWTTests(unittest.TestCase):
             r = self.client.post("/api/auth/cambiar-clave", headers=h, json=cuerpo)
             self.assertEqual(r.status_code, 400, cuerpo)
 
+    # eliminar usuarios
+    def _id(self, correo):
+        with self.app.app_context():
+            return Usuario.query.filter_by(correo=correo).first().id_usuario
+
+    def test_admin_elimina_usuario(self):
+        h = self.cabecera("admin@hv.co")
+        r = self.client.delete(f"/api/usuarios/{self._id('ana@hv.co')}", headers=h)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(self.client.get("/api/usuarios", headers=h).get_json()["datos"]), 2)
+
+    def test_no_puede_eliminarse_a_si_mismo(self):
+        r = self.client.delete(f"/api/usuarios/{self._id('admin@hv.co')}", headers=self.cabecera("admin@hv.co"))
+        self.assertEqual(r.status_code, 400)
+
+    def test_analista_no_puede_eliminar(self):
+        r = self.client.delete(f"/api/usuarios/{self._id('temp@hv.co')}", headers=self.cabecera("ana@hv.co"))
+        self.assertEqual(r.status_code, 403)
+
+    def test_eliminar_usuario_inexistente_404(self):
+        r = self.client.delete("/api/usuarios/9999", headers=self.cabecera("admin@hv.co"))
+        self.assertEqual(r.status_code, 404)
+
     def test_rutas_de_datos_exigen_token(self):
         for url in ["/api/dashboard", "/api/mapa/resumen", "/api/alertas", "/api/busqueda"]:
             self.assertIn(self.client.get(url).status_code, (401, 404), url)

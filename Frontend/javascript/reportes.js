@@ -1,5 +1,5 @@
 // Centro de Reportes y Exportación (reportes.html). Conexión con /api/reportes.
-const API_URL = "http://127.0.0.1:5000/api";
+const API_URL = HVAuth.API_URL;
 
 const $ = (id) => document.getElementById(id);
 
@@ -36,6 +36,12 @@ $("btn-salir").addEventListener("click", async () => {
 });
 
 // ───────── Cargar Reporte ─────────
+let solicitudReporte = 0;
+
+function mensajeTabla(texto) {
+  $("filas-reporte").innerHTML = `<tr><td colspan="7" class="tabla-vacia">${texto}</td></tr>`;
+}
+
 async function cargarReporte() {
   const { tipo, anio, limite } = estadoReportes;
   const endpointMap = {
@@ -43,28 +49,35 @@ async function cargarReporte() {
     epidemiologico: "epidemiologico",
     prestadores: "prestadores",
     eps: "eps",
-    alertas: "resumen",
   };
 
   const endpoint = endpointMap[tipo] || "resumen";
-  const params = new URLSearchParams();
+  const params = new URLSearchParams({ limite });
   if (anio !== "todos") params.set("anio", anio);
-  if (limite !== "all") params.set("limite", limite);
+
+  // Si el usuario cambia los filtros antes de que llegue la respuesta, solo se pinta la última
+  const turno = ++solicitudReporte;
+  estadoReportes.reporteActual = null;
+  mensajeTabla("Generando el reporte… la primera consulta de cada combinación puede tardar unos segundos.");
 
   try {
     const res = await fetch(`${API_URL}/reportes/${endpoint}?${params}`, {
       credentials: "include",
+    }).catch(() => {
+      throw new Error("No se pudo conectar con el servidor. Verifica que la API esté encendida.");
     });
-
-    if (res.ok) {
-      const data = await res.json();
-      renderizarReporte(data);
-    } else {
-      throw new Error("No se pudo cargar desde API Flask.");
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error?.mensaje || "No se pudo generar el reporte.");
     }
+    if (turno !== solicitudReporte) return;
+    renderizarReporte(data);
   } catch (err) {
-    console.warn("Usando motor de reportes local consolidado:", err);
-    renderizarReporte(generarReporteLocal(tipo, anio));
+    if (turno !== solicitudReporte) return;
+    // Nunca se muestran datos inventados en un reporte clínico: se informa el error
+    console.error("Fallo cargando el reporte:", err);
+    mensajeTabla("No se pudo generar el reporte.");
+    HVNotificar.error(err.message, { reintentar: cargarReporte });
   }
 }
 
@@ -264,347 +277,6 @@ $("select-limite-filas").addEventListener("change", (e) => {
   estadoReportes.limite = e.target.value;
   cargarReporte();
 });
-
-// ───────── Datos de Respaldo / Motor Local ─────────
-function generarReporteLocal(tipo, anio) {
-  const anioStr =
-    anio === "todos" ? "Todos los años (2019-2022)" : `Año ${anio}`;
-
-  if (tipo === "epidemiologico") {
-    return {
-      metadatos: {
-        plataforma: "HealthView - Universidad Libre",
-        tipo_reporte: "epidemiologico",
-        titulo: "Reporte Epidemiológico: Top Diagnósticos de Egreso CIE-10",
-        periodo: anioStr,
-        fecha_generacion: new Date().toLocaleString("es-CO"),
-        total_registros: 142850,
-      },
-      columnas: [
-        "codigo",
-        "descripcion",
-        "grupo",
-        "casos",
-        "estancia_promedio",
-        "fallecidos",
-        "mortalidad_pct",
-      ],
-      datos: [
-        {
-          codigo: "J449",
-          descripcion: "Enfermedad pulmonar obstructiva crónica",
-          grupo: "J",
-          casos: 24510,
-          estancia_promedio: 6.8,
-          fallecidos: 1820,
-          mortalidad_pct: 7.4,
-        },
-        {
-          codigo: "U071",
-          descripcion: "COVID-19, virus identificado",
-          grupo: "U",
-          casos: 21840,
-          estancia_promedio: 11.2,
-          fallecidos: 3150,
-          mortalidad_pct: 14.4,
-        },
-        {
-          codigo: "I10X",
-          descripcion: "Hipertensión esencial (primaria)",
-          grupo: "I",
-          casos: 19430,
-          estancia_promedio: 4.1,
-          fallecidos: 480,
-          mortalidad_pct: 2.5,
-        },
-        {
-          codigo: "I219",
-          descripcion: "Infarto agudo del miocardio",
-          grupo: "I",
-          casos: 16200,
-          estancia_promedio: 7.5,
-          fallecidos: 2680,
-          mortalidad_pct: 16.5,
-        },
-        {
-          codigo: "N390",
-          descripcion: "Infección del tracto urinario",
-          grupo: "N",
-          casos: 14890,
-          estancia_promedio: 4.6,
-          fallecidos: 320,
-          mortalidad_pct: 2.1,
-        },
-        {
-          codigo: "A09X",
-          descripcion: "Gastroenteritis y colitis infecciosa",
-          grupo: "A",
-          casos: 13520,
-          estancia_promedio: 3.2,
-          fallecidos: 110,
-          mortalidad_pct: 0.8,
-        },
-        {
-          codigo: "J189",
-          descripcion: "Neumonía no especificada",
-          grupo: "J",
-          casos: 12900,
-          estancia_promedio: 7.9,
-          fallecidos: 1540,
-          mortalidad_pct: 11.9,
-        },
-        {
-          codigo: "K358",
-          descripcion: "Apendicitis aguda",
-          grupo: "K",
-          casos: 10450,
-          estancia_promedio: 3.1,
-          fallecidos: 25,
-          mortalidad_pct: 0.2,
-        },
-        {
-          codigo: "O800",
-          descripcion: "Parto único espontáneo",
-          grupo: "O",
-          casos: 9110,
-          estancia_promedio: 2.1,
-          fallecidos: 4,
-          mortalidad_pct: 0.04,
-        },
-      ],
-    };
-  }
-
-  if (tipo === "prestadores") {
-    return {
-      metadatos: {
-        plataforma: "HealthView - Universidad Libre",
-        tipo_reporte: "prestadores",
-        titulo: "Reporte de Rendimiento y Carga Asistencial por IPS",
-        periodo: anioStr,
-        fecha_generacion: new Date().toLocaleString("es-CO"),
-        total_registros: 833586,
-      },
-      columnas: [
-        "id_prestador",
-        "prestador",
-        "hospitalizaciones",
-        "estancia_promedio",
-        "fallecidos",
-        "mortalidad_pct",
-      ],
-      datos: [
-        {
-          id_prestador: "050010012301",
-          prestador: "HOSPITAL GENERAL DE MEDELLIN",
-          hospitalizaciones: 184500,
-          estancia_promedio: 5.8,
-          fallecidos: 6820,
-          mortalidad_pct: 3.7,
-        },
-        {
-          id_prestador: "050010023401",
-          prestador: "HOSPITAL PABLO TOBON URIBE",
-          hospitalizaciones: 142100,
-          estancia_promedio: 6.4,
-          fallecidos: 5980,
-          mortalidad_pct: 4.2,
-        },
-        {
-          id_prestador: "050010034501",
-          prestador: "HOSPITAL SAN VICENTE FUNDACION",
-          hospitalizaciones: 128900,
-          estancia_promedio: 7.1,
-          fallecidos: 6100,
-          mortalidad_pct: 4.7,
-        },
-        {
-          id_prestador: "056150045601",
-          prestador: "CLINICA SOMER (RIONEGRO)",
-          hospitalizaciones: 94200,
-          estancia_promedio: 4.9,
-          fallecidos: 2950,
-          mortalidad_pct: 3.1,
-        },
-        {
-          id_prestador: "050880056701",
-          prestador: "HOSPITAL MARCO FIDEL SUAREZ (BELLO)",
-          hospitalizaciones: 78400,
-          estancia_promedio: 4.5,
-          fallecidos: 2410,
-          mortalidad_pct: 3.1,
-        },
-      ],
-    };
-  }
-
-  if (tipo === "eps") {
-    return {
-      metadatos: {
-        plataforma: "HealthView - Universidad Libre",
-        tipo_reporte: "eps",
-        titulo: "Reporte de Demanda Hospitalaria por Aseguradora (EPS)",
-        periodo: anioStr,
-        fecha_generacion: new Date().toLocaleString("es-CO"),
-        total_registros: 833586,
-      },
-      columnas: [
-        "id_eps",
-        "eps",
-        "hospitalizaciones",
-        "estancia_promedio",
-        "fallecidos",
-        "mortalidad_pct",
-      ],
-      datos: [
-        {
-          id_eps: "EPS001",
-          eps: "SURA EPS",
-          hospitalizaciones: 298400,
-          estancia_promedio: 5.2,
-          fallecidos: 9540,
-          mortalidad_pct: 3.2,
-        },
-        {
-          id_eps: "ESS024",
-          eps: "SAVIA SALUD EPS",
-          hospitalizaciones: 264100,
-          estancia_promedio: 6.1,
-          fallecidos: 11420,
-          mortalidad_pct: 4.3,
-        },
-        {
-          id_eps: "EPS002",
-          eps: "NUEVA EPS",
-          hospitalizaciones: 142300,
-          estancia_promedio: 5.9,
-          fallecidos: 5890,
-          mortalidad_pct: 4.1,
-        },
-        {
-          id_eps: "EPS005",
-          eps: "SANITAS EPS",
-          hospitalizaciones: 68900,
-          estancia_promedio: 4.8,
-          fallecidos: 1980,
-          mortalidad_pct: 2.9,
-        },
-        {
-          id_eps: "EPS008",
-          eps: "COOSALUD",
-          hospitalizaciones: 41200,
-          estancia_promedio: 5.5,
-          fallecidos: 1650,
-          mortalidad_pct: 4.0,
-        },
-      ],
-    };
-  }
-
-  // Default: resumen ejecutivo
-  return {
-    metadatos: {
-      plataforma: "HealthView - Universidad Libre",
-      tipo_reporte: "resumen_ejecutivo",
-      titulo: "Reporte Ejecutivo: Hospitalizaciones por Vía de Ingreso",
-      periodo: anioStr,
-      fecha_generacion: new Date().toLocaleString("es-CO"),
-      total_registros: 833586,
-    },
-    columnas: [
-      "anio",
-      "via_ingreso",
-      "casos",
-      "estancia_promedio",
-      "egresos_vivos",
-      "fallecidos",
-      "mortalidad_pct",
-    ],
-    datos: [
-      {
-        anio: 2022,
-        via_ingreso: "Urgencias",
-        casos: 162400,
-        estancia_promedio: 5.9,
-        egresos_vivos: 156320,
-        fallecidos: 6080,
-        mortalidad_pct: 3.7,
-      },
-      {
-        anio: 2022,
-        via_ingreso: "Consulta externa o programada",
-        casos: 42100,
-        estancia_promedio: 3.8,
-        egresos_vivos: 41650,
-        fallecidos: 450,
-        mortalidad_pct: 1.1,
-      },
-      {
-        anio: 2022,
-        via_ingreso: "Remitido",
-        casos: 24300,
-        estancia_promedio: 7.6,
-        egresos_vivos: 22890,
-        fallecidos: 1410,
-        mortalidad_pct: 5.8,
-      },
-      {
-        anio: 2022,
-        via_ingreso: "Nacimiento en la institución",
-        casos: 12500,
-        estancia_promedio: 2.2,
-        egresos_vivos: 12485,
-        fallecidos: 15,
-        mortalidad_pct: 0.1,
-      },
-      {
-        anio: 2021,
-        via_ingreso: "Urgencias",
-        casos: 178900,
-        estancia_promedio: 6.8,
-        egresos_vivos: 169950,
-        fallecidos: 8950,
-        mortalidad_pct: 5.0,
-      },
-      {
-        anio: 2021,
-        via_ingreso: "Consulta externa o programada",
-        casos: 31200,
-        estancia_promedio: 4.1,
-        egresos_vivos: 30810,
-        fallecidos: 390,
-        mortalidad_pct: 1.2,
-      },
-      {
-        anio: 2021,
-        via_ingreso: "Remitido",
-        casos: 28900,
-        estancia_promedio: 8.4,
-        egresos_vivos: 26820,
-        fallecidos: 2080,
-        mortalidad_pct: 7.2,
-      },
-      {
-        anio: 2020,
-        via_ingreso: "Urgencias",
-        casos: 152100,
-        estancia_promedio: 6.5,
-        egresos_vivos: 144800,
-        fallecidos: 7300,
-        mortalidad_pct: 4.8,
-      },
-      {
-        anio: 2019,
-        via_ingreso: "Urgencias",
-        casos: 148200,
-        estancia_promedio: 5.1,
-        egresos_vivos: 143600,
-        fallecidos: 4600,
-        mortalidad_pct: 3.1,
-      },
-    ],
-  };
-}
 
 // Inicialización
 verificarSesion();

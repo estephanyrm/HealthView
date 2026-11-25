@@ -7,6 +7,7 @@ from sqlalchemy import case, func, text
 
 from app.extensions import db
 from app.models import Diagnostico, Hospitalizacion as H, Prestador
+from app.utils.cache import cacheado
 from app.utils.errors import ApiError
 
 
@@ -53,7 +54,7 @@ def obtener_alertas_epidemiologicas(anio=None, umbral_desviacion=2.0):
             FROM mensual m
         )
         SELECT s.id_dx_egreso AS codigo,
-               COALESCE(d.descripcion, 'Diagnóstico ' || s.id_dx_egreso) AS descripcion,
+               COALESCE(d.descripcion, CONCAT('Diagnóstico ', s.id_dx_egreso)) AS descripcion,
                d.grupo_cie10 AS grupo,
                s.mes,
                s.casos,
@@ -283,6 +284,7 @@ def obtener_alertas_mortalidad(anio=None):
     return alertas
 
 
+@cacheado()  # las cuatro consultas recorren toda la tabla: se guardan en caché
 def panel_alertas(args):
     """Consolida todas las alertas y estadísticas del Módulo 4."""
     anio = _anio(args)

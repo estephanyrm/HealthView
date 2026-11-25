@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="../javascript/auth.js" data-requiere="sesion"></script>
   </head>
   <body>
     <div class="app">
@@ -56,7 +57,8 @@
           </div>
           <section class="tarjeta" aria-labelledby="titulo-tendencias">
             <h1 id="titulo-tendencias">Hospitalizaciones por mes</h1>
-            <p class="subtitulo">Compara el volumen mensual de hospitalizaciones del periodo seleccionado.</p>
+            <p class="subtitulo" id="sub-tendencias">Compara el volumen mensual de hospitalizaciones del periodo seleccionado.</p>
+            <p class="descripcion-grafica" id="tipo-tendencias">Gráfica de líneas: una serie por año para comparar el volumen mensual.</p>
             <div class="lienzo">
               <canvas id="grafica-tendencias" role="img" aria-label="Tendencia mensual de hospitalizaciones"></canvas>
             </div>

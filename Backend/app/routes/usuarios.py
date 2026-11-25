@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, g, jsonify, request
 
 from app.services import usuario_service
 from app.utils.auth import ROL_ADMIN, rol_requerido
@@ -53,3 +53,10 @@ def actualizar_estado(id_usuario):
 def reiniciar_clave(id_usuario):
     resultado = usuario_service.reiniciar_clave(id_usuario)
     return jsonify(resultado), 200
+
+
+@bp.delete("/<int:id_usuario>")
+@rol_requerido(ROL_ADMIN)
+def eliminar(id_usuario):
+    datos = usuario_service.eliminar_usuario(id_usuario, g.usuario_actual.id_usuario)
+    return jsonify({"usuario": datos, "mensaje": "Usuario eliminado definitivamente."}), 200

@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Configuración | HealthView</title>
     <link rel="icon" href="../img/logo-icono.png" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/registros.css" />
+    <script src="../javascript/auth.js" data-requiere="admin"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+    <script src="../javascript/ui.js"></script>
   </head>
   <body>
     <div class="app">
@@ -42,18 +42,83 @@
             <button type="button" id="btn-salir" class="enlace-boton">Cerrar sesión</button>
           </p>
         </header>
-        <main class="contenido">
-          <section class="tarjeta" aria-labelledby="titulo-configuracion">
-            <h1 id="titulo-configuracion">Configuración del sistema</h1>
-            <p class="subtitulo">
-              La API actual no expone opciones de configuración global. La gestión de cuentas está disponible en
-              <a href="usuarios.html">Usuarios</a>; aquí no se aplican cambios ficticios.
-            </p>
+        <main class="contenido config-contenido">
+          <section class="registro-intro tarjeta">
+            <div>
+              <span class="modulo-etiqueta">Administración</span>
+              <h1>Configuración y estado del sistema</h1>
+              <p>Tu cuenta, la seguridad de acceso, el estado de la API y la base de datos, y los permisos de cada rol.</p>
+            </div>
+            <button type="button" id="btn-actualizar" class="boton-modulo boton-secundario">Actualizar estado</button>
+          </section>
+
+          <div class="config-grid">
+            <section class="tarjeta" aria-labelledby="titulo-cuenta">
+              <h2 id="titulo-cuenta">Mi cuenta</h2>
+              <p class="subtitulo">Datos de la sesión iniciada.</p>
+              <ul class="config-lista">
+                <li><span>Nombre</span><span id="cfg-nombre">—</span></li>
+                <li><span>Correo</span><span id="cfg-correo">—</span></li>
+                <li><span>Rol</span><span id="cfg-rol">—</span></li>
+                <li><span>Último acceso</span><span id="cfg-acceso">—</span></li>
+                <li><span>Sesión expira</span><span id="cfg-expira">—</span></li>
+              </ul>
+            </section>
+
+            <section class="tarjeta" aria-labelledby="titulo-clave">
+              <h2 id="titulo-clave">Cambiar mi contraseña</h2>
+              <p class="subtitulo">Mínimo 8 caracteres y distinta de la actual.</p>
+              <form id="form-clave" class="config-form">
+                <label>Contraseña actual<input id="clave-actual" type="password" autocomplete="current-password" required /></label>
+                <label>Nueva contraseña<input id="clave-nueva" type="password" minlength="8" autocomplete="new-password" required /></label>
+                <label>Confirmar nueva contraseña<input id="clave-confirmar" type="password" minlength="8" autocomplete="new-password" required /></label>
+                <button type="submit" id="btn-guardar-clave" class="boton-modulo">Actualizar contraseña</button>
+              </form>
+            </section>
+
+            <section class="tarjeta" aria-labelledby="titulo-sistema">
+              <h2 id="titulo-sistema">Estado del sistema</h2>
+              <p class="subtitulo">Conexión con la API y la base de datos.</p>
+              <ul class="config-lista">
+                <li><span>API</span><span id="cfg-api"><span class="estado-punto"></span>Comprobando…</span></li>
+                <li><span>Base de datos</span><span id="cfg-bd"><span class="estado-punto"></span>Comprobando…</span></li>
+                <li><span>Tiempo de respuesta</span><span id="cfg-latencia">—</span></li>
+                <li><span>Dirección de la API</span><span id="cfg-url">—</span></li>
+                <li><span>Años con datos</span><span id="cfg-anios">—</span></li>
+                <li><span>Hospitalizaciones registradas</span><span id="cfg-registros">—</span></li>
+              </ul>
+              <p class="subtitulo" style="margin-top: 12px">
+                Documentación interactiva de la API: <a id="cfg-docs" href="#" target="_blank" rel="noopener">Swagger UI</a>
+              </p>
+            </section>
+
+            <section class="tarjeta" aria-labelledby="titulo-usuarios">
+              <h2 id="titulo-usuarios">Usuarios de la plataforma</h2>
+              <p class="subtitulo">Resumen de cuentas por rol y estado.</p>
+              <ul class="config-lista" id="cfg-usuarios">
+                <li><span>Cargando…</span><span></span></li>
+              </ul>
+              <p class="acciones-enlaces">
+                <a class="boton-modulo boton-secundario" href="usuarios.html">Administrar usuarios</a>
+                <a class="boton-modulo boton-secundario" href="registros.html">Registros de hospitalización</a>
+              </p>
+            </section>
+          </div>
+
+          <section class="tarjeta" aria-labelledby="titulo-permisos">
+            <h2 id="titulo-permisos" style="font-size: 17px; font-weight: 700">Permisos por rol</h2>
+            <p class="subtitulo">Qué módulos puede abrir cada rol. La API valida estos permisos en cada petición.</p>
+            <p class="descripcion-grafica">Tabla de permisos: ✓ acceso permitido · — sin acceso.</p>
+            <div class="tabla-scroll" style="margin-top: 12px">
+              <table class="tabla tabla-permisos">
+                <thead id="permisos-cabecera"></thead>
+                <tbody id="permisos-cuerpo"></tbody>
+              </table>
+            </div>
           </section>
         </main>
       </div>
     </div>
-    <script src="../javascript/autorizacion.js"></script>
-    <script src="../javascript/sesion.js"></script>
+    <script src="../javascript/configuracion.js"></script>
   </body>
 </html>
