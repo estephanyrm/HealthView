@@ -6,7 +6,7 @@ from functools import wraps
 _guardado = {}
 
 
-def cacheado(segundos=600):
+def cacheado(segundos=6 * 3600):  # 6 h: los datos son históricos; limpiar() invalida al cambiar datos
     def decorador(f):
         @wraps(f)
         def envoltura(*args):
