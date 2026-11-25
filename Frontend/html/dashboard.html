@@ -115,6 +115,7 @@
             <article class="tarjeta grafica">
               <h2 id="titulo-mensual">Hospitalizaciones por mes</h2>
               <p class="subtitulo" id="sub-mensual"></p>
+              <p class="descripcion-grafica" id="tipo-mensual">Gráfica de barras: comparación de hospitalizaciones por mes.</p>
               <div class="lienzo">
                 <canvas
                   id="graf-mensual"
@@ -138,6 +139,7 @@
                   <button type="button" data-dx="ingreso">Ingreso</button>
                 </div>
               </div>
+              <p class="descripcion-grafica">Gráfica de barras horizontales: ranking de los 10 diagnósticos con más casos.</p>
               <ol class="ranking" id="lista-dx"></ol>
             </article>
 
@@ -146,6 +148,7 @@
               <p class="subtitulo">
                 Cantidad de hospitalizaciones por grupo de edad
               </p>
+              <p class="descripcion-grafica">Gráfica de barras apiladas divergentes: compara la distribución por edad y sexo.</p>
               <div class="lienzo">
                 <canvas
                   id="graf-piramide"
@@ -158,6 +161,7 @@
             <article class="tarjeta grafica">
               <h2>Vía de ingreso</h2>
               <p class="subtitulo">Cómo llegan los pacientes al hospital</p>
+              <p class="descripcion-grafica">Gráfica de dona: proporción de hospitalizaciones por vía de ingreso.</p>
               <div class="lienzo">
                 <canvas
                   id="graf-vias"

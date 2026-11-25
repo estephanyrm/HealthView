@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>HealthView | Datos de hospitalización para decidir mejor</title>
     <link rel="stylesheet" href="../css/base.css" />
-    <link rel="stylesheet" href="../css/landing.css" />
+    <link rel="stylesheet" href="../css/landing.css?v=fusion-2" />
     <script
       defer
       src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
@@ -175,68 +175,100 @@
       </section>
 
       <!-- Qué ofrecemos -->
-      <section id="ofrecemos" class="alt">
+      <section id="ofrecemos" class="alt ofrecemos">
         <div class="wrap">
           <h2>Qué ofrecemos</h2>
           <p class="lead">
             Ocho herramientas pensadas para explorar, comparar y anticipar.
           </p>
           <div class="mods">
-            <div>
-              <h3>Panel inteligente</h3>
-              <p>
-                Hospitalizaciones, pacientes por edad y sexo, diagnósticos
-                frecuentes, estancia promedio y tasas de egreso y mortalidad.
-              </p>
+            <div class="mod">
+              <article class="mod__card">
+                <div class="mod__top">
+                  <span class="mod__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span>
+                  <span class="mod__tag">En tiempo real</span>
+                </div>
+                <h3>Panel inteligente</h3>
+                <p>Hospitalizaciones, pacientes por edad y sexo, diagnósticos frecuentes, estancia promedio y tasas de egreso y mortalidad.</p>
+                <a class="mod__link" href="dashboard.html">Explorar métricas <span class="nw">clave <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>
+              </article>
             </div>
-            <div>
-              <h3>Análisis de tendencias</h3>
-              <p>
-                Comparación mensual y anual, enfermedades que más crecen y
-                temporadas de mayor demanda.
-              </p>
+            <div class="mod">
+              <article class="mod__card">
+                <div class="mod__top">
+                  <span class="mod__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span>
+                  <span class="mod__tag">Histórico y picos</span>
+                </div>
+                <h3>Análisis de tendencias</h3>
+                <p>Comparación mensual y anual, enfermedades que más crecen y temporadas de mayor demanda.</p>
+                <a class="mod__link" href="tendencias.html">Visualizar evolución <span class="nw">temporal <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>
+              </article>
             </div>
-            <div>
-              <h3>Mapa epidemiológico</h3>
-              <p>
-                Hospitalizaciones por municipio o departamento, y comparación
-                entre regiones.
-              </p>
+            <div class="mod">
+              <article class="mod__card">
+                <div class="mod__top">
+                  <span class="mod__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span>
+                  <span class="mod__tag">Georreferenciado</span>
+                </div>
+                <h3>Mapa epidemiológico</h3>
+                <p>Hospitalizaciones por municipio o departamento, y comparación entre regiones.</p>
+                <a class="mod__link" href="mapa.html">Explorar mapa <span class="nw">interactivo <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>
+              </article>
             </div>
-            <div>
-              <h3>Sistema de alertas</h3>
-              <p>
-                Avisos cuando una enfermedad sube de repente, la ocupación es
-                alta o hay estancias muy largas.
-              </p>
+            <div class="mod">
+              <article class="mod__card">
+                <div class="mod__top">
+                  <span class="mod__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg></span>
+                  <span class="mod__tag mod__tag--alert"><i class="mod__dot" aria-hidden="true"></i>Automatizado</span>
+                </div>
+                <h3>Sistema de alertas</h3>
+                <p>Avisos cuando una enfermedad sube de repente, la ocupación es alta o hay estancias muy largas.</p>
+                <a class="mod__link" href="alertas.html">Configurar <span class="nw">notificaciones <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>
+              </article>
             </div>
-            <div>
-              <h3>Búsqueda y filtros avanzados</h3>
-              <p>
-                Filtra por diagnóstico, edad, sexo, EPS, prestador, municipio y
-                fechas.
-              </p>
+            <div class="mod">
+              <article class="mod__card">
+                <div class="mod__top">
+                  <span class="mod__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/></svg></span>
+                  <span class="mod__tag mod__tag--neutral">Multicriterio</span>
+                </div>
+                <h3>Búsqueda y filtros avanzados</h3>
+                <p>Filtra por diagnóstico, edad, sexo, EPS, prestador, municipio y fechas.</p>
+                <a class="mod__link" href="busqueda.html">Segmentación <span class="nw">granular <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>
+              </article>
             </div>
-            <div>
-              <h3>Reportes automáticos</h3>
-              <p>
-                Exportación a PDF y Excel, indicadores a medida y resúmenes
-                ejecutivos.
-              </p>
+            <div class="mod">
+              <article class="mod__card">
+                <div class="mod__top">
+                  <span class="mod__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
+                  <span class="mod__tag">PDF y Excel</span>
+                </div>
+                <h3>Reportes automáticos</h3>
+                <p>Exportación a PDF y Excel, indicadores a medida y resúmenes ejecutivos.</p>
+                <a class="mod__link" href="reportes.html">Generar informes al <span class="nw">instante <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>
+              </article>
             </div>
-            <div>
-              <h3>Comparador de indicadores</h3>
-              <p>
-                Compara hospitales, municipios, aseguradoras y periodos de
-                tiempo.
-              </p>
+            <div class="mod">
+              <article class="mod__card">
+                <div class="mod__top">
+                  <span class="mod__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span>
+                  <span class="mod__tag">Benchmarking</span>
+                </div>
+                <h3>Comparador de indicadores</h3>
+                <p>Compara hospitales, municipios, aseguradoras y periodos de tiempo.</p>
+                <a class="mod__link" href="comparador.html">Iniciar <span class="nw">comparativa <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>
+              </article>
             </div>
-            <div>
-              <h3>Predicción<span class="new">Innovación</span></h3>
-              <p>
-                Estimación de hospitalizaciones futuras, ocupación y
-                enfermedades más frecuentes con aprendizaje automático.
-              </p>
+            <div class="mod">
+              <article class="mod__card mod__card--new">
+                <div class="mod__top">
+                  <span class="mod__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></span>
+                  <span class="mod__tag mod__tag--new"><svg viewBox="0 0 24 24" aria-hidden="true" class="mod__star"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>Innovación</span>
+                </div>
+                <h3>Predicción</h3>
+                <p>Estimación de hospitalizaciones futuras, ocupación y enfermedades más frecuentes con aprendizaje automático.</p>
+                <a class="mod__link" href="prediccion.html">Modelos predictivos con <span class="nw">IA <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>
+              </article>
             </div>
           </div>
         </div>
@@ -271,7 +303,7 @@
       </section>
 
       <!-- Datos -->
-      <section id="datos" class="alt">
+      <section id="datos" class="alt datos">
         <div class="wrap">
           <h2>Datos reales, depurados con cuidado</h2>
           <p class="lead">
@@ -330,17 +362,107 @@
             salud pueden ser claros para quien debe tomar decisiones.
           </p>
           <div class="team">
-            <div class="person">
-              <div class="avatar">BL</div>
-              Brandon Camilo Londoño
+            <div class="person person--verde">
+              <div class="person__scene">
+                <div class="person__card" tabindex="0" role="group" aria-label="Tarjeta de Brandon Camilo Londoño. Presiona Enter para ver la foto.">
+                  <!-- Cara frontal -->
+                  <div class="person__face person__front">
+                    <div class="person__top">
+                      <span class="person__badge" aria-hidden="true">BL</span>
+                      <span class="person__tag">Frontend</span>
+                    </div>
+                    <h3>Brandon Camilo Londoño</h3>
+                    <p class="person__role">Desarrollo web • Interfaz</p>
+                    <p class="person__uni">Universidad Libre • Grupo Chill</p>
+                    <p class="person__desc">Trabaja en la interfaz de HealthView: las páginas, los estilos y la forma en que se muestran los datos en pantalla.</p>
+                    <p class="person__label">Tecnologías</p>
+                    <ul class="person__stack"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>React</li></ul>
+                    <div class="person__foot">
+                      <a class="person__gh" href="https://github.com/Branlondo" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M12 .5A11.5 11.5 0 0 0 .5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg>github.com/branlondo</a>
+                      <a class="person__icon" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn de Brandon Camilo Londoño"><svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4v11.5H3V9.75Zm6.5 0h3.83v1.57h.06c.53-1 1.84-2.07 3.78-2.07 4.04 0 4.78 2.66 4.78 6.1v5.9h-4v-5.23c0-1.25-.02-2.85-1.74-2.85-1.74 0-2 1.36-2 2.76v5.32h-4V9.75Z"/></svg></a>
+                    </div>
+                    <span class="person__hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>Clic para ver la foto</span>
+                  </div>
+                  <!-- Cara trasera: foto -->
+                  <div class="person__face person__back" inert>
+                    <div class="person__photo">
+                      <span aria-hidden="true">BL</span>
+                      <img src="../img/equipo/brandon.jpg" alt="Foto de Brandon Camilo Londoño" loading="lazy" onerror="this.remove()" />
+                    </div>
+                    <h3>Brandon Camilo Londoño</h3>
+                    <p class="person__uni">Estudiante de la Universidad Libre</p>
+                    <span class="person__hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>Clic para volver</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="person">
-              <div class="avatar">MP</div>
-              Maria Paulina Páez
+            <div class="person person--ambar">
+              <div class="person__scene">
+                <div class="person__card" tabindex="0" role="group" aria-label="Tarjeta de Maria Paulina Páez. Presiona Enter para ver la foto.">
+                  <!-- Cara frontal -->
+                  <div class="person__face person__front">
+                    <div class="person__top">
+                      <span class="person__badge" aria-hidden="true">MP</span>
+                      <span class="person__tag">Pruebas y análisis</span>
+                    </div>
+                    <h3>Maria Paulina Páez</h3>
+                    <p class="person__role">Pruebas • Análisis de datos</p>
+                    <p class="person__uni">Universidad Libre • Grupo Chill</p>
+                    <p class="person__desc">Revisa que la plataforma funcione bien: pruebas, consistencia de los datos y conexión entre la interfaz y la API.</p>
+                    <p class="person__label">Tecnologías</p>
+                    <ul class="person__stack"><li>JavaScript</li><li>Python</li><li>Pruebas</li><li>Datos</li></ul>
+                    <div class="person__foot">
+                      <a class="person__gh" href="https://github.com/mariap-paezg" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M12 .5A11.5 11.5 0 0 0 .5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg>github.com/mariap-paezg</a>
+                      <a class="person__icon" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn de Maria Paulina Páez"><svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4v11.5H3V9.75Zm6.5 0h3.83v1.57h.06c.53-1 1.84-2.07 3.78-2.07 4.04 0 4.78 2.66 4.78 6.1v5.9h-4v-5.23c0-1.25-.02-2.85-1.74-2.85-1.74 0-2 1.36-2 2.76v5.32h-4V9.75Z"/></svg></a>
+                    </div>
+                    <span class="person__hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>Clic para ver la foto</span>
+                  </div>
+                  <!-- Cara trasera: foto -->
+                  <div class="person__face person__back" inert>
+                    <div class="person__photo">
+                      <span aria-hidden="true">MP</span>
+                      <img src="../img/equipo/maria.jpg" alt="Foto de Maria Paulina Páez" loading="lazy" onerror="this.remove()" />
+                    </div>
+                    <h3>Maria Paulina Páez</h3>
+                    <p class="person__uni">Estudiante de la Universidad Libre</p>
+                    <span class="person__hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>Clic para volver</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="person">
-              <div class="avatar">ER</div>
-              Estephany Ruales
+            <div class="person person--azul">
+              <div class="person__scene">
+                <div class="person__card" tabindex="0" role="group" aria-label="Tarjeta de Estephany Ruales. Presiona Enter para ver la foto.">
+                  <!-- Cara frontal -->
+                  <div class="person__face person__front">
+                    <div class="person__top">
+                      <span class="person__badge" aria-hidden="true">ER</span>
+                      <span class="person__tag">Backend y datos</span>
+                    </div>
+                    <h3>Estephany Ruales</h3>
+                    <p class="person__role">Base de datos • Backend</p>
+                    <p class="person__uni">Universidad Libre • Grupo Chill</p>
+                    <p class="person__desc">Trabaja en la base de datos y en la API: la limpieza de los registros, las consultas SQL y los servicios que alimentan el panel.</p>
+                    <p class="person__label">Tecnologías</p>
+                    <ul class="person__stack"><li>Python</li><li>Flask</li><li>MySQL</li><li>SQL</li></ul>
+                    <div class="person__foot">
+                      <a class="person__gh" href="https://github.com/estephanyrm" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M12 .5A11.5 11.5 0 0 0 .5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg>github.com/estephanyrm</a>
+                      <a class="person__icon" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn de Estephany Ruales"><svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4v11.5H3V9.75Zm6.5 0h3.83v1.57h.06c.53-1 1.84-2.07 3.78-2.07 4.04 0 4.78 2.66 4.78 6.1v5.9h-4v-5.23c0-1.25-.02-2.85-1.74-2.85-1.74 0-2 1.36-2 2.76v5.32h-4V9.75Z"/></svg></a>
+                    </div>
+                    <span class="person__hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>Clic para ver la foto</span>
+                  </div>
+                  <!-- Cara trasera: foto -->
+                  <div class="person__face person__back" inert>
+                    <div class="person__photo">
+                      <span aria-hidden="true">ER</span>
+                      <img src="../img/equipo/estephany.jpg" alt="Foto de Estephany Ruales" loading="lazy" onerror="this.remove()" />
+                    </div>
+                    <h3>Estephany Ruales</h3>
+                    <p class="person__uni">Estudiante de la Universidad Libre</p>
+                    <span class="person__hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>Clic para volver</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <p class="lead" style="font-size: 14px">
@@ -367,8 +489,9 @@
       </div>
     </footer>
     <script defer src="../javascript/fondo3d.js"></script>
-    <script defer src="../javascript/revelar.js"></script>
-    <script defer src="../javascript/navegacion.js"></script>
-    <script defer src="../javascript/carga.js"></script>
+    <script defer src="../javascript/revelar.js?v=typewriter-4"></script>
+    <script defer src="../javascript/navegacion.js?v=nav-underline-1"></script>
+    <script defer src="../javascript/equipo.js"></script>
+    <script defer src="../javascript/carga.js?v=typewriter-3"></script>
   </body>
 </html>
