@@ -210,17 +210,16 @@ def buscar(args):
     # Paginación
     try:
         pagina = max(int(args.get("page", 1)), 1)
-        por_pagina = min(max(int(args.get("per_page", 25)), 1), 100)
+        por_pagina = min(max(int(args.get("per_page", 10)), 1), 10)
     except ValueError:
         raise ApiError("'page' y 'per_page' deben ser enteros válidos.", 400)
 
     # Métricas y conteos agregados
-    total = query.count()
-
-    p = query.paginate(page=pagina, per_page=por_pagina, error_out=False)
+    total = query.order_by(None).count()
+    resultados = query.limit(por_pagina).offset((pagina - 1) * por_pagina).all()
 
     registros = []
-    for r in p.items:
+    for r in resultados:
         registros.append({
             "id_hospitalizacion": r.id_hospitalizacion,
             "numero_factura": r.numero_factura,
@@ -263,10 +262,10 @@ def buscar(args):
     return {
         "datos": registros,
         "paginacion": {
-            "pagina": p.page,
-            "por_pagina": p.per_page,
+            "pagina": pagina,
+            "por_pagina": por_pagina,
             "total": total,
-            "paginas": p.pages,
+            "paginas": (total + por_pagina - 1) // por_pagina,
         },
         "estadisticas_segmento": {
             "total_coincidencias": total,

@@ -71,9 +71,10 @@ async function cargar() {
     comparar();
   } catch (e) {
     if (e.message === "sesion") return;
-    console.error(e);
-    $("aviso-error-texto").textContent = e.message;
-    $("aviso-error").hidden = false;
+    HVNotificar.error(
+      e instanceof TypeError ? "No se pudo conectar con el servidor. Verifica que la API esté encendida." : e.message,
+      { reintentar: cargar },
+    );
   }
 }
 

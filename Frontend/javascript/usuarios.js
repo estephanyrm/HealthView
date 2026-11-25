@@ -35,27 +35,23 @@ function formatearAcceso(iso) {
   return isNaN(f) ? "Nunca" : f.toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" });
 }
 
-// Renderizado de la tabla de usuarios
-async function renderizarTabla() {
+// Renderiza los usuarios ya cargados, evitando una petición por cada tecla del filtro.
+function renderizarTabla() {
   const tbody = document.getElementById("tabla-usuarios-body");
   if (!tbody) return;
 
-  let usuarios;
-  try {
-    usuarios = (await llamarApi(API_BASE)).datos || [];
-  } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="6">${escapeHtml(e.message)}</td></tr>`;
-    return;
-  }
-
+  const usuarios = window.__usuarios || [];
+  const consulta = (document.getElementById("filtro-usuarios")?.value || "").trim().toLocaleLowerCase("es");
+  const rolFiltro = document.getElementById("filtro-rol-usuarios")?.value || "";
+  const filtrados = usuarios.filter((u) =>
+    (!consulta || `${u.nombre} ${u.correo}`.toLocaleLowerCase("es").includes(consulta)) &&
+    (!rolFiltro || u.rol === rolFiltro)
+  );
   tbody.innerHTML = "";
-  usuarios.forEach((u) => {
+  filtrados.forEach((u) => {
     const tr = document.createElement("tr");
 
-    const badgeRol =
-      u.rol === "Administrador"
-        ? '<span class="badge-admin">Administrador</span>'
-        : `<span class="badge-role">${escapeHtml(u.rol)}</span>`;
+    const badgeRol = HVRoles.html(u.rol);
 
     const badgeEstado = u.activo
       ? '<span class="badge-active">Activo</span>'
@@ -78,8 +74,20 @@ async function renderizarTabla() {
     `;
     tbody.appendChild(tr);
   });
-  // Se guardan para que las acciones muestren el nombre sin volver a pedirlos
-  window.__usuarios = usuarios;
+  const resumen = document.getElementById("resumen-usuarios");
+  if (resumen) resumen.textContent = `${filtrados.length} de ${usuarios.length} usuarios`;
+}
+
+async function cargarUsuarios() {
+  const tbody = document.getElementById("tabla-usuarios-body");
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6">Cargando usuarios…</td></tr>';
+  try {
+    window.__usuarios = (await llamarApi(API_BASE)).datos || [];
+    renderizarTabla();
+  } catch (error) {
+    tbody.innerHTML = `<tr><td colspan="6">${escapeHtml(error.message)}</td></tr>`;
+  }
 }
 
 function buscarUsuario(id) {
@@ -91,26 +99,18 @@ async function accionCambiarRol(id) {
   const usuario = buscarUsuario(id);
   if (!usuario) return;
 
-  const roles = ["Administrador", "Analista", "Investigador", "Médico"];
-  const nuevoRol = prompt(
-    `Cambiar rol para ${usuario.nombre} (actual: ${usuario.rol}):\n\nIngresa uno de los roles:\n- Administrador\n- Analista\n- Investigador\n- Médico`,
-    usuario.rol,
-  );
-  if (!nuevoRol) return;
-  if (!roles.includes(nuevoRol.trim())) {
-    alert("Rol no válido. Debes ingresar Administrador, Analista, Investigador o Médico.");
-    return;
-  }
+  const nuevoRol = await HVNotificar.elegirRol(usuario.nombre, usuario.rol);
+  if (!nuevoRol || nuevoRol === usuario.rol) return;
 
   try {
     await llamarApi(`${API_BASE}/${id}/rol`, {
       method: "PATCH",
-      body: JSON.stringify({ rol: nuevoRol.trim() }),
+      body: JSON.stringify({ rol: nuevoRol }),
     });
     alert(`El rol de ${usuario.nombre} fue actualizado a ${nuevoRol.trim()}.`);
-    renderizarTabla();
+    await cargarUsuarios();
   } catch (e) {
-    alert(e.message);
+    HVNotificar.error(e.message);
   }
 }
 
@@ -120,7 +120,13 @@ async function accionCambiarEstado(id, nuevoEstado) {
   if (!usuario) return;
 
   const accionTexto = nuevoEstado ? "activar" : "desactivar";
-  if (!confirm(`¿Estás seguro de que deseas ${accionTexto} la cuenta de ${usuario.nombre}?`)) return;
+  const acepta = await HVNotificar.confirmar({
+    titulo: `¿${accionTexto.charAt(0).toUpperCase() + accionTexto.slice(1)} cuenta?`,
+    texto: `¿Estás seguro de que deseas ${accionTexto} la cuenta de ${usuario.nombre}?`,
+    confirmar: `Sí, ${accionTexto}`,
+    peligro: !nuevoEstado,
+  });
+  if (!acepta) return;
 
   try {
     await llamarApi(`${API_BASE}/${id}/estado`, {
@@ -128,9 +134,9 @@ async function accionCambiarEstado(id, nuevoEstado) {
       body: JSON.stringify({ activo: nuevoEstado }),
     });
     alert(`Usuario ${usuario.nombre} ${nuevoEstado ? "activado" : "desactivado"} exitosamente.`);
-    renderizarTabla();
+    await cargarUsuarios();
   } catch (e) {
-    alert(e.message);
+    HVNotificar.error(e.message);
   }
 }
 
@@ -144,7 +150,7 @@ async function accionReiniciarClave(id) {
     const data = await llamarApi(`${API_BASE}/${id}/reiniciar-clave`, { method: "POST" });
     claveGenerada = data.contrasena_temporal;
   } catch (e) {
-    alert(e.message);
+    HVNotificar.error(e.message);
     return;
   }
 
@@ -170,7 +176,7 @@ async function accionReiniciarClave(id) {
   if (modal) {
     modal.style.display = "flex";
   } else {
-    alert(`Contraseña temporal para ${usuario.nombre}: ${claveGenerada}`);
+    HVNotificar.info(`Contraseña temporal para ${usuario.nombre}: ${claveGenerada}`, "Contraseña temporal");
   }
 }
 
@@ -191,7 +197,7 @@ async function guardarNuevaClave(e) {
   const nueva = document.getElementById("clave-nueva").value;
 
   if (nueva.length < 8) {
-    alert("La nueva contraseña debe tener al menos 8 caracteres.");
+    HVNotificar.aviso("La nueva contraseña debe tener al menos 8 caracteres.");
     return;
   }
 
@@ -201,16 +207,21 @@ async function guardarNuevaClave(e) {
       body: JSON.stringify({ contrasena_actual: actual, contrasena_nueva: nueva }),
     });
     HVAuth.guardarSesion(data.token, data.usuario);
-    alert("Contraseña actualizada exitosamente.");
+    HVNotificar.exito("Contraseña actualizada exitosamente.");
     cerrarModalCambiarClave();
     document.getElementById("form-cambiar-clave-modal").reset();
   } catch (err) {
-    alert(err.message);
+    HVNotificar.error(err.message);
   }
 }
 
-function cerrarSesion() {
-  if (confirm("¿Deseas cerrar tu sesión?")) HVAuth.cerrarSesion();
+async function cerrarSesion() {
+  const acepta = await HVNotificar.confirmar({
+    titulo: "Cerrar sesión",
+    texto: "¿Deseas cerrar tu sesión?",
+    confirmar: "Sí, cerrar sesión",
+  });
+  if (acepta) HVAuth.cerrarSesion();
 }
 
 // Inicialización
@@ -218,5 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const u = HVAuth.usuario();
   const etiqueta = document.getElementById("nombre-usuario-sesion");
   if (u && etiqueta) etiqueta.textContent = `${u.nombre} · ${u.rol}`;
-  renderizarTabla();
+  cargarUsuarios();
+  document.getElementById("filtro-usuarios")?.addEventListener("input", renderizarTabla);
+  document.getElementById("filtro-rol-usuarios")?.addEventListener("change", renderizarTabla);
 });

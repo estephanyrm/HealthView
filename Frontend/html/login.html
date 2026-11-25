@@ -25,6 +25,8 @@
     <title>Iniciar sesión | HealthView</title>
     <!-- titulo de la pagina -->
       <script src="../javascript/auth.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+    <script src="../javascript/ui.js"></script>
   </head>
   <body>
     <!-- Encabezado con la marca HealthView -->
@@ -112,8 +114,9 @@
                 >Recordarme</label
               >
             </div>
-            <!-- El proceso de recuperacion debe conectarse con el hospital -->
-            <span class="ayuda-recuperacion">¿Olvidaste tu contraseña?</span>
+            <a class="ayuda-recuperacion" href="recuperar-clave.html">
+              ¿Olvidaste tu contraseña?
+            </a>
           </div>
           <!-- Contenedor para mostrar errores de validación del servidor -->
           <div
@@ -131,6 +134,18 @@
             Iniciar sesión
           </button>
         </form>
+        <p class="registro-login">
+          ¿No tienes cuenta?
+          <a href="#registro" id="link-registro">Registrarme</a>
+        </p>
+        <div
+          id="mensaje-registro"
+          class="alert alert-info d-none py-2 small"
+          role="status"
+        >
+          El registro público está deshabilitado. Solicita una cuenta al
+          administrador de HealthView.
+        </div>
       </section>
     </main>
     <!-- cierre main -->

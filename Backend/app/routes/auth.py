@@ -1,4 +1,5 @@
 from flask import Blueprint, current_app, g, jsonify, request
+
 from app.services import auth_service
 from app.utils.auth import crear_token, login_requerido, token_requerido_clave_temporal
 from app.utils.errors import ApiError
@@ -33,7 +34,6 @@ def login():
 @bp.get("/me")
 @token_requerido_clave_temporal
 def yo():
-    """Devuelve el usuario del token con datos frescos de la BD (rol, estado, etc.)."""
     return jsonify({"usuario": g.usuario_actual.to_dict_publico()}), 200
 
 
@@ -47,6 +47,4 @@ def cambiar_clave():
 @bp.post("/logout")
 @login_requerido
 def logout():
-    # Los JWT no se guardan en el servidor: el cierre de sesión consiste en que el
-    # cliente descarte el token. El token deja de servir al expirar.
     return jsonify({"mensaje": "Sesión cerrada correctamente."}), 200

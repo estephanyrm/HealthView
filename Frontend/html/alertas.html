@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="../css/alertas.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
       <script src="../javascript/auth.js" data-requiere="sesion"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+    <script src="../javascript/ui.js"></script>
   </head>
   <body>
     <div class="app">
@@ -156,6 +158,7 @@
               <h2 class="tarjeta-titulo">
                 Distribución de Alertas por Categoría
               </h2>
+              <p class="descripcion-grafica">Gráfica de dona: proporción de alertas agrupadas por categoría.</p>
               <div class="contenedor-grafica">
                 <canvas id="grafica-distribucion"></canvas>
               </div>
@@ -164,6 +167,7 @@
               <h2 class="tarjeta-titulo">
                 Picos Epidemiológicos Detectados (Z-Score)
               </h2>
+              <p class="descripcion-grafica">Gráfica de barras: puntuación Z por diagnóstico; valores superiores a 2 indican un pico atípico.</p>
               <div class="contenedor-grafica">
                 <canvas id="grafica-zscore"></canvas>
               </div>

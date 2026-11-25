@@ -14,6 +14,8 @@
     <!-- Chart.js: librería de gráficas (versión fija) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
       <script src="../javascript/auth.js" data-requiere="sesion"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+    <script src="../javascript/ui.js"></script>
   </head>
   <body>
     <div class="app">
@@ -115,7 +117,7 @@
             <article class="tarjeta grafica">
               <h2 id="titulo-mensual">Hospitalizaciones por mes</h2>
               <p class="subtitulo" id="sub-mensual"></p>
-              <p class="tipo-grafica" id="tipo-mensual">Tipo: gráfica de barras</p>
+              <p class="descripcion-grafica" id="tipo-mensual">Gráfica de barras: comparación de hospitalizaciones por mes.</p>
               <div class="lienzo">
                 <canvas
                   id="graf-mensual"
@@ -139,9 +141,7 @@
                   <button type="button" data-dx="ingreso">Ingreso</button>
                 </div>
               </div>
-              <p class="tipo-grafica">
-                Tipo: ranking de barras horizontales (con código CIE-10, casos y porcentaje)
-              </p>
+              <p class="descripcion-grafica">Gráfica de barras horizontales: ranking de los 10 diagnósticos con más casos.</p>
               <ol class="ranking" id="lista-dx"></ol>
             </article>
 
@@ -150,9 +150,7 @@
               <p class="subtitulo">
                 Cantidad de hospitalizaciones por grupo de edad
               </p>
-              <p class="tipo-grafica">
-                Tipo: gráfica de barras horizontales opuestas (hombres a la izquierda, mujeres a la derecha)
-              </p>
+              <p class="descripcion-grafica">Gráfica de barras apiladas divergentes: compara la distribución por edad y sexo.</p>
               <div class="lienzo">
                 <canvas
                   id="graf-piramide"
@@ -165,9 +163,7 @@
             <article class="tarjeta grafica">
               <h2>Vía de ingreso</h2>
               <p class="subtitulo">Cómo llegan los pacientes al hospital</p>
-              <p class="tipo-grafica">
-                Tipo: gráfica de dona (la proporción de cada vía sobre el total)
-              </p>
+              <p class="descripcion-grafica">Gráfica de dona: proporción de hospitalizaciones por vía de ingreso.</p>
               <div class="lienzo">
                 <canvas
                   id="graf-vias"

@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+
 from app.services import usuario_service
 from app.utils.auth import ROL_ADMIN, rol_requerido
 from app.utils.errors import ApiError
@@ -23,16 +24,14 @@ def listar():
 @bp.post("")
 @rol_requerido(ROL_ADMIN)
 def crear():
-    datos = _json_o_error()
-    resultado = usuario_service.crear_usuario(datos)
+    resultado = usuario_service.crear_usuario(_json_o_error())
     return jsonify(resultado), 201
 
 
 @bp.patch("/<int:id_usuario>/rol")
 @rol_requerido(ROL_ADMIN)
 def actualizar_rol(id_usuario):
-    datos = _json_o_error()
-    nuevo_rol = datos.get("rol")
+    nuevo_rol = _json_o_error().get("rol")
     if not nuevo_rol:
         raise ApiError("El campo 'rol' es requerido.", 400)
     usuario = usuario_service.cambiar_rol(id_usuario, nuevo_rol)

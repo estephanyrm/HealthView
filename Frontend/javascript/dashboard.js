@@ -83,11 +83,12 @@ async function cargar() {
       );
     pintar(datos);
   } catch (e) {
-    $("aviso-error-texto").textContent =
+    HVNotificar.error(
       e instanceof TypeError
         ? "No se pudo conectar con el servidor. Verifica que la API esté encendida."
-        : e.message;
-    $("aviso-error").hidden = false;
+        : e.message,
+      { reintentar: cargar },
+    );
   } finally {
     document.body.classList.remove("cargando");
   }
@@ -225,7 +226,7 @@ function pintarMensual(series, anio) {
     $("sub-mensual").textContent =
       `Pico en ${MESES[datos.indexOf(max)]} (${num(max)}). La línea punteada es el promedio mensual.`;
     $("tipo-mensual").textContent =
-      "Tipo: gráfica de barras verticales con línea de promedio";
+      "Gráfica combinada de barras y línea: barras por mes y línea punteada para el promedio mensual.";
     reemplazar("graf-mensual", {
       type: "bar",
       data: {
@@ -269,7 +270,8 @@ function pintarMensual(series, anio) {
     $("titulo-mensual").textContent = "Hospitalizaciones por mes";
     $("sub-mensual").textContent =
       "Una línea por año, para comparar temporadas de mayor demanda.";
-    $("tipo-mensual").textContent = "Tipo: gráfica de líneas (una serie por año)";
+    $("tipo-mensual").textContent =
+      "Gráfica de líneas: compara el volumen mensual entre años.";
     reemplazar("graf-mensual", {
       type: "line",
       data: {

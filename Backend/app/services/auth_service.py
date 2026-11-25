@@ -35,23 +35,38 @@ def autenticar_usuario(datos):
     return usuario
 
 
+LONGITUD_MINIMA_CLAVE = 8
+
+
 def cambiar_clave(usuario, datos):
-    """Cambia la contraseña propia y retira la marca de contraseña temporal."""
+    """
+    Cambia la contraseña del usuario autenticado.
+
+    Valida la clave actual, la nueva y su confirmación; al guardar, marca la
+    cuenta con `debe_cambiar_clave = False` para desbloquear el resto de la API.
+    """
     if not isinstance(datos, dict):
         raise ApiError("El cuerpo de la petición debe ser un objeto JSON.", 400)
 
     actual = str(datos.get("contrasena_actual") or "")
     nueva = str(datos.get("contrasena_nueva") or "")
+    confirmacion = datos.get("contrasena_confirmacion")
 
     if not actual or not nueva:
-        raise ApiError("Debes ingresar la contraseña actual y la nueva.", 400)
-    # 400 (no 401) para que el cliente no confunda esto con una sesión vencida
+        raise ApiError(
+            "Debes ingresar la contraseña actual y la nueva contraseña.", 400
+        )
     if not check_password_hash(usuario.password_hash, actual):
         raise ApiError("La contraseña actual es incorrecta.", 400)
-    if len(nueva) < 8:
-        raise ApiError("La nueva contraseña debe tener al menos 8 caracteres.", 400)
-    if nueva == actual:
-        raise ApiError("La nueva contraseña debe ser distinta de la actual.", 400)
+    if len(nueva) < LONGITUD_MINIMA_CLAVE:
+        raise ApiError(
+            f"La nueva contraseña debe tener al menos {LONGITUD_MINIMA_CLAVE} caracteres.",
+            400,
+        )
+    if confirmacion is not None and str(confirmacion) != nueva:
+        raise ApiError("La confirmación de la nueva contraseña no coincide.", 400)
+    if check_password_hash(usuario.password_hash, nueva):
+        raise ApiError("La nueva contraseña debe ser diferente a la actual.", 400)
 
     usuario.password_hash = generate_password_hash(nueva)
     usuario.debe_cambiar_clave = False

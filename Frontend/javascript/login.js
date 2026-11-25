@@ -4,6 +4,8 @@ const API_URL = "http://127.0.0.1:5000/api";
 const botonMostrar = document.getElementById("mostrar-contrasena");
 const inputContrasena = document.getElementById("contrasena");
 const icono = botonMostrar.querySelector("i");
+const linkRegistro = document.getElementById("link-registro");
+const mensajeRegistro = document.getElementById("mensaje-registro");
 
 botonMostrar.addEventListener("click", () => {
   if (inputContrasena.type === "password") {
@@ -15,6 +17,11 @@ botonMostrar.addEventListener("click", () => {
     icono.classList.remove("fa-eye-slash");
     icono.classList.add("fa-eye");
   }
+});
+
+linkRegistro.addEventListener("click", (evento) => {
+  evento.preventDefault();
+  mensajeRegistro.classList.remove("d-none");
 });
 
 // Envío del formulario a Flask
@@ -50,8 +57,7 @@ const setupFormLogin = () => {
       if (!respuesta.ok) {
         // Si Flask devuelve 400, 401 o 403, mostramos el mensaje que envía ApiError
         const mensaje = datos.error?.mensaje || "Error al iniciar sesión.";
-        cajaError.textContent = mensaje;
-        cajaError.classList.remove("d-none");
+        HVNotificar.error(mensaje, { titulo: "No se pudo iniciar sesión" });
         return;
       }
 
@@ -71,9 +77,9 @@ const setupFormLogin = () => {
         window.location.href = "dashboard.html";
       }
     } catch (error) {
-      cajaError.textContent =
-        "No se pudo conectar con el servidor. Verifica que la API esté encendida.";
-      cajaError.classList.remove("d-none");
+      HVNotificar.error(
+        "No se pudo conectar con el servidor. Verifica que la API esté encendida.",
+      );
     } finally {
       botonSubmit.disabled = false;
       botonSubmit.textContent = "Iniciar sesión";

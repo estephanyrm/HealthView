@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/admin.css" />
       <script src="../javascript/auth.js" data-requiere="admin"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+    <script src="../javascript/ui.js"></script>
   </head>
   <body>
     <div class="admin-container">
@@ -25,32 +27,65 @@
         <div class="sidebar-group">
           <div class="sidebar-title">Análisis</div>
           <nav class="sidebar-menu">
-            <a class="sidebar-item" href="dashboard.html">Panel inteligente</a>
             <button
               class="sidebar-item"
               type="button"
-              onclick="alert('Módulo de Análisis: Tendencias')"
+              onclick="alert('Módulo de Análisis: Panel inteligente')"
+            >
+              Panel inteligente
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="HVNotificar.info('Módulo de Análisis: Panel inteligente')"
+            >
+              Panel inteligente
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="HVNotificar.info('Módulo de Análisis: Tendencias')"
             >
               Tendencias
             </button>
-            <a class="sidebar-item" href="mapa.html">Mapa epidemiológico</a>
-            <a class="sidebar-item" href="alertas.html">Alertas</a>
-            <a class="sidebar-item" href="busqueda.html">Búsqueda y filtros</a>
-            <a class="sidebar-item" href="reportes.html">Reportes</a>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Mapa epidemiológico')"
+            >
+              Mapa epidemiológico
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Alertas')"
+            >
+              Alertas
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Búsqueda y filtros')"
+            >
+              Búsqueda y filtros
+            </button>
+            <button
+              class="sidebar-item"
+              type="button"
+              onclick="alert('Módulo de Análisis: Reportes')"
+            >
+              Reportes
+            </button>
             <button
               class="sidebar-item"
               type="button"
               onclick="alert('Módulo de Análisis: Comparador')"
             >
               Comparador
-            </button>
-            <button
-              class="sidebar-item"
-              type="button"
-              onclick="alert('Módulo de Análisis: Predicción')"
-            >
+            </a>
+            <a class="sidebar-item" href="prediccion.html">
               Predicción
-            </button>
+            </a>
           </nav>
         </div>
 
@@ -59,20 +94,12 @@
           <div class="sidebar-title">Administración</div>
           <nav class="sidebar-menu">
             <a class="sidebar-item active" href="usuarios.html">Usuarios</a>
-            <button
-              class="sidebar-item"
-              type="button"
-              onclick="alert('Módulo de Registros de hospitalización')"
-            >
+            <a class="sidebar-item" href="registros.html">
               Registros de hospitalización
-            </button>
-            <button
-              class="sidebar-item"
-              type="button"
-              onclick="alert('Módulo de Configuración')"
-            >
+            </a>
+            <a class="sidebar-item" href="configuracion.html">
               Configuración
-            </button>
+            </a>
           </nav>
         </div>
       </aside>
@@ -90,22 +117,13 @@
           </div>
 
           <div class="topbar-profile">
-            <span>[Brandon Londoño] · Administrador</span>
+            <span id="nombre-usuario-sesion">Cargando usuario…</span>
             <span>·</span>
-            <button
-              type="button"
-              onclick="alert('Funcionalidad de cambio de contraseña.')"
-            >
+            <a href="cambiar-clave.html">
               Cambiar contraseña
-            </button>
+            </a>
             <span>·</span>
-            <button
-              type="button"
-              onclick="
-                if (confirm('¿Cerrar sesión?'))
-                  window.location.href = 'login.html';
-              "
-            >
+            <button type="button" id="btn-salir">
               Cerrar sesión
             </button>
           </div>
@@ -168,11 +186,12 @@
               <div class="form-field">
                 <label class="form-label" for="rol">Rol</label>
                 <select class="form-select" id="rol" name="rol" required>
-                  <option value="Administrador" selected>Administrador</option>
-                  <option value="Analista">Analista</option>
+                  <option value="Administrador">Administrador</option>
+                  <option value="Analista" selected>Analista</option>
                   <option value="Investigador">Investigador</option>
                   <option value="Médico">Médico</option>
                 </select>
+                <div id="rol-descripcion" style="margin-top: 8px; font-size: 13px"></div>
               </div>
 
               <p class="form-notice">

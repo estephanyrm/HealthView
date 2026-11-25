@@ -7,6 +7,15 @@
 const API_BASE = `${HVAuth.API_URL}/usuarios`;
 
 document.addEventListener("DOMContentLoaded", () => {
+  const usuarioActual = HVAuth.usuario();
+  const nombreSesion = document.getElementById("nombre-usuario-sesion");
+  if (nombreSesion && usuarioActual) {
+    nombreSesion.textContent = `${usuarioActual.nombre} · ${usuarioActual.rol}`;
+  }
+  document.getElementById("btn-salir")?.addEventListener("click", () => {
+    HVAuth.cerrarSesion();
+  });
+
   const form = document.getElementById("form-crear-usuario");
   const modal = document.getElementById("modal-resultado");
   const tempPassSpan = document.getElementById("temp-pass-display");
@@ -17,13 +26,19 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!form) return;
 
   function mostrarError(mensaje) {
-    if (alertError) {
-      alertError.textContent = mensaje;
-      alertError.style.display = "block";
-    } else {
-      alert(mensaje);
-    }
+    HVNotificar.error(mensaje, { titulo: "No se pudo crear el usuario" });
   }
+
+  // Muestra la insignia del rol elegido y a qué módulos tiene acceso
+  const selectRol = document.getElementById("rol");
+  const descRol = document.getElementById("rol-descripcion");
+  function mostrarDescripcionRol() {
+    if (!selectRol || !descRol) return;
+    const info = HVRoles.info[selectRol.value];
+    descRol.innerHTML = `${HVRoles.html(selectRol.value)} ${info ? info.acceso : ""}`;
+  }
+  selectRol?.addEventListener("change", mostrarDescripcionRol);
+  mostrarDescripcionRol();
 
   function restaurarBoton() {
     if (btnSubmit) {
@@ -74,13 +89,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (tempPassSpan) tempPassSpan.textContent = datos.contrasena_temporal;
+    HVNotificar.toast("Usuario creado exitosamente");
     if (modal) modal.style.display = "flex";
 
     form.reset();
     document.getElementById("rol").value = "Administrador";
-    restaurarBoton();
+
+    if (btnSubmit) {
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = "Crear usuario";
+    }
   });
 
+  function mostrarError(mensaje) {
+    if (alertError) {
+      alertError.textContent = mensaje;
+      alertError.style.display = "block";
+    } else {
+      alert(mensaje);
+    }
+  }
+
+  function obtenerUsuariosLocal() {
+    const raw = localStorage.getItem("healthview_usuarios");
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Botón Copiar Contraseña
   if (copyBtn) {
     copyBtn.addEventListener("click", () => {
       const pass = tempPassSpan ? tempPassSpan.textContent : "";

@@ -89,6 +89,16 @@ h1 {
     margin: 0 0 26px;
 }
 
+/* aviso mostrado en cambiar-clave.html con el usuario de la sesión */
+.aviso-clave {
+    margin: -12px 0 22px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--green);
+    background: var(--green-light);
+    color: var(--ink);
+    font-size: 13px;
+}
+
 /* ajustes de los campos de Bootstrap con los colores de la pagina */
 .formulario-login .form-label {
     color: var(--ink);
